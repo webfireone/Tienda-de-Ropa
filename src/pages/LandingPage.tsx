@@ -2,12 +2,15 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useProducts } from "@/hooks/useFirestore"
 import { HeroSection } from "@/components/dashboard/Decorative3D"
-import { Star, Quote, ArrowRight, Truck, RefreshCw, CreditCard, Shield, Sparkles } from "lucide-react"
-import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
-import { getTotalStock } from "@/lib/utils"
-import type { Product } from "@/types"
+import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles } from "lucide-react"
+
+const BRANDS = [
+  { name: "Sail", logo: "/logos/sail.jpg" },
+  { name: "OWOKO", logo: "/logos/owoko.jpg" },
+  { name: "Legacy", logo: "/logos/legacy.jpg" },
+  { name: "Billi", logo: "/logos/billi.jpg" },
+]
 
 const testimonials = [
   { name: "María G.", location: "Buenos Aires", text: "La calidad de las prendas es increíble. Me encanta la nueva colección.", rating: 5 },
@@ -19,8 +22,19 @@ const testimonials = [
 export function LandingPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
-  const { data: products = [] } = useProducts()
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+
+  const gradients = [
+    "from-violet-600/30 via-fuchsia-600/20 to-indigo-600/30",
+    "from-fuchsia-600/30 via-rose-600/20 to-violet-600/30",
+    "from-indigo-600/30 via-violet-600/20 to-fuchsia-600/30",
+    "from-rose-600/30 via-fuchsia-600/20 to-indigo-600/30",
+  ]
+  const borders = [
+    "border-violet-500/30 hover:border-violet-400/60",
+    "border-fuchsia-500/30 hover:border-fuchsia-400/60",
+    "border-indigo-500/30 hover:border-indigo-400/60",
+    "border-rose-500/30 hover:border-rose-400/60",
+  ]
 
   return (
     <div>
@@ -51,52 +65,66 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="bg-gradient-to-b from-transparent via-primary/5 to-transparent py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Productos</p>
-              <h2 className="font-display text-3xl font-bold">Destacados</h2>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("/catalog")}>
-              Ver todo <ArrowRight className="h-3 w-3" />
-            </Button>
-          </div>
+      {/* Nuestras Marcas */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 min-h-[420px] mx-6 my-16">
+        <div className="hero-grid absolute inset-0 opacity-30" />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {products.slice(0, 4).map((product, i) => {
-              const totalStock = getTotalStock(product)
-              return (
-                <div
-                  key={product.id}
-                  className="group cursor-pointer animate-fade-up"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                  onClick={() => setSelectedProduct(product)}
-                >
-                  <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-4 shadow-sm group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-500">
+        {/* Brand cards grid (right side) */}
+        <div className="absolute inset-y-0 right-0 w-1/2 md:w-3/5 flex items-center justify-center p-8 pointer-events-none">
+          <div className="grid grid-cols-2 gap-5 w-full max-w-sm">
+            {BRANDS.map((brand, i) => (
+              <div
+                key={brand.name}
+                className="relative aspect-square rounded-2xl bg-gradient-to-br from-card/60 via-card/40 to-card/60 backdrop-blur-sm border shadow-xl overflow-hidden group pointer-events-auto"
+                style={{ borderColor: "inherit" }}
+              >
+                {/* Gradient background overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${gradients[i]} opacity-60 group-hover:opacity-90 transition-opacity duration-500`} />
+                {/* Gradient border faux via inset */}
+                <div className={`absolute inset-0 rounded-2xl border ${borders[i]} transition-colors duration-300`} />
+                {/* Inner glow */}
+                <div className="absolute -inset-12 bg-gradient-to-br from-violet-500/10 via-fuchsia-500/10 to-transparent blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                {/* Logo */}
+                <div className="absolute inset-0 flex items-center justify-center p-6 z-10">
+                  <div className="relative w-full h-full">
                     <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      src={brand.logo}
+                      alt={brand.name}
+                      className="w-full h-full object-contain brightness-[1.2] contrast-[0.9]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    {totalStock < 10 && (
-                      <span className="absolute top-3 left-3 gradient-accent text-white text-[9px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
-                        Poco stock
-                      </span>
-                    )}
-                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-primary/10 group-hover:ring-primary/30 transition-all duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-500/50 via-fuchsia-500/50 to-indigo-500/50 mix-blend-color" />
                   </div>
-                  <h3 className="font-display text-base font-semibold mb-1">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-1 line-clamp-1">{product.description}</p>
-                  <p className="font-semibold text-primary">
-                    ${product.price.toLocaleString("es-AR")}
-                  </p>
                 </div>
-              )
-            })}
+                {/* Brand name label */}
+                <div className="absolute bottom-0 left-0 right-0 text-center pb-2 z-10">
+                  <span className="text-[10px] font-semibold tracking-widest uppercase text-white/50 group-hover:text-white/80 transition-colors duration-300">
+                    {brand.name}
+                  </span>
+                </div>
+                {/* Corner accents */}
+                <div className="absolute top-3 left-3 w-6 h-[1px] bg-gradient-to-r from-violet-400/60 to-transparent" />
+                <div className="absolute top-3 left-3 w-[1px] h-6 bg-gradient-to-b from-violet-400/60 to-transparent" />
+                <div className="absolute bottom-3 right-3 w-6 h-[1px] bg-gradient-to-l from-fuchsia-400/60 to-transparent" />
+                <div className="absolute bottom-3 right-3 w-[1px] h-6 bg-gradient-to-t from-fuchsia-400/60 to-transparent" />
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* Left text */}
+        <div className="relative z-10 flex flex-col justify-center h-full min-h-[420px] max-w-xl px-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-primary/10 text-xs font-semibold text-primary mb-6 w-fit shadow-sm">
+            <div className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+            Marcas exclusivas
+          </div>
+          <h2 className="font-display text-5xl md:text-6xl font-bold tracking-tight mb-4 leading-tight">
+            <span className="gradient-text">Nuestras</span>
+            <br />
+            <span className="gradient-text">Marcas</span>
+          </h2>
+          <p className="text-base text-muted-foreground leading-relaxed max-w-lg">
+            Sail, OWOKO, Legacy y Billi — calidad y estilo en cada prenda.
+          </p>
         </div>
       </section>
 
@@ -240,10 +268,6 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-
-      {selectedProduct && (
-        <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-      )}
     </div>
   )
 }

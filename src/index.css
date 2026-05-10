@@ -123,6 +123,8 @@ body {
   to { transform: rotate(0deg) translateX(60px) rotate(0deg); }
 }
 
+
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -140,6 +142,7 @@ body {
 .animate-fade-up { animation: fadeInUp 0.6s ease forwards; }
 .animate-orbit { animation: orbit 6s linear infinite; }
 .animate-orbit-reverse { animation: orbit-reverse 8s linear infinite; }
+
 .animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
 
 .shimmer {
@@ -170,3 +173,5 @@ body {
   transform: rotate(45deg);
   animation: shimmer 3s ease-in-out infinite;
 }
+
+
