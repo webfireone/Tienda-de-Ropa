@@ -16,6 +16,7 @@ import { LoginPage } from "@/pages/LoginPage"
 import { ConfigPage } from "@/pages/ConfigPage"
 import { OutletPage } from "@/pages/OutletPage"
 import { NuevaColeccionPage } from "@/pages/NuevaColeccionPage"
+import { MarketingPage } from "@/pages/MarketingPage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +49,7 @@ function App() {
                 <Route path="/config" element={<ConfigPage />} />
                 <Route path="/outlet" element={<OutletPage />} />
                 <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
+                <Route path="/marketing" element={<MarketingPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

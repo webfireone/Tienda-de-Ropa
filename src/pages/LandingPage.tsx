@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { HeroSection } from "@/components/dashboard/Decorative3D"
-import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles, AlertCircle } from "lucide-react"
+import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles, Tag, AlertCircle } from "lucide-react"
 import { useProducts } from "@/hooks/useFirestore"
+import { usePromotions } from "@/hooks/usePromotions"
 import { db } from "@/lib/firebase"
 import { collection, addDoc } from "firebase/firestore"
 
@@ -35,7 +36,9 @@ export function LandingPage() {
   const [subError, setSubError] = useState("")
   const [subLoading, setSubLoading] = useState(false)
   const { data: products = [] } = useProducts()
+  const { data: promotions = [] } = usePromotions()
   const [currentImages, setCurrentImages] = useState<string[]>([])
+  const activePromos = promotions.filter(p => p.active && new Date(p.startDate) <= new Date() && new Date(p.endDate) >= new Date())
 
   useEffect(() => {
     const urls = products.filter(p => p.imageUrl).map(p => p.imageUrl)
@@ -56,6 +59,36 @@ export function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 pt-8">
         <HeroSection />
       </section>
+
+      {/* Active promotions banner */}
+      {activePromos.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 pt-8">
+          <div className="flex flex-col gap-4">
+            {activePromos.map(p => (
+              <div key={p.id} className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/20 via-primary/10 to-card border border-primary/20 p-5 group cursor-pointer" onClick={() => navigate("/catalog")}>
+                <div className="flex items-center gap-4">
+                  <div className="hidden sm:flex w-14 h-14 rounded-xl bg-primary/30 items-center justify-center shrink-0">
+                    <Tag className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display text-lg font-bold text-foreground">{p.title}</h3>
+                    <p className="text-sm text-muted-foreground">{p.description}</p>
+                    <div className="flex flex-wrap items-center gap-3 mt-2">
+                      {p.discountPercent > 0 && (
+                        <span className="text-sm font-bold text-primary">{p.discountPercent}% OFF</span>
+                      )}
+                      {p.promoCode && (
+                        <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-primary/20 text-primary">{p.promoCode}</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">Ver colección →</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Features */}
       <section className="max-w-7xl mx-auto px-6 py-12">

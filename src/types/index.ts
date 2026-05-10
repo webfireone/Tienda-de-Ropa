@@ -124,3 +124,24 @@ export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const
 export const PRODUCT_STATUS = ["active", "draft", "archived"] as const
 
 export const SECCIONES = ["general", "outlet", "nueva-coleccion"] as const
+
+export interface Promotion {
+  id: string
+  title: string
+  description: string
+  discountPercent: number
+  promoCode: string
+  startDate: string
+  endDate: string
+  bannerImage: string
+  active: boolean
+  createdAt: string
+}
+
+export interface Subscriber {
+  id: string
+  email: string
+  subscribedAt: string
+  source: string
+  active: boolean
+}
