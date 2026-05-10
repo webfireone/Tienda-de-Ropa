@@ -1,10 +1,8 @@
 import { useState, useMemo } from "react"
 import { useCart } from "@/context/CartContext"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { SIZES } from "@/types"
 import type { Product } from "@/types"
-import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle } from "lucide-react"
+import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle, Check } from "lucide-react"
 import { cn, getTotalStock } from "@/lib/utils"
 
 interface ProductDetailModalProps {
@@ -36,12 +34,6 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     onClose()
   }
 
-  const seccionLabel = product.seccion === "outlet"
-    ? "Outlet"
-    : product.seccion === "nueva-coleccion"
-    ? "Nueva Colección"
-    : "General"
-
   const cantAddReason = useMemo(() => {
     if (!hasColors) return "Este producto no tiene colores configurados"
     if (!selectedColor) return "Seleccioná un color"
@@ -54,97 +46,104 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
+  const sectionBadge = product.seccion === "outlet"
+    ? { label: "OUTLET", className: "bg-red-600 text-white" }
+    : product.seccion === "nueva-coleccion"
+    ? { label: "NUEVO", className: "bg-black text-white" }
+    : null
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-card border border-primary/10 shadow-2xl animate-fade-up">
+      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto md:overflow-hidden rounded-xl bg-card border border-border shadow-2xl animate-fade-up">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-xl bg-muted/80 backdrop-blur-sm flex items-center justify-center hover:bg-muted transition-colors"
+          className="absolute top-5 right-5 z-20 w-9 h-9 rounded-full bg-muted hover:bg-secondary transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground"
         >
           <X className="h-4 w-4" />
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Image */}
-          <div className="relative aspect-square md:aspect-auto md:h-full bg-gradient-to-br from-muted to-card">
+          {/* Image — left half */}
+          <div className="relative aspect-square md:aspect-auto md:min-h-[560px] bg-muted overflow-hidden">
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-700"
             />
-            <div className="absolute top-3 left-3 flex gap-2">
-              {product.seccion === "outlet" && (
-                <span className="gradient-warm text-white text-[9px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
-                  Outlet
-                </span>
-              )}
-              {product.seccion === "nueva-coleccion" && (
-                <span className="gradient-cool text-white text-[9px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full shadow-lg">
-                  Nuevo
-                </span>
-              )}
-            </div>
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background/40 to-transparent" />
+            {sectionBadge && (
+              <span className={`absolute top-5 left-5 text-[10px] font-semibold tracking-widest px-3 py-1.5 ${sectionBadge.className}`}>
+                {sectionBadge.label}
+              </span>
+            )}
           </div>
 
-          {/* Details */}
-          <div className="p-6 flex flex-col gap-4">
+          {/* Details — right half */}
+          <div className="p-8 md:p-10 flex flex-col gap-5 overflow-y-auto max-h-[560px]">
+            {/* Brand & Title */}
             <div>
-              <p className="text-[10px] font-semibold tracking-widest uppercase text-primary mb-1">{product.brand}</p>
-              <h2 className="font-display text-2xl font-bold">{product.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{product.description}</p>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-2">{product.brand}</p>
+              <h2 className="font-display text-2xl font-bold text-foreground leading-tight">{product.name}</h2>
+              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{product.description}</p>
             </div>
 
-            <div className="flex items-baseline gap-3">
+            {/* Price */}
+            <div className="flex items-baseline gap-3 py-1">
               <span className="font-display text-3xl font-bold gradient-text">
                 ${product.price.toLocaleString("es-AR")}
               </span>
               {product.cost > 0 && (
-                <span className="text-xs text-muted-foreground line-through">
-                  ${(product.price * 1.3).toLocaleString("es-AR")}
+                <span className="text-sm text-muted-foreground line-through">
+                  ${(product.cost).toLocaleString("es-AR")}
                 </span>
               )}
             </div>
 
-            <div className="flex flex-wrap gap-1.5">
-              <Badge variant="outline">{product.category}</Badge>
-              <Badge variant="secondary">{product.material || "Varios"}</Badge>
-              <Badge variant="outline">{seccionLabel}</Badge>
+            {/* Category & Material */}
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="px-3 py-1.5 border border-border bg-card text-muted-foreground">{product.category}</span>
+              <span className="px-3 py-1.5 bg-secondary text-secondary-foreground border border-border">{product.material || "Varios"}</span>
             </div>
+
+            <hr className="border-border" />
 
             {/* Colors */}
             {hasColors ? (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Color</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  Color: <span className="text-foreground font-normal normal-case">{selectedColor || "Elegí uno"}</span>
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {product.colors.map(c => (
                     <button
                       key={c.name}
                       onClick={() => { setSelectedColor(c.name); setSelectedSize(""); setQuantity(1) }}
                       className={cn(
-                        "text-xs px-3 py-1.5 rounded-full transition-all",
+                        "text-xs px-4 py-2 border transition-all",
                         selectedColor === c.name
-                          ? "gradient-primary text-white shadow-sm"
-                          : "bg-muted/50 border border-primary/10 hover:border-primary/30"
+                          ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                          : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
                       )}
                     >
+                      {selectedColor === c.name && <Check className="inline h-3 w-3 mr-1.5 -mt-0.5" />}
                       {c.name}
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-900/20 border border-amber-800/30">
-                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
-                <p className="text-xs text-amber-300">Producto sin colores configurados</p>
+              <div className="flex items-center gap-2 p-3 bg-warning/10 border border-warning/30">
+                <AlertTriangle className="h-4 w-4 text-warning shrink-0" />
+                <p className="text-xs font-medium text-warning">Producto sin colores configurados</p>
               </div>
             )}
 
-            {/* Sizes for selected color */}
+            {/* Sizes */}
             {selectedColor && currentColor && (
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  Seleccionar talle <span className="text-foreground">({selectedColor})</span>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                  Talle: <span className="text-foreground font-normal normal-case">{selectedSize || "Seleccioná"}</span>
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {SIZES.map(size => {
@@ -160,17 +159,17 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                         disabled={disabled}
                         onClick={() => { setSelectedSize(size); setQuantity(1) }}
                         className={cn(
-                          "relative w-10 h-10 rounded-xl text-sm font-medium transition-all",
+                          "relative min-w-[44px] py-2.5 px-3 text-sm font-medium border transition-all",
                           selectedSize === size
-                            ? "gradient-primary text-white shadow-sm"
+                            ? "border-primary bg-primary text-primary-foreground shadow-sm"
                             : disabled
-                            ? "bg-muted/30 text-muted-foreground/30 line-through cursor-not-allowed"
-                            : "bg-muted/50 border border-primary/10 hover:border-primary/30 text-foreground"
+                            ? "border-border text-muted-foreground/30 line-through cursor-not-allowed bg-muted/30"
+                            : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
                         )}
                       >
                         {size}
                         {inCartForSize && (
-                          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-primary text-[7px] text-white flex items-center justify-center font-bold">
+                          <span className="absolute -top-2 -right-2 w-4.5 h-4.5 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold shadow-sm border border-card">
                             {inCartForSize.quantity}
                           </span>
                         )}
@@ -178,56 +177,55 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                     )
                   })}
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Stock disponible: {availableStock} uds.
-                  {inCartQty > 0 && ` (${inCartQty} en tu carrito)`}
+                <p className="text-xs text-muted-foreground mt-2">
+                  Stock: <span className="font-semibold text-foreground">{availableStock}</span> uds.
+                  {inCartQty > 0 && (
+                    <span className="text-foreground ml-1.5 font-medium">({inCartQty} en tu carrito)</span>
+                  )}
                 </p>
               </div>
             )}
 
-            {/* Tags */}
-            {product.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {product.tags.map((t, i) => (
-                  <span key={i} className="text-[9px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">{t}</span>
-                ))}
-              </div>
-            )}
-
-            {/* Quantity + Add */}
-            <div className="flex items-center gap-3 mt-auto pt-4 border-t border-primary/10">
+            {/* Quantity + Add to cart */}
+            <div className="flex items-center gap-3 mt-3">
               {showQty && (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center border border-border bg-card shadow-sm">
                   <button
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
                     disabled={quantity <= 1}
-                    className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
                   >
-                    <Minus className="h-3 w-3" />
+                    <Minus className="h-3.5 w-3.5" />
                   </button>
-                  <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                  <span className="w-10 text-center text-sm font-semibold border-x border-border h-10 flex items-center justify-center text-foreground">{quantity}</span>
                   <button
                     onClick={() => setQuantity(q => Math.min(maxQty, q + 1))}
                     disabled={quantity >= maxQty}
-                    className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="w-10 h-10 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
                   >
-                    <Plus className="h-3 w-3" />
+                    <Plus className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
-              <Button
-                className="flex-1 gap-2"
+              <button
                 disabled={!isConfigured || !!cantAddReason}
                 onClick={handleAdd}
+                className={cn(
+                  "flex-1 h-12 text-sm font-semibold tracking-wide transition-all flex items-center justify-center gap-2 shadow-sm",
+                  !isConfigured || cantAddReason
+                    ? "bg-muted text-muted-foreground/50 cursor-not-allowed shadow-none"
+                    : "bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98]"
+                )}
               >
                 <ShoppingCart className="h-4 w-4" />
                 {cantAddReason ?? "Agregar al carrito"}
-              </Button>
+              </button>
             </div>
 
-            <div className="flex items-center gap-4 text-[10px] text-muted-foreground">
-              <span className="flex items-center gap-1"><Package className="h-3 w-3" /> Stock total: {totalStock}</span>
-              <span className="flex items-center gap-1"><Tag className="h-3 w-3" /> {product.colors.length} colores</span>
+            {/* Extra info */}
+            <div className="flex items-center gap-5 text-xs text-muted-foreground pt-4 mt-1 border-t border-border">
+              <span className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5" /> Stock total: <span className="font-medium text-foreground">{totalStock}</span></span>
+              <span className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> <span className="font-medium text-foreground">{product.colors.length}</span> colores</span>
             </div>
           </div>
         </div>
