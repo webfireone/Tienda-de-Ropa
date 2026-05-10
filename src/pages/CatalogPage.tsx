@@ -5,7 +5,7 @@ import { PageHero } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, Grid3X3, List, Store, ArrowLeft } from "lucide-react"
+import { Search, Grid3X3, List, Store, ArrowLeft, Eye } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
@@ -17,12 +17,17 @@ export function CatalogPage() {
   const [search, setSearch] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null)
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.description.toLowerCase().includes(search.toLowerCase()) ||
-    p.brand.toLowerCase().includes(search.toLowerCase())
-  )
+  const brands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort()
+
+  const filtered = products.filter(p => {
+    const matchesSearch = !search || p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.description.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand.toLowerCase().includes(search.toLowerCase())
+    const matchesBrand = !selectedBrand || p.brand === selectedBrand
+    return matchesSearch && matchesBrand
+  })
 
   if (isLoading) {
     return (
@@ -42,6 +47,25 @@ export function CatalogPage() {
         Volver al inicio
       </button>
       <PageHero title="Catálogo de Productos" subtitle={`${filtered.length} productos disponibles`} icon={Store} />
+
+      {/* Brand filters */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
+        <button
+          onClick={() => setSelectedBrand(null)}
+          className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${!selectedBrand ? "gradient-primary text-white shadow-sm shadow-primary/25" : "bg-card border border-primary/10 text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+        >
+          Todas
+        </button>
+        {brands.map(brand => (
+          <button
+            key={brand}
+            onClick={() => setSelectedBrand(selectedBrand === brand ? null : brand)}
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 ${selectedBrand === brand ? "gradient-primary text-white shadow-sm shadow-primary/25" : "bg-card border border-primary/10 text-muted-foreground hover:border-primary/30 hover:text-foreground"}`}
+          >
+            {brand}
+          </button>
+        ))}
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 rounded-2xl bg-card border border-primary/10 shadow-sm">
         <div className="flex items-center gap-3 flex-1 max-w-md">
@@ -90,9 +114,10 @@ export function CatalogPage() {
                     <Badge variant="destructive" className="absolute top-3 left-3">Poco stock</Badge>
                   )}
                   {isAdmin && (
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity gradient-primary px-4 py-2 rounded-full shadow-lg">
-                        Gestionar
+                    <div className="absolute bottom-3 right-3">
+                      <span className="text-white text-[10px] font-semibold tracking-wide uppercase gradient-primary px-2.5 py-1.5 rounded-full shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Eye className="h-3 w-3" />
+                        Ver
                       </span>
                     </div>
                   )}

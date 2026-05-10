@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { HeroSection } from "@/components/dashboard/Decorative3D"
-import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles } from "lucide-react"
+import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles, AlertCircle } from "lucide-react"
 import { useProducts } from "@/hooks/useFirestore"
+import { db } from "@/lib/firebase"
+import { collection, addDoc } from "firebase/firestore"
 
 const testimonials = [
   { name: "María G.", location: "Buenos Aires", text: "La calidad de las prendas es increíble. Me encanta la nueva colección.", rating: 5 },
@@ -29,6 +31,9 @@ function pickRandom(arr: string[], count: number, exclude: string[] = []): strin
 export function LandingPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
+  const [subscribed, setSubscribed] = useState(false)
+  const [subError, setSubError] = useState("")
+  const [subLoading, setSubLoading] = useState(false)
   const { data: products = [] } = useProducts()
   const [currentImages, setCurrentImages] = useState<string[]>([])
 
@@ -204,35 +209,70 @@ export function LandingPage() {
       </section>
 
       {/* Newsletter */}
-      <section className="relative overflow-hidden gradient-primary py-20">
-        <div className="absolute inset-0 hero-grid opacity-10" />
-        <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-white/5 blur-3xl animate-float" />
-        <div className="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-white/5 blur-3xl animate-float-reverse" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-card via-background to-card border-y border-primary/10 py-20">
+        <div className="absolute inset-0 hero-grid opacity-5" />
+        <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-primary/5 blur-3xl animate-float" />
+        <div className="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-primary/5 blur-3xl animate-float-reverse" />
 
         <div className="max-w-xl mx-auto px-6 text-center relative z-10">
-          <Sparkles className="h-8 w-8 mx-auto mb-4 text-white/60" />
-          <h2 className="font-display text-3xl font-bold text-white mb-4">
+          <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary/60" />
+          <h2 className="font-display text-3xl font-bold text-foreground mb-4">
             ¿Listo para actualizar tu estilo?
           </h2>
-          <p className="text-base text-white/80 mb-8">
+          <p className="text-base text-muted-foreground mb-8">
             Suscribite y recibí 10% OFF en tu primera compra
           </p>
-          <form
-            onSubmit={(e) => { e.preventDefault(); setEmail("") }}
-            className="flex gap-3 max-w-md mx-auto"
-          >
-            <Input
-              type="email"
-              placeholder="Tu correo electrónico"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus-visible:ring-white rounded-xl"
-            />
-            <Button type="submit" className="bg-white text-primary hover:bg-white/90 shadow-xl whitespace-nowrap rounded-xl">
-              Suscribirme
-            </Button>
-          </form>
+          {!subscribed ? (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!email) return
+                setSubLoading(true)
+                setSubError("")
+                try {
+                  await addDoc(collection(db, "subscribers"), {
+                    email,
+                    subscribedAt: new Date().toISOString(),
+                    source: "landing-page",
+                    active: true,
+                  })
+                  setSubscribed(true)
+                } catch (err) {
+                  setSubError("Ocurrió un error al suscribirte. Intentá de nuevo.")
+                } finally {
+                  setSubLoading(false)
+                }
+              }}
+              className="flex flex-col gap-3 max-w-md mx-auto"
+            >
+              <div className="flex gap-3">
+                <Input
+                  type="email"
+                  placeholder="Tu correo electrónico"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setSubError("") }}
+                  required
+                  className="flex-1 bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-primary rounded-xl"
+                />
+                <Button type="submit" disabled={subLoading} className="bg-primary text-primary-foreground hover:opacity-90 shadow-xl whitespace-nowrap rounded-xl disabled:opacity-50">
+                  {subLoading ? "Enviando..." : "Suscribirme"}
+                </Button>
+              </div>
+              {subError && (
+                <p className="text-xs text-destructive flex items-center gap-1.5 justify-center">
+                  <AlertCircle className="h-3 w-3" /> {subError}
+                </p>
+              )}
+            </form>
+          ) : (
+            <div className="animate-fade-up">
+              <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4">
+                <span className="text-success text-2xl">✓</span>
+              </div>
+              <p className="text-lg font-semibold text-foreground">¡Gracias por suscribirte!</p>
+              <p className="text-sm text-muted-foreground mt-1">Pronto recibirás novedades y ofertas exclusivas.</p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { useProducts } from "@/hooks/useFirestore"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, ArrowLeft } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
+import { Sparkles, ArrowLeft, Eye } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
@@ -11,6 +12,7 @@ import type { Product } from "@/types"
 export function NuevaColeccionPage() {
   const navigate = useNavigate()
   const { data: products = [], isLoading } = useProducts()
+  const { isAdmin } = useAuth()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   const nuevaColeccion = products.filter(p => p.seccion === "nueva-coleccion")
@@ -56,6 +58,14 @@ export function NuevaColeccionPage() {
                   </div>
                   {totalStock < 10 && (
                     <Badge variant="destructive" className="absolute top-3 right-3">Poco stock</Badge>
+                  )}
+                  {isAdmin && (
+                    <div className="absolute bottom-3 right-3">
+                      <span className="text-white text-[10px] font-semibold tracking-wide uppercase gradient-primary px-2.5 py-1.5 rounded-full shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <Eye className="h-3 w-3" />
+                        Ver
+                      </span>
+                    </div>
                   )}
                 </div>
                 <h3 className="font-display text-sm font-semibold mb-0.5">{product.name}</h3>
