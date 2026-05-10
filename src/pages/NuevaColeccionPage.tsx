@@ -1,13 +1,15 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useProducts } from "@/hooks/useFirestore"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles } from "lucide-react"
+import { Sparkles, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
 
 export function NuevaColeccionPage() {
+  const navigate = useNavigate()
   const { data: products = [], isLoading } = useProducts()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
@@ -26,6 +28,10 @@ export function NuevaColeccionPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
+      <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-4">
+        <ArrowLeft className="h-4 w-4" />
+        Volver al inicio
+      </button>
       <PageHero title="Nueva Colección" subtitle={`${nuevaColeccion.length} productos en nueva colección`} icon={Sparkles} />
 
       {nuevaColeccion.length === 0 ? (

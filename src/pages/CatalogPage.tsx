@@ -4,12 +4,14 @@ import { Badge } from "@/components/ui/badge"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
-import { Search, Grid3X3, List, Store } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import { Search, Grid3X3, List, Store, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
 
 export function CatalogPage() {
+  const navigate = useNavigate()
   const { data: products = [], isLoading } = useProducts()
   const { isAdmin } = useAuth()
   const [search, setSearch] = useState("")
@@ -35,6 +37,10 @@ export function CatalogPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
+      <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-4">
+        <ArrowLeft className="h-4 w-4" />
+        Volver al inicio
+      </button>
       <PageHero title="Catálogo de Productos" subtitle={`${filtered.length} productos disponibles`} icon={Store} />
 
       <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 rounded-2xl bg-card border border-primary/10 shadow-sm">
