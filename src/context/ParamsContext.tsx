@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from "react"
 import type { GlobalParams, Scenario } from "@/types"
 import { DEFAULT_PARAMS, SCENARIOS } from "@/lib/constants"
@@ -41,4 +42,6 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export const useParams = () => useContext(ParamsContext)
+export function useParams() {
+  return useContext(ParamsContext)
+}

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
+import type { ComponentType } from "react"
 
-function FloatingOrb({ className, size = "md", delay = 0 }: { className?: string; size?: "sm" | "md" | "lg"; delay?: number }) {
+function FloatingOrb({ className, size = "md", delay = 0, idx = 0 }: { className?: string; size?: "sm" | "md" | "lg"; delay?: number; idx?: number }) {
   const sizes = { sm: "w-20 h-20", md: "w-32 h-32", lg: "w-48 w-48" }
   const gradients = [
     "from-violet-500/15 to-fuchsia-500/15",
@@ -8,7 +9,7 @@ function FloatingOrb({ className, size = "md", delay = 0 }: { className?: string
     "from-cyan-500/15 to-blue-500/15",
     "from-emerald-500/15 to-teal-500/15",
   ]
-  const gradient = gradients[Math.floor(Math.random() * gradients.length)]
+  const gradient = gradients[idx % gradients.length]
 
   return (
     <div
@@ -67,9 +68,9 @@ export function HeroSection() {
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 min-h-[400px] p-10">
       <div className="hero-grid absolute inset-0 opacity-30" />
 
-      <FloatingOrb className="top-10 right-20" size="lg" delay={0} />
-      <FloatingOrb className="bottom-10 right-40" size="md" delay={1.5} />
-      <FloatingOrb className="top-20 left-1/3" size="sm" delay={0.8} />
+      <FloatingOrb className="top-10 right-20" size="lg" delay={0} idx={0} />
+      <FloatingOrb className="bottom-10 right-40" size="md" delay={1.5} idx={1} />
+      <FloatingOrb className="top-20 left-1/3" size="sm" delay={0.8} idx={2} />
 
       <GeometricShape className="top-16 right-32" shape="diamond" delay={0.5} />
       <GeometricShape className="bottom-16 left-20" shape="hex" delay={1.2} />
@@ -96,12 +97,12 @@ export function HeroSection() {
   )
 }
 
-export function PageHero({ title, subtitle, icon: Icon }: { title: string; subtitle?: string; icon?: any }) {
+export function PageHero({ title, subtitle, icon: Icon }: { title: string; subtitle?: string; icon?: ComponentType<{ className?: string }> }) {
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 p-8 mb-8">
       <div className="hero-grid absolute inset-0 opacity-20" />
-      <FloatingOrb className="top-5 right-10" size="sm" delay={0.3} />
-      <FloatingOrb className="bottom-5 right-20" size="sm" delay={1} />
+      <FloatingOrb className="top-5 right-10" size="sm" delay={0.3} idx={0} />
+      <FloatingOrb className="bottom-5 right-20" size="sm" delay={1} idx={1} />
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-3">

@@ -21,17 +21,17 @@ export function ImportDialog() {
     setResult(null)
 
     try {
-      let data: any[] = []
+      let data: Record<string, string>[] = []
 
       if (file.name.endsWith(".csv")) {
         const text = await file.text()
-        const parsed = Papa.parse(text, { header: true })
-        data = parsed.data as any[]
+        const parsed = Papa.parse<Record<string, string>>(text, { header: true })
+        data = parsed.data
       } else if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
         const buf = await file.arrayBuffer()
         const workbook = XLSX.read(buf, { type: "array" })
         const sheet = workbook.Sheets[workbook.SheetNames[0]]
-        data = XLSX.utils.sheet_to_json(sheet)
+        data = XLSX.utils.sheet_to_json<Record<string, string>>(sheet)
       } else {
         setResult({ success: false, imported: 0, errors: ["Formato no soportado. Usá CSV o XLSX."] })
         return
@@ -45,8 +45,8 @@ export function ImportDialog() {
         if (!row.name) missing.push("name")
         if (!row.brand) missing.push("brand")
         if (!row.category) missing.push("category")
-        if (!row.price && row.price !== 0) missing.push("price")
-        if (!row.cost && row.cost !== 0) missing.push("cost")
+        if (!row.price) missing.push("price")
+        if (!row.cost) missing.push("cost")
         if (!row.imageUrl) missing.push("imageUrl")
 
         if (missing.length > 0) {
@@ -71,7 +71,7 @@ export function ImportDialog() {
             colors: row.colors ? row.colors.split(",").map((c: string) => c.trim()) : [],
             material: row.material || "",
             tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
-            status: row.status || "active",
+            status: (row.status as Product["status"]) || "active",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }

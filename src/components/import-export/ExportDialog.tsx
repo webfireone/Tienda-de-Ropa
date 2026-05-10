@@ -3,7 +3,7 @@ import { useProducts, useSales } from "@/hooks/useFirestore"
 import { useParams } from "@/context/ParamsContext"
 import { calculateKpis } from "@/lib/calculations"
 import { jsPDF } from "jspdf"
-import "jspdf-autotable"
+import { autoTable } from "jspdf-autotable"
 import Papa from "papaparse"
 import * as XLSX from "xlsx"
 import { Download, FileText, FileSpreadsheet, FileDown } from "lucide-react"
@@ -26,7 +26,7 @@ export function ExportDialog() {
     doc.text(`Rotación: ${kpis.inventoryTurnover.toFixed(2)}`, 14, 64)
 
     const topProducts = kpis.topProducts.map((p, i) => [`${i + 1}. ${p.name}`, `$${p.margin.toLocaleString("es-AR")}`])
-    ;(doc as any).autoTable({
+    autoTable(doc, {
       startY: 76,
       head: [["Top 3 Prendas", "Margen"]],
       body: topProducts,

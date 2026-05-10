@@ -11,6 +11,8 @@ import { CartPage } from "@/pages/CartPage"
 import { AlertsPage } from "@/pages/AlertsPage"
 import { ImportExportPage } from "@/pages/ImportExportPage"
 import { ProductsPage } from "@/pages/ProductsPage"
+import { LoginPage } from "@/pages/LoginPage"
+import { ConfigPage } from "@/pages/ConfigPage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,13 +33,15 @@ function App() {
             <Routes>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/products" element={<ProductsPage />} />
                 <Route path="/catalog" element={<CatalogPage />} />
                 <Route path="/catalog/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/products" element={<ProductsPage />} />
                 <Route path="/import-export" element={<ImportExportPage />} />
+                <Route path="/config" element={<ConfigPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

@@ -1,5 +1,4 @@
 import { useProducts } from "@/hooks/useFirestore"
-import { useParams } from "@/context/ParamsContext"
 import { useAlerts } from "@/hooks/useAlerts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -10,8 +9,7 @@ import { AlertTriangle, Bell, Settings2 } from "lucide-react"
 
 export function AlertsPanel() {
   const { data: products = [] } = useProducts()
-  const { params } = useParams()
-  const { alerts, rules, setRules } = useAlerts(products, params)
+  const { alerts, rules, setRules } = useAlerts(products)
   const { isAdmin } = useAuth()
 
   const updateRule = (id: string, updates: Partial<typeof rules[0]>) => {

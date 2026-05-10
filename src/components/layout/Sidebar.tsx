@@ -10,10 +10,13 @@ import {
   Shirt,
   User,
   Package,
+  LogOut,
 } from "lucide-react"
 
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
+
 export function Sidebar() {
-  const { isAdmin, user, setMockRole } = useAuth()
+  const { isAdmin, user, signOut, setMockRole } = useAuth()
   const navigate = useNavigate()
 
   const clientLinks = [
@@ -76,23 +79,55 @@ export function Sidebar() {
       </nav>
 
       <div className="border-t border-border pt-4 mt-4">
-        <div className="flex items-center gap-3 px-3 py-2 mb-3">
-          <div className="w-8 h-8 bg-muted flex items-center justify-center">
-            <User className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
-            <p className="text-[10px] text-muted-foreground tracking-wider uppercase">
-              {isAdmin ? "Admin" : "Cliente"}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
-          className="w-full text-xs text-muted-foreground hover:text-foreground tracking-wider uppercase py-2 text-center transition-colors"
-        >
-          {isAdmin ? "Ver como cliente →" : "Modo admin →"}
-        </button>
+        {USE_MOCK ? (
+          <>
+            <div className="flex items-center gap-3 px-3 py-2 mb-3">
+              <div className="w-8 h-8 bg-muted flex items-center justify-center">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
+                <p className="text-[10px] text-muted-foreground tracking-wider uppercase">
+                  {isAdmin ? "Admin" : "Cliente"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
+              className="w-full text-xs text-muted-foreground hover:text-foreground tracking-wider uppercase py-2 text-center transition-colors"
+            >
+              {isAdmin ? "Ver como cliente →" : "Modo admin →"}
+            </button>
+          </>
+        ) : user ? (
+          <>
+            <div className="flex items-center gap-3 px-3 py-2 mb-3">
+              <div className="w-8 h-8 bg-muted flex items-center justify-center">
+                <User className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user.email?.split("@")[0]}</p>
+                <p className="text-[10px] text-muted-foreground tracking-wider uppercase">
+                  {isAdmin ? "Admin" : "Cliente"}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => signOut()}
+              className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-foreground tracking-wider uppercase py-2 text-center transition-colors"
+            >
+              <LogOut className="h-3 w-3" />
+              Cerrar sesión
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => navigate("/login")}
+            className="w-full text-xs text-primary hover:text-primary/80 tracking-wider uppercase py-2 text-center transition-colors"
+          >
+            Iniciar sesión →
+          </button>
+        )}
       </div>
     </aside>
   )

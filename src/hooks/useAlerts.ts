@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
-import type { Product, Alert, AlertRule, GlobalParams } from "@/types"
+import type { Product, Alert, AlertRule } from "@/types"
 import { HOLIDAYS } from "@/lib/constants"
 
-export function useAlerts(products: Product[], params: GlobalParams) {
+export function useAlerts(products: Product[]) {
   const [rules, setRules] = useState<AlertRule[]>([
     { id: "r1", type: "low_stock", threshold: 5, enabled: true },
     { id: "r2", type: "price_variation", threshold: 15, enabled: true },
@@ -48,7 +48,7 @@ export function useAlerts(products: Product[], params: GlobalParams) {
     })
 
     return result
-  }, [products, rules, params])
+  }, [products, rules])
 
   return { alerts, rules, setRules }
 }

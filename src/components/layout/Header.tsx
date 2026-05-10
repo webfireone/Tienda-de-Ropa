@@ -1,7 +1,9 @@
 import { useAuth } from "@/context/AuthContext"
 import { useNavigate, useLocation } from "react-router-dom"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 const navLinks = [
   { to: "/", label: "Inicio", icon: Sparkles },
@@ -11,13 +13,13 @@ const navLinks = [
 
 const adminLinks = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/products", label: "Productos", icon: Store },
+  { to: "/products", label: "Productos", icon: Package },
   { to: "/alerts", label: "Alertas", icon: AlertTriangle },
   { to: "/import-export", label: "Import/Export", icon: FileUp },
 ]
 
 export function Header() {
-  const { isAdmin, setMockRole } = useAuth()
+  const { isAdmin, user, signOut, setMockRole } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -79,18 +81,44 @@ export function Header() {
 
           {/* Auth */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
-              className={cn(
-                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-300",
-                isAdmin
-                  ? "gradient-primary text-white shadow-sm"
-                  : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
-              )}
-            >
-              <User className="h-3 w-3" />
-              {isAdmin ? "Admin" : "Cliente"}
-            </button>
+            {USE_MOCK ? (
+              <button
+                onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-300",
+                  isAdmin
+                    ? "gradient-primary text-white shadow-sm"
+                    : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
+                )}
+              >
+                <User className="h-3 w-3" />
+                {isAdmin ? "Admin" : "Cliente"}
+              </button>
+            ) : user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground hidden md:inline">{user.email}</span>
+                {isAdmin && (
+                  <span className="text-[10px] font-semibold uppercase tracking-wider gradient-primary text-white px-2 py-0.5 rounded-full">
+                    Admin
+                  </span>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                >
+                  <LogOut className="h-3 w-3" />
+                  <span className="hidden md:inline">Salir</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
+              >
+                <User className="h-3 w-3" />
+                Ingresar
+              </button>
+            )}
           </div>
         </div>
 
