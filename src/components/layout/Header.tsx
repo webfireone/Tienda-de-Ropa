@@ -23,7 +23,6 @@ const adminLinks: NavLink[] = [
   { to: "/import-export", label: "Import/Export", icon: FileUp },
   { to: "/config", label: "Config", icon: Settings },
   { to: "/marketing", label: "Marketing", icon: Megaphone },
-  { to: "/manual-usuario.pdf", label: "Manual", icon: FileText, external: true },
 ]
 
 export function Header() {
@@ -72,6 +71,14 @@ export function Header() {
 
           {/* Cart + Auth (desktop) */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
+            <button
+              onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              title="Manual de usuario"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Manual</span>
+            </button>
             <button
               onClick={() => navigate("/cart")}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -146,16 +153,25 @@ export function Header() {
             })}
           </div>
           <div className="flex items-center justify-between px-4 pb-3 border-t border-primary/5 pt-2">
-            <button
-              onClick={() => navigate("/cart")}
-              className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ShoppingCart className="h-3.5 w-3.5" />
-              <span>Carrito</span>
-              <span className="w-4 h-4 rounded-full gradient-primary text-white text-[8px] flex items-center justify-center font-bold">
-                {totalItems}
-              </span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>Manual</span>
+              </button>
+              <button
+                onClick={() => navigate("/cart")}
+                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ShoppingCart className="h-3.5 w-3.5" />
+                <span>Carrito</span>
+                <span className="w-4 h-4 rounded-full gradient-primary text-white text-[8px] flex items-center justify-center font-bold">
+                  {totalItems}
+                </span>
+              </button>
+            </div>
             <div className="flex items-center gap-3">
               {USE_MOCK ? (
                 <button

@@ -14,7 +14,6 @@ import {
   Tag,
   Layers,
   Megaphone,
-  FileText,
 } from "lucide-react"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
@@ -41,7 +40,6 @@ export function Sidebar() {
     { to: "/alerts", label: "Alertas", icon: AlertTriangle },
     { to: "/import-export", label: "Importar/Exportar", icon: FileUp },
     { to: "/marketing", label: "Marketing", icon: Megaphone },
-    { to: "/manual-usuario.pdf", label: "Manual", icon: FileText },
   ]
 
   const links = isAdmin ? adminLinks : clientLinks
@@ -68,39 +66,24 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-col gap-1 flex-1">
-        {links.map(({ to, label, icon: Icon }) => {
-          const isExternal = to.endsWith(".pdf")
-          if (isExternal) {
-            return (
-              <button
-                key={to}
-                onClick={() => window.open(to, "_blank")}
-                className="flex items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-300 border-l-2 text-muted-foreground border-l-transparent hover:text-foreground hover:border-l-border w-full text-left"
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            )
-          }
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              end={to === "/" || to === "/dashboard"}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-300 border-l-2",
-                  isActive
-                    ? "text-foreground border-l-primary bg-muted/50"
-                    : "text-muted-foreground border-l-transparent hover:text-foreground hover:border-l-border"
-                )
-              }
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </NavLink>
-          )
-        })}
+        {links.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === "/" || to === "/dashboard"}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 px-3 py-3 text-sm font-medium transition-all duration-300 border-l-2",
+                isActive
+                  ? "text-foreground border-l-primary bg-muted/50"
+                  : "text-muted-foreground border-l-transparent hover:text-foreground hover:border-l-border"
+              )
+            }
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </NavLink>
+        ))}
       </nav>
 
       <div className="border-t border-border pt-4 mt-4">
