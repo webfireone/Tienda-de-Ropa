@@ -1,0 +1,74 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore"
+import type { Product, Sale, GlobalParams } from "@/types"
+import { MOCK_PRODUCTS, MOCK_SALES, DEFAULT_PARAMS } from "@/lib/constants"
+
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
+
+async function fetchCollection<T>(path: string, fallback: T[]): Promise<T[]> {
+  if (USE_MOCK) return fallback
+  try {
+    const snapshot = await getDocs(collection(db, path))
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
+  } catch {
+    return fallback
+  }
+}
+
+export function useProducts() {
+  return useQuery({
+    queryKey: ["products"],
+    queryFn: () => fetchCollection<Product>("products", MOCK_PRODUCTS),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useProduct(id: string | undefined) {
+  const { data: products = [] } = useProducts()
+  return products.find(p => p.id === id)
+}
+
+export function useSaveProduct() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (product: Product) => {
+      if (USE_MOCK) return product
+      await setDoc(doc(db, "products", product.id), product)
+      return product
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+  })
+}
+
+export function useDeleteProduct() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (USE_MOCK) return id
+      await deleteDoc(doc(db, "products", id))
+      return id
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+  })
+}
+
+export function useSales() {
+  return useQuery({
+    queryKey: ["sales"],
+    queryFn: () => fetchCollection<Sale>("sales", MOCK_SALES),
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useGlobalParams() {
+  return useQuery({
+    queryKey: ["globalParams"],
+    queryFn: () => fetchCollection<GlobalParams>("config", [DEFAULT_PARAMS]).then(r => r[0] || DEFAULT_PARAMS),
+    staleTime: 10 * 60 * 1000,
+  })
+}

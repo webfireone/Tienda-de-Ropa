@@ -1,0 +1,100 @@
+# PROMPT PARA GENERACIÓN DE APLICACIÓN WEB COMPLETA (RENDER + FIREBASE SPARK)
+
+## ROL
+Actúa como **Arquitecto de Software Senior + Especialista en e-commerce de moda unisex + Desarrollador Full-Stack**. Tu tarea es generar una aplicación web completa, modular, lista para producción y **optimizada estrictamente para tiers gratuitos** (Render + Firebase Spark). No asumas servicios pagos. No incluyas autenticación compleja (preparar estructura sin auth por ahora).
+
+---
+
+## STACK TÉCNICO OBLIGATORIO (no negociable)
+- **Frontend**: Vite + React 18 + TypeScript + TailwindCSS + shadcn/ui
+- **Estado/Datos**: React Query + Firebase SDK modular (Firestore v9)
+- **Visualización**: Apache ECharts (soporta heatmaps, gauges, pivotes, líneas temporales) + TanStack Table (para tablas avanzadas)
+- **Import/Export**: PapaParse (CSV), SheetJS (XLSX), PDF-lib o pdfmake (PDF)
+- **Despliegue**: SPA estático en Render (con UptimeRobot opcional para mantener wake-up) + Firebase Firestore (plan Spark)
+- **Reglas Firestore**: índices simples, sin consultas costosas, evitar `array-contains-any` innecesario.
+
+---
+
+## REQUERIMIENTOS FUNCIONALES (DATOS + NEGOCIO)
+
+### 1. Multi‑marcas (unisex)
+- Cada marca tiene: ID, nombre, descripción, logo (URL), valor base por prenda, inventario por talla (XS a XXL).
+- Vista de catálogo por marca + detalle de prenda.
+- Inventario inicial editable desde UI (solo admin).
+
+### 2. Usuarios (estructura preparada sin auth)
+- Dos roles: `admin` (full access) y `viewer` (solo lectura).
+- En Firestore: colección `users` (uid simulado, email, role).
+- Toda la app debe leer el rol desde un contexto/estado global (mockeado por ahora).
+
+### 3. Dashboard Dinámico (drag & drop)
+- Paneles arrastrables (uso de `react-grid-layout` o similar ligero).
+- Selector de tipo de visualización por panel:
+  - Líneas, barras, heatmaps, gauges, tablas pivot, comparativas (prendas vs valor vs marca).
+- Cada panel se conecta a datos reales de Firestore + React Query.
+- Las preferencias de layout se guardan en `localStorage` (evita escritura excesiva en Firestore).
+
+### 4. Parámetros Dinámicos (edición en tiempo real + recálculo automático)
+Crear una sección `Configuración Global` con campos editables que afectan todos los cálculos:
+
+- **Carrito**:
+  - Carga base (ej: 0.15)
+  - Medios de pago (ej: efectivo, tarjeta, transferencia) con tasas diferenciadas.
+  - Descuento por cantidad (ej: >3 prendas → 5%, >10 → 12%).
+- **Costos de envío**:
+  - Costo fijo de envío (ej: $5000)
+  - Si compra supera los $100,000 → envío gratis (toggle y umbral editable).
+- **Financieros**:
+  - Porcentaje de inflación mensual (ej: 3.5%)
+  - Impuesto general (ej: 21% IVA)
+  - Tipo de cambio USD/ARS (editable y visualizable en reportes).
+  - Recalculo automático de precios finales en base a inflación + impuestos.
+
+### 5. KPIs Obligatorios (si detectas más, agrégalos)
+- Ventas mensuales / anuales (desglosado por marca).
+- Margen bruto = (precio_venta - costo_unitario) * cantidad.
+- Margen neto = margen_bruto - impuestos - envío - inflación_proyectada.
+- Top 3 prendas por margen.
+- Rotación de inventario por marca (ventas / stock_promedio).
+
+### 6. Modelado Temporal + Escenarios
+- Proyecciones a **Mensual / Trimestral / Anual**.
+- Tres escenarios seleccionables desde un dropdown:
+  - **Base** (inflación actual, sin cambios estructurales)
+  - **Optimista** (inflación -30%, ventas +20%)
+  - **Pesimista** (inflación +50%, ventas -15%)
+- Todos los KPIs y dashboards deben poder cambiar dinámicamente al seleccionar escenario (sin recargar página).
+
+### 7. Puntos Críticos & Alertas (automáticas en UI)
+Detectar y mostrar en un panel de alertas:
+- Stock bajo por marca (<5 unidades en una talla).
+- Variación de precios > 15% respecto al mes anterior.
+- Cuellos de botella: prendas con margen neto negativo.
+- Alertas configurables por fechas (próximos 7 días): festivos regionales, cumpleaños de usuarios simulados.
+- Las reglas de alerta deben ser editables desde UI (ej: umbral de stock crítico, % variación precio).
+
+### 8. Importación / Exportación
+- **Importar** desde CSV, Excel (XLSX) y PDF estructurado (productos + marcas). Usar PapaParse y SheetJS.
+- **Exportar**:
+  - Reportes ejecutivos en PDF (con KPIs + gráficos).
+  - Tablas actuales a CSV/Excel.
+- Todo import/export debe validar datos contra esquema de Firestore y mostrar errores.
+
+---
+
+## RESTRICCIONES TÉCNICAS PARA TIERS GRATUITOS (CRÍTICO)
+- **Firestore Spark**:
+  - No usar Cloud Functions ni Firebase Storage (si se necesitan imágenes, usar URLs externas).
+  - Límite de 50k lecturas/escrituras por día (optimizar consultas, usar paginación, evitar lecturas innecesarias).
+  - Desnormalización controlada (evitar joins en cliente).
+- **Render (gratuito)**:
+  - SPA estático → construir con `npm run build` y servir carpeta `dist`.
+  - El tier gratuito se duerme después de 15 min sin actividad (UptimeRobot puede hacer ping cada 5 min opcional).
+- **React Query**:
+  - Usar `staleTime` y `cacheTime` altos (5-10 min) para reducir llamadas a Firestore.
+- **ECharts**:
+  - Importar solo los gráficos necesarios (carga bajo demanda).
+
+---
+
+## ESTRUCTURA DE CÓDIGO ESPERADA (modular y lista para deploy)
