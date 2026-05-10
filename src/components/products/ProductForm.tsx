@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSaveProduct } from "@/hooks/useProducts"
-import { SIZES, CATEGORIES, type Product } from "@/types"
+import { SIZES, CATEGORIES, SECCIONES, type Product } from "@/types"
 import { ChevronLeft, ChevronRight, Save, Sparkles } from "lucide-react"
 
 interface ProductFormProps {
@@ -24,6 +24,7 @@ const emptyProduct = {
   colors: [] as string[],
   material: "",
   tags: [] as string[],
+  seccion: "general" as const,
   status: "active" as const,
   createdAt: "",
   updatedAt: "",
@@ -84,7 +85,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               <Input value={form.material} onChange={e => update({ material: e.target.value })} placeholder="Ej: Algodón 100%" />
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Precio *</label>
               <Input type="number" value={form.price || ""} onChange={e => update({ price: parseInt(e.target.value) || 0 })} placeholder="25000" />
@@ -92,6 +93,20 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Costo</label>
               <Input type="number" value={form.cost || ""} onChange={e => update({ cost: parseInt(e.target.value) || 0 })} placeholder="12000" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sección</label>
+              <select
+                value={form.seccion}
+                onChange={e => update({ seccion: e.target.value as Product["seccion"] })}
+                className="flex h-11 w-full rounded-xl border border-input bg-card px-4 py-2 text-sm"
+              >
+                {SECCIONES.map(s => (
+                  <option key={s} value={s}>
+                    {s === "general" ? "General" : s === "outlet" ? "Outlet" : "Nueva Colección"}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Estado</label>

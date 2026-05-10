@@ -72,6 +72,7 @@ export function ImportDialog() {
             material: row.material || "",
             tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
             status: (row.status as Product["status"]) || "active",
+            seccion: (row.seccion as Product["seccion"]) || "general",
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }

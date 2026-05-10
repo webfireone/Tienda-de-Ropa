@@ -11,6 +11,8 @@ import {
   User,
   Package,
   LogOut,
+  Tag,
+  Layers,
 } from "lucide-react"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
@@ -22,6 +24,8 @@ export function Sidebar() {
   const clientLinks = [
     { to: "/", label: "Inicio", icon: Shirt },
     { to: "/catalog", label: "Catálogo", icon: Store },
+    { to: "/outlet", label: "Outlet", icon: Tag },
+    { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
     { to: "/cart", label: "Carrito de Compra", icon: ShoppingCart },
   ]
 
@@ -29,6 +33,8 @@ export function Sidebar() {
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/products", label: "Productos", icon: Package },
     { to: "/catalog", label: "Catálogo", icon: Store },
+    { to: "/outlet", label: "Outlet", icon: Tag },
+    { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
     { to: "/cart", label: "Carrito de Compra", icon: ShoppingCart },
     { to: "/alerts", label: "Alertas", icon: AlertTriangle },
     { to: "/import-export", label: "Importar/Exportar", icon: FileUp },

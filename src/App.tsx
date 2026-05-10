@@ -13,6 +13,8 @@ import { ImportExportPage } from "@/pages/ImportExportPage"
 import { ProductsPage } from "@/pages/ProductsPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { ConfigPage } from "@/pages/ConfigPage"
+import { OutletPage } from "@/pages/OutletPage"
+import { NuevaColeccionPage } from "@/pages/NuevaColeccionPage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -42,6 +44,8 @@ function App() {
                 <Route path="/alerts" element={<AlertsPage />} />
                 <Route path="/import-export" element={<ImportExportPage />} />
                 <Route path="/config" element={<ConfigPage />} />
+                <Route path="/outlet" element={<OutletPage />} />
+                <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

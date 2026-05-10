@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext"
 import { useNavigate, useLocation } from "react-router-dom"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
@@ -8,6 +8,8 @@ const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_
 const navLinks = [
   { to: "/", label: "Inicio", icon: Sparkles },
   { to: "/catalog", label: "Catálogo", icon: Store },
+  { to: "/outlet", label: "Outlet", icon: Tag },
+  { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
   { to: "/cart", label: "Carrito", icon: ShoppingCart },
 ]
 
@@ -16,6 +18,7 @@ const adminLinks = [
   { to: "/products", label: "Productos", icon: Package },
   { to: "/alerts", label: "Alertas", icon: AlertTriangle },
   { to: "/import-export", label: "Import/Export", icon: FileUp },
+  { to: "/config", label: "Config", icon: Settings },
 ]
 
 export function Header() {

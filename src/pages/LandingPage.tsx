@@ -96,22 +96,22 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Secciones */}
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
-          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Categorías</p>
-          <h2 className="font-display text-3xl font-bold">Explorá por categoría</h2>
+          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Secciones</p>
+          <h2 className="font-display text-3xl font-bold">Explorá por sección</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: "Pantalones", image: "https://placehold.co/600x800/6c5ce7/ffffff?text=Pantalones", count: "12 productos" },
-            { title: "Remeras", image: "https://placehold.co/600x800/fd79a8/ffffff?text=Remeras", count: "8 productos" },
-            { title: "Sweaters", image: "https://placehold.co/600x800/00b894/ffffff?text=Sweaters", count: "10 productos" },
+            { title: "Catálogo", image: "https://placehold.co/600x800/6c5ce7/ffffff?text=Catalogo", count: "Todos los productos", path: "/catalog" },
+            { title: "Outlet", image: "https://placehold.co/600x800/fd79a8/ffffff?text=Outlet", count: "Precios especiales", path: "/outlet" },
+            { title: "Nueva Colección", image: "https://placehold.co/600x800/00b894/ffffff?text=Nueva+Coleccion", count: "Lo último", path: "/nueva-coleccion" },
           ].map(cat => (
             <div
               key={cat.title}
               className="group cursor-pointer relative aspect-[3/4] rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
-              onClick={() => navigate("/catalog")}
+              onClick={() => navigate(cat.path)}
             >
               <img src={cat.image} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
@@ -210,8 +210,8 @@ export function LandingPage() {
               <h4 className="text-xs font-semibold tracking-wider uppercase text-white mb-4">Tienda</h4>
               <ul className="space-y-2">
                 <li><button onClick={() => navigate("/catalog")} className="text-sm hover:text-white transition-colors">Catálogo</button></li>
-                <li><button onClick={() => navigate("/catalog")} className="text-sm hover:text-white transition-colors">Novedades</button></li>
-                <li><button onClick={() => navigate("/catalog")} className="text-sm hover:text-white transition-colors">Ofertas</button></li>
+                <li><button onClick={() => navigate("/outlet")} className="text-sm hover:text-white transition-colors">Outlet</button></li>
+                <li><button onClick={() => navigate("/nueva-coleccion")} className="text-sm hover:text-white transition-colors">Nueva Colección</button></li>
               </ul>
             </div>
             <div>
