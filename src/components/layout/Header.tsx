@@ -71,14 +71,16 @@ export function Header() {
 
           {/* Cart + Auth (desktop) */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => window.open("/manual-usuario.pdf", "_blank")}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              title="Manual de usuario"
-            >
-              <FileText className="h-3.5 w-3.5" />
-              <span>Manual</span>
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                title="Manual de usuario"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>Manual</span>
+              </button>
+            )}
             <button
               onClick={() => navigate("/cart")}
               className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -154,13 +156,15 @@ export function Header() {
           </div>
           <div className="flex items-center justify-between px-4 pb-3 border-t border-primary/5 pt-2">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => window.open("/manual-usuario.pdf", "_blank")}
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                <span>Manual</span>
-              </button>
+              {isAdmin && (
+                <button
+                  onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                  className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  <span>Manual</span>
+                </button>
+              )}
               <button
                 onClick={() => navigate("/cart")}
                 className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
