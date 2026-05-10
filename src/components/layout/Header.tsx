@@ -45,8 +45,23 @@ export function Header() {
 
       <div className="glass border-b border-primary/5">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+          {/* Logo (solo para no-admin) */}
+          {!isAdmin && (
+            <div
+              className="flex items-center gap-3 cursor-pointer shrink-0 animate-float"
+              onClick={() => navigate("/")}
+            >
+              <div className="w-11 h-11 flex items-center justify-center" style={{ filter: 'drop-shadow(0 0 8px rgba(139,92,246,0.6))' }}>
+                <img src="/logos/logo-recortado-80.png" className="w-full h-full object-contain" alt="GLAMOURS LUJÁN" />
+              </div>
+            </div>
+          )}
+
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-0.5 flex-1 justify-center overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <nav className={cn(
+            "hidden md:flex items-center gap-0.5 overflow-x-auto",
+            isAdmin ? "flex-1 justify-center" : "flex-1 justify-center"
+          )} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {allLinks.map(link => {
               const isActive = !link.external && (link.to === "/"
                 ? location.pathname === "/"
