@@ -4,12 +4,15 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSaveProduct } from "@/hooks/useProducts"
 import { SIZES, CATEGORIES, SECCIONES, type Product } from "@/types"
+import { getTotalStock } from "@/lib/utils"
 import { ChevronLeft, ChevronRight, Save, Sparkles } from "lucide-react"
 
 interface ProductFormProps {
   product?: Product
   onComplete?: () => void
 }
+
+const emptySizes = Object.fromEntries(SIZES.map(s => [s, 0])) as Record<string, number>
 
 const emptyProduct = {
   id: "",
@@ -20,8 +23,7 @@ const emptyProduct = {
   cost: 0,
   description: "",
   imageUrl: "",
-  sizes: Object.fromEntries(SIZES.map(s => [s, 0])) as Record<string, number>,
-  colors: [] as string[],
+  colors: [] as { name: string; sizes: Record<string, number> }[],
   material: "",
   tags: [] as string[],
   seccion: "general" as const,
@@ -34,6 +36,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<Product>(() => product || { ...emptyProduct, id: crypto.randomUUID(), createdAt: new Date().toISOString().split("T")[0], updatedAt: new Date().toISOString().split("T")[0] })
   const [colorInput, setColorInput] = useState("")
+  const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null)
   const [tagInput, setTagInput] = useState("")
   const saveProduct = useSaveProduct()
 
@@ -46,6 +49,29 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
     1: form.name && form.brand && form.price > 0 && form.imageUrl,
     2: true,
     3: true,
+  }
+
+  const addColor = () => {
+    const trimmed = colorInput.trim()
+    if (trimmed && !form.colors.find(c => c.name === trimmed)) {
+      update({ colors: [...form.colors, { name: trimmed, sizes: { ...emptySizes } }] })
+      setSelectedColorIdx(form.colors.length)
+    }
+    setColorInput("")
+  }
+
+  const removeColor = (idx: number) => {
+    const newColors = form.colors.filter((_, i) => i !== idx)
+    update({ colors: newColors })
+    if (selectedColorIdx === idx) setSelectedColorIdx(null)
+    else if (selectedColorIdx !== null && selectedColorIdx > idx) setSelectedColorIdx(selectedColorIdx - 1)
+  }
+
+  const updateColorSize = (colorIdx: number, size: string, qty: number) => {
+    const newColors = form.colors.map((c, i) =>
+      i === colorIdx ? { ...c, sizes: { ...c.sizes, [size]: qty } } : c
+    )
+    update({ colors: newColors })
   }
 
   const handleSave = () => {
@@ -147,39 +173,53 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
       label: "Inventario",
       content: (
         <div className="space-y-6">
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">Stock por Talle</label>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-              {SIZES.map(size => (
-                <div key={size} className="space-y-1">
-                  <label className="text-xs text-muted-foreground block text-center">{size}</label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={form.sizes[size] ?? 0}
-                    onChange={e => update({ sizes: { ...form.sizes, [size]: Math.max(0, parseInt(e.target.value) || 0) } })}
-                    className="text-center"
-                  />
-                </div>
+          {/* Colors */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">Colores</label>
+            <div className="flex gap-2">
+              <Input value={colorInput} onChange={e => setColorInput(e.target.value)} placeholder="Agregar color" className="flex-1"
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addColor() } }}
+              />
+              <Button variant="outline" size="sm" onClick={addColor}>+</Button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {form.colors.map((c, i) => (
+                <span
+                  key={i}
+                  onClick={() => setSelectedColorIdx(i)}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs cursor-pointer transition-all ${selectedColorIdx === i ? "gradient-primary text-white" : "bg-muted hover:bg-muted/80"}`}
+                >
+                  {c.name}
+                  <button onClick={(e) => { e.stopPropagation(); removeColor(i) }} className="text-inherit opacity-60 hover:opacity-100">×</button>
+                </span>
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colores</label>
-              <div className="flex gap-2">
-                <Input value={colorInput} onChange={e => setColorInput(e.target.value)} placeholder="Agregar color" className="flex-1" />
-                <Button variant="outline" size="sm" onClick={() => { if (colorInput && !form.colors.includes(colorInput)) { update({ colors: [...form.colors, colorInput] }); setColorInput("") } }}>+</Button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {form.colors.map((c, i) => (
-                  <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-xs">
-                    {c}
-                    <button onClick={() => update({ colors: form.colors.filter((_, j) => j !== i) })} className="text-muted-foreground hover:text-foreground">×</button>
-                  </span>
+
+          {/* Per-color sizes */}
+          {selectedColorIdx !== null && form.colors[selectedColorIdx] && (
+            <div className="p-4 rounded-xl bg-muted/30 border border-primary/10">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Stock para <span className="text-foreground">{form.colors[selectedColorIdx].name}</span>
+              </p>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                {SIZES.map(size => (
+                  <div key={size} className="space-y-1">
+                    <label className="text-xs text-muted-foreground block text-center">{size}</label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={form.colors[selectedColorIdx].sizes[size] ?? 0}
+                      onChange={e => updateColorSize(selectedColorIdx, size, Math.max(0, parseInt(e.target.value) || 0))}
+                      className="text-center"
+                    />
+                  </div>
                 ))}
               </div>
             </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tags</label>
               <div className="flex gap-2">
@@ -194,6 +234,20 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
                   </span>
                 ))}
               </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sección</label>
+              <select
+                value={form.seccion}
+                onChange={e => update({ seccion: e.target.value as Product["seccion"] })}
+                className="flex h-11 w-full rounded-xl border border-input bg-card px-4 py-2 text-sm"
+              >
+                {SECCIONES.map(s => (
+                  <option key={s} value={s}>
+                    {s === "general" ? "General" : s === "outlet" ? "Outlet" : "Nueva Colección"}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -222,12 +276,16 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-muted/30">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Stock total</p>
-              <p className="font-display text-xl font-bold">{Object.values(form.sizes).reduce((a, b) => a + b, 0)} unidades</p>
+              <p className="font-display text-xl font-bold">{getTotalStock(form)} unidades</p>
             </div>
             <div className="p-4 rounded-xl bg-muted/30">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Colores</p>
               <div className="flex flex-wrap gap-1">
-                {form.colors.length > 0 ? form.colors.map((c, i) => <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-card border border-primary/10">{c}</span>) : <span className="text-xs text-muted-foreground">-</span>}
+                {form.colors.length > 0 ? form.colors.map((c, i) => (
+                  <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-card border border-primary/10">
+                    {c.name} ({Object.values(c.sizes).reduce((a, b) => a + b, 0)})
+                  </span>
+                )) : <span className="text-xs text-muted-foreground">-</span>}
               </div>
             </div>
           </div>

@@ -6,11 +6,33 @@ import { MOCK_PRODUCTS, MOCK_SALES, DEFAULT_PARAMS } from "@/lib/constants"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
+function migrateProduct(data: Record<string, unknown>): Product {
+  const hasOldSizes = "sizes" in data && data.sizes && typeof data.sizes === "object"
+  const hasOldColors = "colors" in data && Array.isArray(data.colors) && data.colors.length > 0 && typeof data.colors[0] === "string"
+
+  if (hasOldSizes && hasOldColors) {
+    const oldSizes = data.sizes as Record<string, number>
+    const oldColors = data.colors as string[]
+    return {
+      ...data as unknown as Product,
+      colors: oldColors.map(name => ({
+        name,
+        sizes: { ...oldSizes },
+      })),
+    }
+  }
+  return data as unknown as Product
+}
+
 async function fetchCollection<T>(path: string, fallback: T[]): Promise<T[]> {
   if (USE_MOCK) return fallback
   try {
     const snapshot = await getDocs(collection(db, path))
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
+    const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
+    if (path === "products") {
+      return (items as unknown as Record<string, unknown>[]).map(migrateProduct) as T[]
+    }
+    return items
   } catch {
     return fallback
   }

@@ -6,6 +6,11 @@ export interface User {
   role: Role
 }
 
+export interface ProductColor {
+  name: string
+  sizes: Record<string, number>
+}
+
 export interface Product {
   id: string
   name: string
@@ -15,8 +20,7 @@ export interface Product {
   cost: number
   description: string
   imageUrl: string
-  sizes: Record<string, number>
-  colors: string[]
+  colors: ProductColor[]
   material: string
   tags: string[]
   seccion: "general" | "outlet" | "nueva-coleccion"

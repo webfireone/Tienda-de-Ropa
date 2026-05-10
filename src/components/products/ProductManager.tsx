@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProductForm } from "./ProductForm"
+import { getTotalStock } from "@/lib/utils"
 import { Edit3, Trash2, Search, Plus, Package, X, AlertTriangle } from "lucide-react"
 
 export function ProductManager() {
@@ -21,7 +22,7 @@ export function ProductManager() {
     p.category.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalStock = (p: typeof products[0]) => Object.values(p.sizes).reduce((a, b) => a + b, 0)
+  const totalStock = (p: Parameters<typeof getTotalStock>[0]) => getTotalStock(p)
 
   if (creating) {
     return (

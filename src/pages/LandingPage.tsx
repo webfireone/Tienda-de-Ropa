@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input"
 import { useProducts } from "@/hooks/useFirestore"
 import { HeroSection } from "@/components/dashboard/Decorative3D"
 import { Star, Quote, ArrowRight, Truck, RefreshCw, CreditCard, Shield, Sparkles } from "lucide-react"
+import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
+import { getTotalStock } from "@/lib/utils"
+import type { Product } from "@/types"
 
 const testimonials = [
   { name: "María G.", location: "Buenos Aires", text: "La calidad de las prendas es increíble. Me encanta la nueva colección.", rating: 5 },
@@ -17,6 +20,7 @@ export function LandingPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const { data: products = [] } = useProducts()
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   return (
     <div>
@@ -62,13 +66,13 @@ export function LandingPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {products.slice(0, 4).map((product, i) => {
-              const totalStock = Object.values(product.sizes).reduce((a, b) => a + b, 0)
+              const totalStock = getTotalStock(product)
               return (
                 <div
                   key={product.id}
                   className="group cursor-pointer animate-fade-up"
                   style={{ animationDelay: `${i * 0.1}s` }}
-                  onClick={() => navigate("/catalog")}
+                  onClick={() => setSelectedProduct(product)}
                 >
                   <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-4 shadow-sm group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-500">
                     <img
@@ -236,6 +240,10 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {selectedProduct && (
+        <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
     </div>
   )
 }

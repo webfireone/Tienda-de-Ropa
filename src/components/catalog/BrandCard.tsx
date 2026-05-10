@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router-dom"
 import { Package, ArrowRight } from "lucide-react"
+import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
 
 interface BrandCardProps {
@@ -11,7 +12,7 @@ interface BrandCardProps {
 
 export function BrandCard({ product }: BrandCardProps) {
   const navigate = useNavigate()
-  const totalStock = Object.values(product.sizes).reduce((a, b) => a + b, 0)
+  const totalStock = getTotalStock(product)
 
   return (
     <Card className="group overflow-hidden hover:border-primary/20 transition-all duration-500">

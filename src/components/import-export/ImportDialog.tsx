@@ -58,6 +58,17 @@ export function ImportDialog() {
           const sizes: Record<string, number> = {}
           SIZES.forEach(s => { sizes[s] = parseInt(row[s]) || 0 })
 
+          let colors: { name: string; sizes: Record<string, number> }[]
+          try {
+            colors = JSON.parse(row.colors || "[]")
+          } catch {
+            colors = (row.colors || "")
+              .split(",")
+              .map(c => c.trim())
+              .filter(Boolean)
+              .map(name => ({ name, sizes: { ...sizes } }))
+          }
+
           const product: Product = {
             id: crypto.randomUUID(),
             name: row.name,
@@ -67,8 +78,7 @@ export function ImportDialog() {
             cost: parseFloat(row.cost),
             description: row.description || "",
             imageUrl: row.imageUrl,
-            sizes,
-            colors: row.colors ? row.colors.split(",").map((c: string) => c.trim()) : [],
+            colors,
             material: row.material || "",
             tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
             status: (row.status as Product["status"]) || "active",

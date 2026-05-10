@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "@/context/AuthContext"
 import { ParamsProvider } from "@/context/ParamsContext"
+import { CartProvider } from "@/context/CartContext"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { LandingPage } from "@/pages/LandingPage"
 import { DashboardPage } from "@/pages/DashboardPage"
@@ -31,6 +32,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ParamsProvider>
+          <CartProvider>
           <BrowserRouter>
             <Routes>
               <Route element={<AppLayout />}>
@@ -49,6 +51,7 @@ function App() {
               </Route>
             </Routes>
           </BrowserRouter>
+          </CartProvider>
         </ParamsProvider>
       </AuthProvider>
     </QueryClientProvider>

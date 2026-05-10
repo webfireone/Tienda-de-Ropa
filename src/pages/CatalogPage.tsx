@@ -1,18 +1,20 @@
 import { useProducts } from "@/hooks/useFirestore"
-import { useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import { Search, Grid3X3, List, Store } from "lucide-react"
+import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
+import { getTotalStock } from "@/lib/utils"
+import type { Product } from "@/types"
 
 export function CatalogPage() {
   const { data: products = [], isLoading } = useProducts()
   const { isAdmin } = useAuth()
-  const navigate = useNavigate()
   const [search, setSearch] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -68,13 +70,13 @@ export function CatalogPage() {
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {filtered.map((product, i) => {
-            const totalStock = Object.values(product.sizes).reduce((a, b) => a + b, 0)
+            const totalStock = getTotalStock(product)
             return (
               <div
                 key={product.id}
                 className="group cursor-pointer animate-fade-up"
                 style={{ animationDelay: `${i * 0.05}s` }}
-                onClick={() => isAdmin ? navigate(`/catalog/${product.id}`) : null}
+                onClick={() => setSelectedProduct(product)}
               >
                   <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-500">
                   <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -99,13 +101,13 @@ export function CatalogPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map((product, i) => {
-            const totalStock = Object.values(product.sizes).reduce((a, b) => a + b, 0)
+            const totalStock = getTotalStock(product)
             return (
               <div
                 key={product.id}
                 className="flex items-center gap-6 p-4 rounded-2xl bg-card border border-primary/10 hover:border-primary/30 shadow-sm hover:shadow-md hover:shadow-primary/5 transition-all cursor-pointer animate-fade-up"
                 style={{ animationDelay: `${i * 0.05}s` }}
-                onClick={() => isAdmin ? navigate(`/catalog/${product.id}`) : null}
+                onClick={() => setSelectedProduct(product)}
               >
                 <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
                   <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
@@ -124,6 +126,10 @@ export function CatalogPage() {
             )
           })}
         </div>
+      )}
+
+      {selectedProduct && (
+        <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </div>
   )

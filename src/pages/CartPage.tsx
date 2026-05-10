@@ -1,3 +1,4 @@
+import { useCart } from "@/context/CartContext"
 import { useParams } from "@/context/ParamsContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -5,36 +6,13 @@ import { Switch } from "@/components/ui/switch"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { ShoppingCartIcon, Trash2, Minus, Plus, CreditCard, Truck, ShoppingBag } from "lucide-react"
-import { useState } from "react"
-
-interface CartItem {
-  brandId: string
-  brandName: string
-  productName: string
-  size: string
-  quantity: number
-  price: number
-}
 
 export function CartPage() {
+  const { items, removeItem, updateQuantity } = useCart()
   const { params, updateParams } = useParams()
   const { isAdmin } = useAuth()
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
 
-  const removeItem = (brandId: string, size: string) => {
-    setCartItems(prev => prev.filter(i => !(i.brandId === brandId && i.size === size)))
-  }
-
-  const updateQty = (brandId: string, size: string, delta: number) => {
-    setCartItems(prev => prev.map(i => {
-      if (i.brandId === brandId && i.size === size) {
-        return { ...i, quantity: Math.max(1, i.quantity + delta) }
-      }
-      return i
-    }))
-  }
-
-  const subtotal = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const discount = subtotal > 100000 ? subtotal * 0.1 : subtotal > 50000 ? subtotal * 0.05 : 0
   const shipping = subtotal > 120000 ? 0 : params.shipping.fixedCost
   const total = subtotal - discount + shipping
@@ -42,11 +20,11 @@ export function CartPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8">
-      <PageHero title="Carrito de Compra" subtitle={`${cartItems.length} artículos`} icon={ShoppingBag} />
+      <PageHero title="Carrito de Compra" subtitle={`${items.length} artículos`} icon={ShoppingBag} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.length === 0 ? (
+          {items.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <ShoppingCartIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
@@ -57,25 +35,28 @@ export function CartPage() {
               </CardContent>
             </Card>
           ) : (
-            cartItems.map((item, i) => (
-              <Card key={`${item.brandId}-${item.size}-${i}`} className="overflow-hidden">
+            items.map((item, i) => (
+              <Card key={`${item.productId}-${item.color}-${item.size}-${i}`} className="overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-xl bg-muted overflow-hidden shrink-0">
+                      <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                    </div>
                     <div className="flex-1">
                       <p className="font-semibold">{item.productName}</p>
-                      <p className="text-sm text-muted-foreground">{item.brandName} - Talle {item.size}</p>
+                      <p className="text-sm text-muted-foreground">{item.brand} - {item.color} - Talle {item.size}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => updateQty(item.brandId, item.size, -1)} className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors">
+                      <button onClick={() => updateQuantity(item.productId, item.color, item.size, -1)} className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors">
                         <Minus className="h-3 w-3" />
                       </button>
                       <span className="w-8 text-center text-sm font-medium">{item.quantity}</span>
-                      <button onClick={() => updateQty(item.brandId, item.size, 1)} className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors">
+                      <button onClick={() => updateQuantity(item.productId, item.color, item.size, 1)} className="w-8 h-8 rounded-lg border border-primary/10 flex items-center justify-center hover:bg-muted transition-colors">
                         <Plus className="h-3 w-3" />
                       </button>
                     </div>
                     <p className="w-24 text-right font-semibold">{formatMoney(item.price * item.quantity)}</p>
-                    <button onClick={() => removeItem(item.brandId, item.size)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all">
+                    <button onClick={() => removeItem(item.productId, item.color, item.size)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>

@@ -1,4 +1,5 @@
 import type { Product, GlobalParams, ScenarioConfig, KpiData, Sale } from "@/types"
+import { getTotalStock } from "@/lib/utils"
 
 export function calculateFinalPrice(
   basePrice: number,
@@ -50,7 +51,7 @@ export function calculateKpis(
     .map(([name, margin]) => ({ name, margin }))
 
   const totalStock = products.reduce((acc, p) => {
-    return acc + Object.values(p.sizes).reduce((sum, qty) => sum + qty, 0)
+    return acc + getTotalStock(p)
   }, 0)
 
   const totalSold = sales.reduce((acc, s) => acc + s.quantity, 0)
@@ -74,7 +75,7 @@ export function calculateInventoryTurnoverByBrand(sales: Sale[], products: Produ
     const brandSales = sales.filter(s => s.brand === brand)
     const brandProducts = products.filter(p => p.brand === brand)
     const totalSold = brandSales.reduce((acc, s) => acc + s.quantity, 0)
-    const totalStock = brandProducts.reduce((acc, p) => acc + Object.values(p.sizes).reduce((sum, q) => sum + q, 0), 0)
+    const totalStock = brandProducts.reduce((acc, p) => acc + getTotalStock(p), 0)
     result[brand] = totalStock > 0 ? totalSold / totalStock : 0
   })
   return result

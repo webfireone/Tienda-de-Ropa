@@ -1,14 +1,15 @@
+import { useState } from "react"
 import { useProducts } from "@/hooks/useFirestore"
-import { useNavigate } from "react-router-dom"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { Badge } from "@/components/ui/badge"
-import { useAuth } from "@/context/AuthContext"
 import { Sparkles } from "lucide-react"
+import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
+import { getTotalStock } from "@/lib/utils"
+import type { Product } from "@/types"
 
 export function NuevaColeccionPage() {
   const { data: products = [], isLoading } = useProducts()
-  const { isAdmin } = useAuth()
-  const navigate = useNavigate()
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   const nuevaColeccion = products.filter(p => p.seccion === "nueva-coleccion")
 
@@ -34,13 +35,13 @@ export function NuevaColeccionPage() {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {nuevaColeccion.map((product, i) => {
-            const totalStock = Object.values(product.sizes).reduce((a, b) => a + b, 0)
+            const totalStock = getTotalStock(product)
             return (
               <div
                 key={product.id}
                 className="group cursor-pointer animate-fade-up"
                 style={{ animationDelay: `${i * 0.05}s` }}
-                onClick={() => isAdmin ? navigate(`/catalog/${product.id}`) : null}
+                onClick={() => setSelectedProduct(product)}
               >
                 <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-500">
                   <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -50,13 +51,6 @@ export function NuevaColeccionPage() {
                   {totalStock < 10 && (
                     <Badge variant="destructive" className="absolute top-3 right-3">Poco stock</Badge>
                   )}
-                  {isAdmin && (
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
-                      <span className="text-white text-xs font-semibold tracking-wider uppercase opacity-0 group-hover:opacity-100 transition-opacity gradient-primary px-4 py-2 rounded-full shadow-lg">
-                        Gestionar
-                      </span>
-                    </div>
-                  )}
                 </div>
                 <h3 className="font-display text-sm font-semibold mb-0.5">{product.name}</h3>
                 <p className="text-xs text-muted-foreground mb-1 truncate">{product.description}</p>
@@ -65,6 +59,10 @@ export function NuevaColeccionPage() {
             )
           })}
         </div>
+      )}
+
+      {selectedProduct && (
+        <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
       )}
     </div>
   )

@@ -15,18 +15,20 @@ export function useAlerts(products: Product[]) {
     const lowStockRule = rules.find(r => r.type === "low_stock")
     if (lowStockRule?.enabled) {
       products.forEach(p => {
-        Object.entries(p.sizes).forEach(([size, qty]) => {
-          if (qty < lowStockRule.threshold) {
-            result.push({
-              id: `ls-${p.id}-${size}`,
-              type: "low_stock",
-              severity: qty === 0 ? "high" : "medium",
-              message: `Stock bajo en ${p.name} - Talla ${size}: ${qty} unidades`,
-              date: new Date().toISOString().split("T")[0],
-              productId: p.id,
-              read: false,
-            })
-          }
+        p.colors.forEach(c => {
+          Object.entries(c.sizes).forEach(([size, qty]) => {
+            if (qty < lowStockRule.threshold) {
+              result.push({
+                id: `ls-${p.id}-${c.name}-${size}`,
+                type: "low_stock",
+                severity: qty === 0 ? "high" : "medium",
+                message: `Stock bajo en ${p.name} - ${c.name} - Talla ${size}: ${qty} unidades`,
+                date: new Date().toISOString().split("T")[0],
+                productId: p.id,
+                read: false,
+              })
+            }
+          })
         })
       })
     }
