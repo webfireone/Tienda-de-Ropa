@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Manual de Usuario — Tienda de Ropa</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1a1a2e;
+    background: #f8f8fc;
+    line-height: 1.6;
+  }
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+  }
+  /* Cover */
+  .cover {
+    background: linear-gradient(135deg, #0d0d1a, #161627, #1a0a2e);
+    color: #e8e8f0;
+    padding: 80px 60px;
+    text-align: center;
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 40px;
+  }
+  .cover .logo {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 32px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(124,92,252,0.3);
+  }
+  .cover h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-size: 18px;
+    color: #8888a8;
+    margin-bottom: 32px;
+  }
+  .cover .badge {
+    display: inline-block;
+    background: rgba(124,92,252,0.2);
+    color: #a78bfa;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .cover .cred-box {
+    margin-top: 32px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 24px;
+    display: inline-block;
+    text-align: left;
+  }
+  .cover .cred-box p { font-size: 14px; margin-bottom: 4px; }
+  .cover .cred-box .label { color: #8888a8; }
+  .cover .cred-box .value { color: #e8e8f0; font-weight: 600; font-family: monospace; }
+  /* Sections */
+  .section {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    margin: 0 20px 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    border: 1px solid #e8e8f0;
+  }
+  .section h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0d0d1a;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section h2 .icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .section .intro {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+    padding-left: 42px;
+  }
+  .section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0d0d1a;
+    margin: 20px 0 8px;
+    padding-left: 0;
+  }
+  .section h3:first-of-type { margin-top: 0; }
+  .section p, .section li {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  .section ul { padding-left: 20px; margin-bottom: 12px; }
+  .section li { margin-bottom: 4px; }
+  .step {
+    background: #f0eeff;
+    border-left: 3px solid #7c5cfc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 14px;
+  }
+  .step strong { color: #5a3d99; }
+  .tip {
+    background: #fff8e6;
+    border-left: 3px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  .tip strong { color: #b45309; }
+  .note {
+    background: #e8f4fd;
+    border-left: 3px solid #3b82f6;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 10px 0;
+    font-size: 13px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  table th {
+    background: #f0eeff;
+    text-align: left;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: #0d0d1a;
+    border: 1px solid #e0d8ff;
+  }
+  table td {
+    padding: 10px 12px;
+    border: 1px solid #e8e8f0;
+    color: #444;
+  }
+  table tr:nth-child(even) td { background: #fafafe; }
+  code {
+    background: #f0eeff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #5a3d99;
+    font-family: monospace;
+  }
+  .badge-admin {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-client {
+    display: inline-block;
+    background: #e8e8f0;
+    color: #666;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  hr { border: none; border-top: 1px solid #e8e8f0; margin: 24px 0; }
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8888a8;
+    font-size: 13px;
+  }
+  @media print {
+    body { background: white; }
+    .cover { border-radius: 0; margin-bottom: 0; }
+    .section { box-shadow: none; break-inside: avoid; }
+    .page { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ==================== PORTADA ==================== -->
+<div class="cover">
+  <div class="logo">✦</div>
+  <h1>Tienda de Ropa</h1>
+  <p class="subtitle">Manual de Usuario — Guía Funcional Completa</p>
+  <div class="badge">Versión 1.0 · Mayo 2026</div>
+
+  <div class="cred-box">
+    <p><span class="label">Usuario administrador:</span> <span class="value">tiendaderopa@admin.com</span></p>
+    <p><span class="label">Contraseña:</span> <span class="value">123456</span></p>
+    <p style="margin-top:10px;font-size:12px;color:#8888a8;">Podés iniciar sesión con Email/Contraseña o con Google.</p>
+  </div>
+</div>
+
+<!-- ==================== INTRODUCCIÓN ==================== -->
+<div class="section">
+  <h2><span class="icon">★</span> Introducción</h2>
+  <p class="intro">Tienda de Ropa es una aplicación web de comercio electrónico para la venta de indumentaria. Está dividida en dos roles: <span class="badge-admin">Admin</span> (gestión del negocio) y <span class="badge-client">Cliente</span> (compra de productos).</p>
+
+  <p>Este manual explica sección por sección qué hace cada pantalla, cómo usarla y qué puede hacer cada tipo de usuario.</p>
+
+  <div class="step">
+    <strong>Para comenzar:</strong> Abrí https://tienda-de-ropa-o5dr.onrender.com en tu navegador. Usá las credenciales de arriba para ingresar como administrador y recorrer todas las secciones.
+  </div>
+</div>
+
+<!-- ==================== 1. BARRA DE NAVEGACIÓN ==================== -->
+<div class="section">
+  <h2><span class="icon">≡</span> 1. Barra de navegación</h2>
+  <p class="intro">La barra superior está presente en todas las páginas y permite moverse entre secciones.</p>
+
+  <h3>Barra principal</h3>
+  <ul>
+    <li><strong>Logo + "Tienda de Ropa"</strong> — Click para volver al inicio.</li>
+    <li><strong>Navegación central</strong> — Enlaces a las secciones principales: Inicio, Catálogo, Outlet, Nueva Colección.</li>
+    <li><strong>Links de admin</strong> (solo visible para administradores) — Dashboard, Productos, Alertas, Import/Export, Config, Marketing.</li>
+  </ul>
+
+  <h3>Sub-bar (inferior)</h3>
+  <ul>
+    <li><strong>Carrito</strong> — Muestra la cantidad de productos agregados. Click para ir al carrito.</li>
+    <li><strong>Email del usuario</strong> — Identifica quién está logueado.</li>
+    <li><strong>Badge "Admin"</strong> — Aparece si el usuario es administrador.</li>
+    <li><strong>Ingresar / Salir</strong> — Botón de inicio/cierre de sesión.</li>
+  </ul>
+
+  <div class="tip">
+    <strong>Tip:</strong> Si no ves los links de admin, asegurate de haber iniciado sesión con <code>tiendaderopa@admin.com</code>.
+  </div>
+</div>
+
+<!-- ==================== 2. INICIO (LANDING PAGE) ==================== -->
+<div class="section">
+  <h2><span class="icon">⌂</span> 2. Página de inicio</h2>
+  <p class="intro">Es la primera página que ve el usuario. Muestra la identidad de la marca y guía hacia las secciones principales.</p>
+
+  <h3>Secciones de la landing page:</h3>
+  <ul>
+    <li><strong>Hero</strong> — Imagen de fondo rotativa (25 imágenes de moda). Incluye botones "Ver Colección" (→ Catálogo) y "Outlet" (→ Outlet). Muestra la temporada actual.</li>
+    <li><strong>Promociones activas</strong> — Si hay promociones vigentes (creadas desde el panel Marketing), se muestran como banner destacado con el % OFF y código promocional.</li>
+    <li><strong>Features</strong> — 4 tarjetas con información: envío gratis, cambios, 3 cuotas, compra segura.</li>
+    <li><strong>Inspírate</strong> — 3 tarjetas (Elegante, Casual, Urbano) con imágenes rotativas de productos del catálogo. Click para ir al catálogo.</li>
+    <li><strong>Secciones</strong> — 3 banners con imagen de fondo: Catálogo, Outlet, Nueva Colección. Click para ir a cada sección.</li>
+    <li><strong>Brand Story</strong> — Cita de la marca con botón para ir al catálogo.</li>
+    <li><strong>Testimonios</strong> — Opiniones de clientes con estrellas de valoración.</li>
+    <li><strong>Newsletter</strong> — Formulario para suscribirse con email. Los correos se guardan en la base de datos y son visibles desde el panel Marketing.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá al inicio, scrolleá hacia abajo para ver todas las secciones. Hacé click en "Ver Colección" para ir al catálogo.
+  </div>
+</div>
+
+<!-- ==================== 3. CATÁLOGO ==================== -->
+<div class="section">
+  <h2><span class="icon">▤</span> 3. Catálogo de productos</h2>
+  <p class="intro">Muestra todos los productos disponibles con opciones de búsqueda, filtro por marca y vista en cuadrícula o lista.</p>
+
+  <h3>Funcionalidades:</h3>
+  <ul>
+    <li><strong>Filtro por marca</strong> — Botones con forma de pill para filtrar productos por marca (SAIL, OWOKO, LEGACY).</li>
+    <li><strong>Búsqueda</strong> — Campo de texto para buscar por nombre, descripción o marca.</li>
+    <li><strong>Vista cuadrícula / lista</strong> — Alternar entre vista de tarjetas o lista detallada.</li>
+    <li><strong>Al hacer click en un producto</strong> — Se abre un modal con la imagen ampliada, selector de color, talle, cantidad y botón "Agregar al carrito".</li>
+    <li><strong>Badge "Poco stock"</strong> — Aparece si el stock total es menor a 10 unidades.</li>
+  </ul>
+
+  <h3>Modal de producto:</h3>
+  <ul>
+    <li><strong>Imagen grande</strong> — Ocupa la mitad izquierda del modal.</li>
+    <li><strong>Marca, nombre, descripción</strong> — Información básica del producto.</li>
+    <li><strong>Precio</strong> — Precio actual. Si tiene costo, muestra el precio tachado anterior.</li>
+    <li><strong>Categoría y material</strong> — Etiquetas informativas.</li>
+    <li><strong>Color</strong> — Botones para seleccionar color. Al cambiar, se actualizan los talles disponibles.</li>
+    <li><strong>Talle</strong> — Botones para seleccionar talle. Los talles sin stock aparecen tachados.</li>
+    <li><strong>Cantidad</strong> — Selector + / − con límite según stock disponible.</li>
+    <li><strong>Agregar al carrito</strong> — Añade el producto con el color y talle seleccionados.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Buscá un producto por nombre, seleccioná un color y talle, agregalo al carrito. Después andá al carrito desde la sub-bar.
+  </div>
+</div>
+
+<!-- ==================== 4. OUTLET ==================== -->
+<div class="section">
+  <h2><span class="icon">%</span> 4. Outlet</h2>
+  <p class="intro">Muestra solo los productos marcados como <strong>Outlet</strong> (con descuento). Funciona igual que el catálogo pero filtrado automáticamente.</p>
+  <ul>
+    <li>Los productos con badge "OUTLET" tienen precio reducido.</li>
+    <li>Al hacer click se abre el mismo modal de detalle para agregar al carrito.</li>
+  </ul>
+</div>
+
+<!-- ==================== 5. NUEVA COLECCIÓN ==================== -->
+<div class="section">
+  <h2><span class="icon">✦</span> 5. Nueva Colección</h2>
+  <p class="intro">Muestra solo los productos de la sección <strong>Nueva Colección</strong> (lanzamientos recientes).</p>
+  <ul>
+    <li>Los productos tienen badge "NUEVO".</li>
+    <li>Al hacer click se abre el modal de detalle para agregar al carrito.</li>
+  </ul>
+</div>
+
+<!-- ==================== 6. CARRITO ==================== -->
+<div class="section">
+  <h2><span class="icon">🛒</span> 6. Carrito de compras</h2>
+  <p class="intro">Muestra los productos agregados al carrito con sus cantidades, colores y talles. Permite modificar cantidades o eliminar productos.</p>
+
+  <ul>
+    <li><strong>Lista de productos</strong> — Cada ítem muestra: imagen, nombre, color, talle, precio unitario, cantidad (con +/−) y subtotal.</li>
+    <li><strong>Eliminar</strong> — Botón para quitar un producto del carrito.</li>
+    <li><strong>Total</strong> — Suma de todos los subtotales.</li>
+    <li><strong>Stock en tiempo real</strong> — Al modificar cantidad, respeta el stock disponible.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Nota:</strong> El carrito se guarda automáticamente en el navegador (localStorage). Si cerrás el navegador y volvés, los productos siguen ahí.
+  </div>
+</div>
+
+<!-- ==================== 7. LOGIN / CUENTA ==================== -->
+<div class="section">
+  <h2><span class="icon">🔑</span> 7. Inicio de sesión</h2>
+  <p class="intro">Pantalla para iniciar sesión con email/contraseña o con Google.</p>
+
+  <ul>
+    <li><strong>Email + Contraseña</strong> — Ingresá las credenciales.</li>
+    <li><strong>Google</strong> — Usá tu cuenta de Google para ingresar.</li>
+    <li><strong>Roles automáticos</strong> — Si el email está en la lista de administradores (<code>admin@tiendaropa.com</code>, <code>tiendaderopa@admin.com</code>), se asigna rol admin automáticamente.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Login, ingresá con <code>tiendaderopa@admin.com</code> / <code>123456</code>. Después de iniciar sesión vas a ver los links de admin en la barra de navegación.
+  </div>
+</div>
+
+<hr>
+
+<!-- ========== SECCIONES SOLO ADMIN ========== -->
+<div style="text-align:center;padding:10px 20px;font-size:13px;color:#8888a8;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;">— Secciones exclusivas para administradores —</div>
+
+<div style="padding-top:8px;"></div>
+
+<!-- ==================== 8. DASHBOARD ==================== -->
+<div class="section">
+  <h2><span class="icon">📊</span> 8. Dashboard</h2>
+  <p class="intro">Panel de control con indicadores clave del negocio: ventas, márgenes, productos destacados, rotación de inventario.</p>
+
+  <ul>
+    <li><strong>Ventas mensuales / anuales</strong> — Monto total de ventas.</li>
+    <li><strong>Margen bruto / neto</strong> — Rentabilidad del negocio.</li>
+    <li><strong>Top productos</strong> — Productos con mayor margen de ganancia.</li>
+    <li><strong>Rotación de inventario</strong> — Qué tan rápido se vende el stock.</li>
+  </ul>
+</div>
+
+<!-- ==================== 9. PRODUCTOS ==================== -->
+<div class="section">
+  <h2><span class="icon">📦</span> 9. Gestión de productos</h2>
+  <p class="intro">Panel para crear, editar y administrar todos los productos del catálogo.</p>
+
+  <h3>Lista de productos</h3>
+  <ul>
+    <li>Tabla con todos los productos: nombre, marca, precio, stock total, estado (activo, borrador, archivado).</li>
+    <li>Botón "Nuevo Producto" para crear desde cero.</li>
+    <li>Click en "Editar" para modificar un producto existente.</li>
+  </ul>
+
+  <h3>Formulario de producto (3 pasos)</h3>
+  <ul>
+    <li><strong>Paso 1 — Información básica:</strong> Nombre, marca, categoría, descripción, material, sección (General/Outlet/Nueva Colección), precio, costo, tags, imagen URL, estado.</li>
+    <li><strong>Paso 2 — Inventario:</strong> Configurar colores y, para cada color, los talles disponibles con su stock (unidades por talle). Los colores se agregan dinámicamente.</li>
+    <li><strong>Paso 3 — Resumen:</strong> Vista previa de todos los datos antes de guardar.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Productos → "Nuevo Producto". Completá los 3 pasos y guardá. Después verificá que aparece en el Catálogo.
+  </div>
+</div>
+
+<!-- ==================== 10. ALERTAS ==================== -->
+<div class="section">
+  <h2><span class="icon">⚠</span> 10. Alertas</h2>
+  <p class="intro">Sistema de notificaciones para detectar problemas en el negocio.</p>
+
+  <ul>
+    <li><strong>Stock bajo</strong> — Alerta cuando un producto tiene menos unidades que el umbral configurado.</li>
+    <li><strong>Variación de precio</strong> — Detecta cambios de precio significativos.</li>
+    <li><strong>Margen negativo</strong> — Productos que se venden por debajo de su costo.</li>
+    <li>Cada alerta tiene un nivel de severidad (baja, media, alta) y se puede marcar como leída.</li>
+  </ul>
+</div>
+
+<!-- ==================== 11. IMPORT / EXPORT ==================== -->
+<div class="section">
+  <h2><span class="icon">↕</span> 11. Importar / Exportar</h2>
+  <p class="intro">Herramienta para cargar productos desde archivos CSV o desde URLs de tiendas online.</p>
+
+  <h3>Pestaña "Archivo"</h3>
+  <ul>
+    <li><strong>Importar CSV</strong> — Subí un archivo CSV con productos. El sistema detecta automáticamente el formato (columnas, colores, talles) y los importa a Firestore.</li>
+    <li><strong>Exportar CSV</strong> — Descargá todos los productos actuales como archivo CSV.</li>
+  </ul>
+
+  <h3>Pestaña "Página WEB"</h3>
+  <ul>
+    <li><strong>Importar desde URL</strong> — Ingresá la URL de un producto de tiendas online (Sail.com.ar, Owoko.com.ar, LegacyNecochea.com.ar). El sistema scrapea la página, detecta automáticamente el tipo de tienda (Shopify o Tiendanube) y extrae los productos con imágenes, precios, colores y stock real.</li>
+    <li><strong>Vista previa</strong> — Muestra los productos detectados con checkbox para seleccionar cuáles importar.</li>
+    <li><strong>Proxy CORS</strong> — Configurable para sortear bloqueos de CORS al scrapear.</li>
+  </ul>
+</div>
+
+<!-- ==================== 12. CONFIG ==================== -->
+<div class="section">
+  <h2><span class="icon">⚙</span> 12. Configuración global</h2>
+  <p class="intro">Parámetros generales que afectan los cálculos del carrito, envíos y finanzas.</p>
+
+  <h3>Carrito</h3>
+  <ul>
+    <li><strong>Cargo base</strong> — Cargo fijo por compra.</li>
+    <li><strong>Medios de pago</strong> — Nombre y tasa de recargo de cada método (efectivo, transferencia, tarjeta).</li>
+    <li><strong>Descuentos por volumen</strong> — Descuentos cuando se superan ciertas cantidades.</li>
+  </ul>
+
+  <h3>Envío</h3>
+  <ul>
+    <li><strong>Costo fijo</strong> — Precio del envío.</li>
+    <li><strong>Umbral envío gratis</strong> — Monto mínimo para envío sin cargo.</li>
+    <li><strong>Habilitar envío gratis</strong> — Activar/desactivar la promoción.</li>
+  </ul>
+
+  <h3>Financiero</h3>
+  <ul>
+    <li><strong>Inflación mensual</strong> — Porcentaje estimado para cálculos.</li>
+    <li><strong>Impuesto general</strong> — Porcentaje de impuesto.</li>
+    <li><strong>Tipo de cambio USD</strong> — Cotización del dólar.</li>
+  </ul>
+
+  <div class="note">
+    <strong>Nota:</strong> Estos parámetros son de solo lectura para clientes. Solo el administrador puede modificarlos.
+  </div>
+</div>
+
+<!-- ==================== 13. MARKETING ==================== -->
+<div class="section">
+  <h2><span class="icon">📢</span> 13. Marketing</h2>
+  <p class="intro">Panel para gestionar promociones y suscriptores (nuevo).</p>
+
+  <h3>Pestaña "Promociones"</h3>
+  <ul>
+    <li><strong>Crear promoción</strong> — Formulario con título, descripción, % descuento, código promocional, fechas de inicio/fin, URL de imagen de banner, y estado activa/inactiva.</li>
+    <li><strong>Lista de promociones</strong> — Muestra todas las promociones creadas. Se pueden editar o eliminar.</li>
+    <li><strong>Promociones activas en la web</strong> — Las promociones con fecha vigente se muestran automáticamente como banner en la página de inicio.</li>
+  </ul>
+
+  <h3>Pestaña "Suscriptores"</h3>
+  <ul>
+    <li><strong>Lista de suscriptores</strong> — Muestra todos los emails que se suscribieron desde el formulario de Newsletter en la landing page.</li>
+    <li><strong>Copiar emails</strong> — Copia todos los emails al portapapeles para pegarlos en tu servicio de mailing (Mailchimp, SendGrid, etc.).</li>
+    <li><strong>Exportar CSV</strong> — Descarga un archivo CSV con la lista completa de suscriptores para importar a cualquier plataforma de email marketing.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Marketing → "Nueva promoción". Creá una promo con 20% OFF para el catálogo. Después andá a la página de inicio para ver el banner. Después explorá la pestaña Suscriptores para ver los emails registrados.
+  </div>
+</div>
+
+<!-- ==================== 14. INVENTARIO ==================== -->
+<div class="section">
+  <h2><span class="icon">▦</span> 14. Inventario</h2>
+  <p class="intro">(Integrado en la gestión de productos) Permite visualizar y editar el stock de cada producto directamente desde la tabla de productos. Al hacer click en un producto, se puede modificar el stock por color y talle.</p>
+</div>
+
+<!-- ==================== APÉNDICE ==================== -->
+<div class="section">
+  <h2><span class="icon">?</span> Preguntas frecuentes</h2>
+
+  <h3>¿Cómo agrego un producto nuevo?</h3>
+  <p>Andá a Productos → "Nuevo Producto". Completá los 3 pasos (info, inventario, resumen) y guardá.</p>
+
+  <h3>¿Cómo importo productos desde otra tienda?</h3>
+  <p>Andá a Import/Export → pestaña "Página WEB". Ingresá la URL del producto de Sail, Owoko o Legacy y el sistema lo scrapea automáticamente.</p>
+
+  <h3>¿Cómo creo una promoción?</h3>
+  <p>Andá a Marketing → "Nueva promoción". Completá los detalles y guardá. Si está activa y dentro de las fechas, se muestra automáticamente en la página de inicio.</p>
+
+  <h3>¿Dónde veo los emails de los suscriptores?</h3>
+  <p>Andá a Marketing → pestaña "Suscriptores". Ahí podés ver todos los emails, copiarlos o exportarlos como CSV.</p>
+
+  <h3>¿Cómo cambio los parámetros de envío?</h3>
+  <p>Andá a Config → sección "Envío". Modificá los valores y guardá.</p>
+
+  <h3>¿Qué hago si no veo los links de admin?</h3>
+  <p>Asegurate de haber iniciado sesión con <code>tiendaderopa@admin.com</code> o <code>admin@tiendaropa.com</code>. Si iniciás con Google, el email debe ser uno de estos.</p>
+
+  <h3>¿El carrito guarda los productos si cierro el navegador?</h3>
+  <p>Sí, el carrito se guarda automáticamente en el navegador (localStorage). Al volver a abrir la página, los productos siguen ahí.</p>
+</div>
+
+<div class="footer">
+  Tienda de Ropa · Manual de Usuario v1.0 · Mayo 2026<br>
+  Generado para uso interno del equipo.
+</div>
+
+</div>
+
+</body>
+</html>
