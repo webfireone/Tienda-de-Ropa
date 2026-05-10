@@ -44,7 +44,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
 
   const canNext = {
     1: form.name && form.brand && form.price > 0 && form.imageUrl,
-    2: Object.values(form.sizes).some(q => q > 0),
+    2: true,
     3: true,
   }
 
