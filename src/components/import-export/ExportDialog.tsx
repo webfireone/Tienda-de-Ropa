@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useProducts, useSales } from "@/hooks/useFirestore"
-import { useParams } from "@/context/ParamsContext"
+import { useParamsStore } from "@/store/paramsStore"
 import { calculateKpis } from "@/lib/calculations"
 import { jsPDF } from "jspdf"
 import { autoTable } from "jspdf-autotable"
@@ -11,7 +11,7 @@ import { Download, FileText, FileSpreadsheet, FileDown } from "lucide-react"
 export function ExportDialog() {
   const { data: products = [] } = useProducts()
   const { data: sales = [] } = useSales()
-  const { params, scenarioConfig } = useParams()
+  const { params, scenarioConfig } = useParamsStore()
 
   const kpis = calculateKpis(sales, products, params, scenarioConfig)
 

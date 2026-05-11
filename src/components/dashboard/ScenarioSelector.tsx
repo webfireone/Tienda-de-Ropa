@@ -1,10 +1,10 @@
-import { useParams } from "@/context/ParamsContext"
+import { useParamsStore } from "@/store/paramsStore"
 import { Select } from "@/components/ui/select"
 import { SCENARIOS } from "@/lib/constants"
 import type { Scenario } from "@/types"
 
 export function ScenarioSelector() {
-  const { scenario, setScenario } = useParams()
+  const { scenario, setScenario } = useParamsStore()
 
   return (
     <div className="flex items-center gap-2">

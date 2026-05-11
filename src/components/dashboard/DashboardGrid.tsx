@@ -1,5 +1,5 @@
 import { KpiSummary } from "./ChartPanel"
-import { useParams } from "@/context/ParamsContext"
+import { useParamsStore } from "@/store/paramsStore"
 import { useProducts, useSales } from "@/hooks/useFirestore"
 import { calculateKpis } from "@/lib/calculations"
 import { KpiCard } from "./KpiCard"
@@ -8,7 +8,7 @@ import { ScenarioSelector } from "./ScenarioSelector"
 export function DashboardGrid() {
   const { data: products = [] } = useProducts()
   const { data: sales = [] } = useSales()
-  const { params, scenarioConfig } = useParams()
+  const { params, scenarioConfig } = useParamsStore()
 
   const kpis = calculateKpis(sales, products, params, scenarioConfig)
   const formatMoney = (n: number) => `$${n.toLocaleString("es-AR")}`

@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/store/cartStore"
 import { useNavigate, useLocation } from "react-router-dom"
 import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, Megaphone, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -27,7 +27,7 @@ const adminLinks: NavLink[] = [
 
 export function Header() {
   const { isAdmin, user, signOut, setMockRole } = useAuth()
-  const { totalItems } = useCart()
+  const { totalItems } = useCartStore()
   const navigate = useNavigate()
   const location = useLocation()
 

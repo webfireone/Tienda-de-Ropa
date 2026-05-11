@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "@/context/AuthContext"
-import { ParamsProvider } from "@/context/ParamsContext"
-import { CartProvider } from "@/context/CartContext"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { LandingPage } from "@/pages/LandingPage"
 import { DashboardPage } from "@/pages/DashboardPage"
@@ -32,29 +30,25 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ParamsProvider>
-          <CartProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/catalog" element={<CatalogPage />} />
-                <Route path="/catalog/:id" element={<ProductDetailPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/alerts" element={<AlertsPage />} />
-                <Route path="/import-export" element={<ImportExportPage />} />
-                <Route path="/config" element={<ConfigPage />} />
-                <Route path="/outlet" element={<OutletPage />} />
-                <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
-                <Route path="/marketing" element={<MarketingPage />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-          </CartProvider>
-        </ParamsProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/catalog" element={<CatalogPage />} />
+              <Route path="/catalog/:id" element={<ProductDetailPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/alerts" element={<AlertsPage />} />
+              <Route path="/import-export" element={<ImportExportPage />} />
+              <Route path="/config" element={<ConfigPage />} />
+              <Route path="/outlet" element={<OutletPage />} />
+              <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
+              <Route path="/marketing" element={<MarketingPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   )

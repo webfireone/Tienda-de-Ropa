@@ -1,4 +1,4 @@
-import { useParams } from "@/context/ParamsContext"
+import { useParamsStore } from "@/store/paramsStore"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -39,7 +39,7 @@ function SectionCard({ icon: Icon, title, description, children }: { icon: React
 }
 
 export function GlobalParamsForm() {
-  const { params, updateParams } = useParams()
+  const { params, updateParams } = useParamsStore()
   const { isAdmin } = useAuth()
 
   const update = (partial: Partial<GlobalParams>) => {

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useParams } from "@/context/ParamsContext"
+import { useParamsStore } from "@/store/paramsStore"
 import { useProducts, useSales } from "@/hooks/useFirestore"
 import { generateProjections, type ProjectionPeriod } from "@/lib/projections"
 import { calculateKpis, calculateInventoryTurnoverByBrand } from "@/lib/calculations"
@@ -13,7 +13,7 @@ interface ChartPanelProps {
 export function KpiSummary({ title }: ChartPanelProps) {
   const { data: products = [] } = useProducts()
   const { data: sales = [] } = useSales()
-  const { params, scenarioConfig } = useParams()
+  const { params, scenarioConfig } = useParamsStore()
   const [period, setPeriod] = useState<ProjectionPeriod>("monthly")
 
   const kpis = calculateKpis(sales, products, params, scenarioConfig)

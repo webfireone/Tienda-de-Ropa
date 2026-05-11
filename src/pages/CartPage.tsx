@@ -1,5 +1,5 @@
-import { useCart } from "@/context/CartContext"
-import { useParams } from "@/context/ParamsContext"
+import { useCartStore } from "@/store/cartStore"
+import { useParamsStore } from "@/store/paramsStore"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
@@ -8,8 +8,8 @@ import { useAuth } from "@/context/AuthContext"
 import { ShoppingCartIcon, Trash2, Minus, Plus, CreditCard, Truck, ShoppingBag } from "lucide-react"
 
 export function CartPage() {
-  const { items, removeItem, updateQuantity } = useCart()
-  const { params, updateParams } = useParams()
+  const { items, removeItem, updateQuantity } = useCartStore()
+  const { params, updateParams } = useParamsStore()
   const { isAdmin } = useAuth()
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)

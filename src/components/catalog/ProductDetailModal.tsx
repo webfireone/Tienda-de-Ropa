@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/store/cartStore"
 import { SIZES } from "@/types"
 import type { Product } from "@/types"
 import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle, Check } from "lucide-react"
@@ -11,7 +11,7 @@ interface ProductDetailModalProps {
 }
 
 export function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
-  const { addItem, items } = useCart()
+  const { addItem, items } = useCartStore()
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "")
   const [selectedSize, setSelectedSize] = useState("")
   const [quantity, setQuantity] = useState(1)
