@@ -139,15 +139,29 @@ body {
   50% { box-shadow: 0 0 40px rgba(124, 92, 252, 0.2), 0 0 60px rgba(124, 92, 252, 0.1); }
 }
 
+@keyframes float-particle {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: var(--p-opacity, 0.8); }
+  85% { opacity: var(--p-opacity, 0.8); }
+  100% { transform: translateY(-420px) translateX(var(--p-drift, 20px)); opacity: 0; }
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.15; }
+}
+
 .animate-float { animation: float 6s ease-in-out infinite; }
 .animate-float-reverse { animation: float-reverse 7s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
 .animate-gradient { animation: gradientShift 8s ease infinite; }
+.animate-gradient-slow { animation: gradientShift 12s ease infinite; }
 .animate-fade-up { animation: fadeInUp 0.6s ease forwards; }
 .animate-orbit { animation: orbit 6s linear infinite; }
 .animate-orbit-reverse { animation: orbit-reverse 8s linear infinite; }
-
 .animate-glow { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-particle { animation: float-particle var(--p-duration, 8s) ease-in-out var(--p-delay, 0s) infinite; }
+.animate-grid-pulse { animation: grid-pulse 4s ease-in-out infinite; }
 
 .shimmer {
   background: linear-gradient(90deg, transparent, rgba(124, 92, 252, 0.05), transparent);

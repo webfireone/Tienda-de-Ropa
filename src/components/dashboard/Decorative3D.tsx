@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
@@ -9,10 +9,10 @@ const HERO_IMAGES = Array.from({ length: 25 }, (_, i) => `/inicio/inicio-${i + 1
 function FloatingOrb({ className, size = "md", delay = 0, idx = 0 }: { className?: string; size?: "sm" | "md" | "lg"; delay?: number; idx?: number }) {
   const sizes = { sm: "w-20 h-20", md: "w-32 h-32", lg: "w-48 w-48" }
   const gradients = [
-    "from-violet-500/15 to-fuchsia-500/15",
-    "from-rose-500/15 to-amber-500/15",
-    "from-cyan-500/15 to-blue-500/15",
-    "from-emerald-500/15 to-teal-500/15",
+    "from-violet-500/20 to-fuchsia-500/20",
+    "from-rose-500/20 to-amber-500/20",
+    "from-cyan-500/20 to-blue-500/20",
+    "from-emerald-500/20 to-teal-500/20",
   ]
   const gradient = gradients[idx % gradients.length]
 
@@ -39,8 +39,8 @@ function GeometricShape({ className, shape = "circle", delay = 0 }: { className?
       className={cn("absolute animate-float-reverse", className)}
       style={{ animationDelay: `${delay}s` }}
     >
-      <div className={cn("w-16 h-16 border border-primary/10 bg-card/50 backdrop-blur-sm shadow-xl", shapeClasses[shape])}>
-        <div className="w-full h-full rounded-inherit gradient-primary opacity-10" />
+      <div className={cn("w-16 h-16 border border-primary/20 bg-card/50 backdrop-blur-sm shadow-xl", shapeClasses[shape])}>
+        <div className="w-full h-full rounded-inherit gradient-primary opacity-20" />
       </div>
     </div>
   )
@@ -49,7 +49,7 @@ function GeometricShape({ className, shape = "circle", delay = 0 }: { className?
 function OrbitingRing({ className, size = 280, reverse = false }: { className?: string; size?: number; reverse?: boolean }) {
   return (
     <div className={cn("absolute", className)} style={{ width: size, height: size }}>
-      <div className={cn("w-full h-full rounded-full border border-primary/10", reverse ? "animate-orbit-reverse" : "animate-orbit")}>
+      <div className={cn("w-full h-full rounded-full border border-primary/20", reverse ? "animate-orbit-reverse" : "animate-orbit")}>
         <div className="absolute top-0 left-1/2 w-3 h-3 -ml-1.5 -mt-1.5 rounded-full gradient-primary shadow-lg shadow-primary/50 animate-pulse-glow" />
         <div className="absolute bottom-1/3 right-0 w-2 h-2 -mr-1 rounded-full bg-rose-400 shadow-lg shadow-rose-400/50" style={{ animationDelay: '-3s' }} />
       </div>
@@ -57,13 +57,78 @@ function OrbitingRing({ className, size = 280, reverse = false }: { className?: 
   )
 }
 
-function Sparkle({ className, delay = 0 }: { className?: string; delay?: number }) {
+const PARTICLE_COLORS = [
+  "bg-white/40",
+  "bg-violet-400/40",
+  "bg-rose-400/35",
+  "bg-cyan-400/35",
+  "bg-amber-400/35",
+  "bg-fuchsia-400/30",
+]
+
+function Particles({ count = 50 }: { count?: number }) {
+  const particles = Array.from({ length: count }, (_, i) => {
+    const size = 2 + Math.random() * 4
+    return {
+      id: i,
+      left: Math.random() * 100,
+      top: 30 + Math.random() * 70,
+      size,
+      duration: 6 + Math.random() * 10,
+      delay: Math.random() * 8,
+      drift: -50 + Math.random() * 100,
+      opacity: 0.4 + Math.random() * 0.6,
+      color: PARTICLE_COLORS[Math.floor(Math.random() * PARTICLE_COLORS.length)],
+    }
+  })
+
+  return (
+    <>
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className={cn("absolute rounded-full pointer-events-none animate-particle", p.color)}
+          style={{
+            left: `${p.left}%`,
+            top: `${p.top}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            ['--p-duration' as string]: `${p.duration}s`,
+            ['--p-delay' as string]: `${p.delay}s`,
+            ['--p-drift' as string]: `${p.drift}px`,
+            ['--p-opacity' as string]: p.opacity,
+          } as React.CSSProperties}
+        />
+      ))}
+    </>
+  )
+}
+
+function MouseGlow() {
+  const [pos, setPos] = useState({ x: 50, y: 50 })
+
+  const handleMouse = useCallback((e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setPos({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    })
+  }, [])
+
   return (
     <div
-      className={cn("absolute w-1 h-1 rounded-full bg-white/40 animate-float", className)}
-      style={{ animationDelay: `${delay}s`, animationDuration: `${4 + Math.random() * 4}s` }}
+      className="absolute inset-0 pointer-events-none z-[1]"
+      onMouseMove={handleMouse}
     >
-      <div className="w-full h-full rounded-full bg-white/60 animate-ping" style={{ animationDelay: `${delay}s`, animationDuration: '3s' }} />
+      <div
+        className="absolute w-[700px] h-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        style={{
+          left: `${pos.x}%`,
+          top: `${pos.y}%`,
+          background: 'radial-gradient(circle, rgba(124,92,252,0.15) 0%, rgba(236,72,153,0.08) 30%, rgba(124,92,252,0.03) 50%, transparent 70%)',
+          transition: 'left 0.3s ease-out, top 0.3s ease-out',
+        }}
+      />
     </div>
   )
 }
@@ -80,8 +145,11 @@ export function HeroSection() {
   }, [])
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 min-h-[520px]">
-      <div className="hero-grid absolute inset-0 opacity-30" />
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 min-h-[520px] animate-gradient-slow" style={{ backgroundSize: '200% 200%' }}>
+      <div className="hero-grid absolute inset-0 opacity-30 animate-grid-pulse" />
+
+      <MouseGlow />
+      <Particles count={50} />
 
       {/* Ghost editorial image (rotating) */}
       <div className="absolute right-0 top-0 bottom-0 w-[45%] hidden md:block overflow-hidden">
@@ -114,16 +182,6 @@ export function HeroSection() {
       {/* Orbiting rings */}
       <OrbitingRing className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" size={320} />
       <OrbitingRing className="top-1/3 right-1/4" size={160} reverse />
-
-      {/* Sparkle particles */}
-      <Sparkle className="top-[15%] right-[35%]" delay={0} />
-      <Sparkle className="top-[30%] right-[60%]" delay={1.2} />
-      <Sparkle className="top-[55%] right-[25%]" delay={0.6} />
-      <Sparkle className="top-[70%] right-[55%]" delay={2} />
-      <Sparkle className="top-[25%] right-[80%]" delay={1.5} />
-      <Sparkle className="top-[80%] right-[15%]" delay={0.3} />
-      <Sparkle className="top-[45%] right-[45%]" delay={2.5} />
-      <Sparkle className="top-[10%] right-[10%]" delay={1.8} />
 
       {/* Content */}
       <div className="relative z-20 flex flex-col justify-center h-full min-h-[520px] max-w-xl px-10">
