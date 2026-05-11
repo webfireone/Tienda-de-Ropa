@@ -17,6 +17,7 @@ import { NuevaColeccionPage } from "@/pages/NuevaColeccionPage"
 import { MarketingPage } from "@/pages/MarketingPage"
 import { OrdersPage } from "@/pages/OrdersPage"
 import { AdminHomePage } from "@/pages/AdminHomePage"
+import { NotFoundPage } from "@/pages/NotFoundPage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -50,6 +51,7 @@ function App() {
               <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
               <Route path="/marketing" element={<MarketingPage />} />
               <Route path="/orders" element={<OrdersPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </BrowserRouter>
