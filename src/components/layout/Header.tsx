@@ -53,7 +53,7 @@ export function Header() {
           {/* Logo (solo para no-admin) */}
           {!isAdmin && (
             <div
-              className="flex items-center gap-2 cursor-pointer shrink-0 animate-float"
+              className="flex items-center gap-2 cursor-pointer shrink-0"
               onClick={() => navigate("/")}
             >
               <Logo />
