@@ -1,0 +1,4 @@
+﻿name,brand,category,price,cost,imageUrl,description,material,colors,tags,XS,S,M,L,XL,XXL,status
+Remera Urban Fit,Urban Fit,Remeras,25000,12000,https://placehold.co/600x800/6c5ce7/ffffff?text=Remera+Urban,Remera de algodón 100%,Algodón 100%,"Negro,Blanco,Gris","remera,básica,urbana",10,20,30,25,15,5,active
+Campera EcoWear,EcoWear,Camperas,65000,35000,https://placehold.co/600x800/00b894/ffffff?text=Campera+Eco,Campera impermeable reciclada,Poliéster reciclado,"Verde,Negro","campera,ecológica,impermeable",5,10,20,15,8,2,active
+Pantalón Casual,Casual Club,Pantalones,35000,18000,https://placehold.co/600x800/fd79a8/ffffff?text=Pantalon+Casual,Pantalón chino de vestir,Algodón y elastano,"Beige,Negro,Azul","pantalón,casual,vestir",8,15,25,20,10,3,active
