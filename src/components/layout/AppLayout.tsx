@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
-import { DecorativeBackground } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { X, Sparkles } from "lucide-react"
 
@@ -39,8 +38,6 @@ export function AppLayout() {
   return (
     <SmoothScroll>
       <div className="min-h-screen bg-background relative">
-        {isAdminRoute && <DecorativeBackground />}
-
         {/* Admin welcome banner (one-time) */}
         {showAdminBanner && (
           <div className="relative z-50 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-rose-600 text-white">

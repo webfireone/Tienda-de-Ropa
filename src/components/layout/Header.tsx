@@ -18,6 +18,7 @@ const navLinks: NavLink[] = [
 ]
 
 const adminLinks: NavLink[] = [
+  { to: "/admin", label: "Inicio", icon: Sparkles },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/products", label: "Productos", icon: Package },
   { to: "/orders", label: "Pedidos", icon: ClipboardList },

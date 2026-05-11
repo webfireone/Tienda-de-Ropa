@@ -16,6 +16,7 @@ import { OutletPage } from "@/pages/OutletPage"
 import { NuevaColeccionPage } from "@/pages/NuevaColeccionPage"
 import { MarketingPage } from "@/pages/MarketingPage"
 import { OrdersPage } from "@/pages/OrdersPage"
+import { AdminHomePage } from "@/pages/AdminHomePage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ function App() {
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/admin" element={<AdminHomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/products" element={<ProductsPage />} />
