@@ -34,6 +34,13 @@ function pickRandom(arr: string[], count: number, exclude: string[] = []): strin
 export function LandingPage() {
   const navigate = useNavigate()
   const { isAdmin } = useAuth()
+
+  useEffect(() => {
+    if (isAdmin) {
+      navigate("/admin", { replace: true })
+    }
+  }, [isAdmin, navigate])
+
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
   const [subError, setSubError] = useState("")
