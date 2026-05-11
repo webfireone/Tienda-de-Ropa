@@ -8,8 +8,10 @@ const PORT = process.env.PORT || 10000
 
 app.use(express.static(path.join(__dirname, "dist")))
 
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"))
+app.use((req, res, next) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"), (err) => {
+    if (err) next(err)
+  })
 })
 
 app.listen(PORT, () => {
