@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import type { Product, Alert, AlertRule } from "@/types"
 import { HOLIDAYS } from "@/lib/constants"
+import { getOrderAlerts } from "@/lib/orderAlerts"
 
 export function useAlerts(products: Product[]) {
   const [rules, setRules] = useState<AlertRule[]>([
@@ -48,6 +49,8 @@ export function useAlerts(products: Product[]) {
         })
       }
     })
+
+    result.push(...getOrderAlerts())
 
     return result
   }, [products, rules])

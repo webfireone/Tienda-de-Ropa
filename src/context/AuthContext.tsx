@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [mockRole, setMockRoleState] = useState<Role>("admin")
 
   const resolvedUser: User | null = USE_MOCK
-    ? { ...MOCK_USER, role: mockRole }
+    ? userData ?? { ...MOCK_USER, role: mockRole }
     : userData
 
   useEffect(() => {
@@ -81,6 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    if (USE_MOCK) {
+      setUserData({ uid: "mock-uid", email, role: "viewer" })
+      return
+    }
     const cred = await fbSignIn(auth, email, password)
     const role = await getUserRole(cred.user.uid, cred.user.email || undefined)
     setUserData({
@@ -91,6 +95,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
+    if (USE_MOCK) {
+      setUserData({ uid: "mock-uid", email: "cliente@mock.com", role: "viewer" })
+      return
+    }
     const provider = new GoogleAuthProvider()
     const cred = await signInWithPopup(auth, provider)
     const role = await getUserRole(cred.user.uid, cred.user.email || undefined)
@@ -102,16 +110,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = async () => {
+    if (USE_MOCK) {
+      setUserData(null)
+      return
+    }
     await fbSignOut(auth)
     setUserData(null)
   }
 
   const setMockRole = (role: Role) => {
     setMockRoleState(role)
+    setUserData(prev => prev ? { ...prev, role } : null)
   }
 
-  const resolvedRole = USE_MOCK ? mockRole : (userData?.role ?? "viewer")
-  const resolvedIsAdmin = USE_MOCK ? mockRole === "admin" : userData?.role === "admin"
+  const resolvedRole = resolvedUser?.role ?? "viewer"
+  const resolvedIsAdmin = resolvedRole === "admin"
 
   const value = {
     user: resolvedUser,

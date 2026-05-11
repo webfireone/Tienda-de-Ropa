@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext"
 import { useCartStore } from "@/store/cartStore"
 import { useNavigate, useLocation } from "react-router-dom"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, Megaphone, FileText } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
 import { type ComponentType } from "react"
@@ -20,10 +20,11 @@ const navLinks: NavLink[] = [
 const adminLinks: NavLink[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/products", label: "Productos", icon: Package },
+  { to: "/orders", label: "Pedidos", icon: ClipboardList },
   { to: "/alerts", label: "Alertas", icon: AlertTriangle },
   { to: "/import-export", label: "Import/Export", icon: FileUp },
   { to: "/config", label: "Config", icon: Settings },
-  { to: "/marketing", label: "Marketing", icon: Megaphone },
+  { to: "/marketing", label: "Marketing", icon: BarChart3 },
 ]
 
 export function Header() {
@@ -32,7 +33,7 @@ export function Header() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const allLinks = [...navLinks, ...(isAdmin ? adminLinks : [])]
+  const allLinks = isAdmin ? adminLinks : navLinks
 
   return (
     <header className="sticky top-0 z-50">
@@ -58,7 +59,7 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav className={cn(
-            "hidden md:flex items-center gap-0.5 overflow-x-auto",
+            "hidden md:flex items-center gap-0 overflow-x-auto",
             isAdmin ? "flex-1 justify-center" : "flex-1 justify-center"
           )} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {allLinks.map(link => {
@@ -70,7 +71,7 @@ export function Header() {
                   key={link.to}
                   onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
                   className={cn(
-                    "flex items-center gap-1 px-2.5 py-2 text-xs font-medium rounded-xl transition-all duration-300 whitespace-nowrap shrink-0",
+                    "flex items-center gap-1 px-1.5 py-1.5 text-[11px] font-medium rounded-lg transition-all duration-300 whitespace-nowrap shrink-0",
                     isActive
                       ? "bg-secondary text-primary shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -84,7 +85,7 @@ export function Header() {
           </nav>
 
           {/* Cart + Auth (desktop) */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
+          <div className="hidden md:flex items-center gap-1 shrink-0">
             {isAdmin && (
               <button
                 onClick={() => window.open("/manual-usuario.pdf", "_blank")}

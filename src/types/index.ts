@@ -41,6 +41,36 @@ export interface Sale {
   size: string
 }
 
+export interface OrderItem {
+  productId: string
+  productName: string
+  brand: string
+  color: string
+  size: string
+  quantity: number
+  unitPrice: number
+  imageUrl: string
+}
+
+export interface Order {
+  id: string
+  customerName: string
+  customerPhone: string
+  customerEmail: string
+  deliveryMethod: "shipping" | "pickup"
+  deliveryAddress?: string
+  deliveryCity?: string
+  deliveryPostalCode?: string
+  paymentMethod: string
+  paymentRate: number
+  items: OrderItem[]
+  subtotal: number
+  discount: number
+  shipping: number
+  total: number
+  createdAt: string
+}
+
 export interface PaymentMethod {
   name: string
   rate: number

@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { db } from "@/lib/firebase"
 import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore"
-import type { Product, Sale, GlobalParams } from "@/types"
+import type { Product, Sale, GlobalParams, Order } from "@/types"
 import { MOCK_PRODUCTS, MOCK_SALES, DEFAULT_PARAMS } from "@/lib/constants"
+import { addOrder } from "./useOrders"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
@@ -75,6 +76,31 @@ export function useDeleteProduct() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
+  })
+}
+
+export function useCreateOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (order: Order) => {
+      addOrder(order)
+      try {
+        if (USE_MOCK) {
+          await new Promise(r => setTimeout(r, 800))
+          return order
+        }
+        await setDoc(doc(db, "orders", order.id), order)
+        return order
+      } catch (err) {
+        console.warn("Firestore no disponible, guardando localmente:", err)
+        await new Promise(r => setTimeout(r, 800))
+        return order
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders"] })
+      queryClient.invalidateQueries({ queryKey: ["sales"] })
     },
   })
 }

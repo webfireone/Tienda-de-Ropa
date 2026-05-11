@@ -2,18 +2,13 @@ import { NavLink, useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/AuthContext"
 import {
-  LayoutDashboard,
   Store,
   ShoppingCart,
-  AlertTriangle,
-  FileUp,
   Shirt,
   User,
-  Package,
   LogOut,
   Tag,
   Layers,
-  Megaphone,
 } from "lucide-react"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
@@ -30,19 +25,7 @@ export function Sidebar() {
     { to: "/cart", label: "Carrito de Compra", icon: ShoppingCart },
   ]
 
-  const adminLinks = [
-    { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { to: "/products", label: "Productos", icon: Package },
-    { to: "/catalog", label: "Catálogo", icon: Store },
-    { to: "/outlet", label: "Outlet", icon: Tag },
-    { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
-    { to: "/cart", label: "Carrito de Compra", icon: ShoppingCart },
-    { to: "/alerts", label: "Alertas", icon: AlertTriangle },
-    { to: "/import-export", label: "Importar/Exportar", icon: FileUp },
-    { to: "/marketing", label: "Marketing", icon: Megaphone },
-  ]
-
-  const links = isAdmin ? adminLinks : clientLinks
+  const links = clientLinks
 
   return (
     <aside className="w-64 border-r border-border bg-background min-h-screen p-6 flex flex-col">
