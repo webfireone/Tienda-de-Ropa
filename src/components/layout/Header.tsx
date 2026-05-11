@@ -3,6 +3,7 @@ import { useCartStore } from "@/store/cartStore"
 import { useNavigate, useLocation } from "react-router-dom"
 import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, Megaphone, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Logo } from "./Logo"
 import { type ComponentType } from "react"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
@@ -35,7 +36,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="gradient-primary text-white text-[10px] tracking-[0.2em] uppercase text-center py-2 px-4">
+      <div className="gradient-brand text-white text-[10px] tracking-[0.2em] uppercase text-center py-2 px-4">
         <span className="inline-flex items-center gap-2">
           <Sparkles className="h-3 w-3" />
           Envío gratis en compras +$120.000 · 3 cuotas sin interés
@@ -48,12 +49,10 @@ export function Header() {
           {/* Logo (solo para no-admin) */}
           {!isAdmin && (
             <div
-              className="flex items-center gap-3 cursor-pointer shrink-0 animate-float"
+              className="flex items-center gap-2 cursor-pointer shrink-0 animate-float"
               onClick={() => navigate("/")}
             >
-              <div className="w-11 h-11 flex items-center justify-center" style={{ filter: 'drop-shadow(0 0 8px rgba(139,92,246,0.6))' }}>
-                <img src="/logos/logo-recortado-80.png" className="w-full h-full object-contain" alt="GLAMOURS LUJÁN" />
-              </div>
+              <Logo />
             </div>
           )}
 

@@ -180,7 +180,7 @@ export function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Secciones</p>
-          <h2 className="font-display text-3xl font-bold">Explorá por sección</h2>
+          <h2 className="font-display text-3xl font-bold"><span className="gradient-text">Explorá por sección</span></h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
@@ -238,7 +238,7 @@ export function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Testimonios</p>
-          <h2 className="font-display text-3xl font-bold">#ComunidadTienda</h2>
+          <h2 className="font-display text-3xl font-bold"><span className="gradient-text">#ComunidadTienda</span></h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((t, i) => (
@@ -264,8 +264,8 @@ export function LandingPage() {
 
         <div className="max-w-xl mx-auto px-6 text-center relative z-10">
           <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary/60" />
-          <h2 className="font-display text-3xl font-bold text-foreground mb-4">
-            ¿Listo para actualizar tu estilo?
+          <h2 className="font-display text-3xl font-bold mb-4">
+            <span className="gradient-text">¿Listo para actualizar tu estilo?</span>
           </h2>
           <p className="text-base text-muted-foreground mb-8">
             Suscribite y recibí 10% OFF en tu primera compra
