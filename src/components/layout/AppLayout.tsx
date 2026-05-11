@@ -1,6 +1,8 @@
+import { useEffect } from "react"
 import { Outlet } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
+import { migrateOrdersToFirestore } from "@/lib/migrateOrders"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -11,6 +13,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export function AppLayout() {
+  useEffect(() => {
+    migrateOrdersToFirestore()
+  }, [])
+
   return (
     <SmoothScroll>
       <div className="min-h-screen bg-background relative">
