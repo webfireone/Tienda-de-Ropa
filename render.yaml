@@ -2,7 +2,7 @@ services:
   - type: web
     name: tienda-de-ropa
     env: static
-    buildCommand: npm run build
+    buildCommand: npm run build && cp dist/index.html dist/404.html
     staticPublishPath: dist
     envVars:
       - key: VITE_FIREBASE_API_KEY
@@ -20,10 +20,10 @@ services:
       - key: VITE_FIREBASE_MEASUREMENT_ID
         value: G-7KMX0D6WVW
     headers:
-      - path: /*
+      - path: /**
         name: Cache-Control
         value: no-cache
     routes:
       - type: rewrite
-        source: /*
+        source: /**
         destination: /index.html
