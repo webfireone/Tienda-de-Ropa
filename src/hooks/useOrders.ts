@@ -1,16 +1,31 @@
-import { useOrdersStore } from "@/store/ordersStore"
+import { useState, useEffect } from "react"
+import { getOrders, subscribe } from "@/store/ordersStore"
 import type { Order } from "@/types"
 
-export function addOrder(order: Order) {
-  useOrdersStore.getState().addOrder(order)
-}
+export { addOrder } from "@/store/ordersStore"
 
 export function useOrders() {
-  const orders = useOrdersStore(s => s.orders)
+  const [orders, setOrders] = useState<Order[]>(getOrders)
+
+  useEffect(() => {
+    const unsub = subscribe(() => {
+      setOrders([...getOrders()])
+    })
+    return unsub
+  }, [])
+
   return { data: orders, isLoading: false }
 }
 
 export function useOrder(id: string | undefined) {
-  const orders = useOrdersStore(s => s.orders)
+  const [orders, setOrders] = useState<Order[]>(getOrders)
+
+  useEffect(() => {
+    const unsub = subscribe(() => {
+      setOrders([...getOrders()])
+    })
+    return unsub
+  }, [])
+
   return { data: orders.find(o => o.id === id) ?? null, isLoading: false }
 }
