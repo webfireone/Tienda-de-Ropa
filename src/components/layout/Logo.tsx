@@ -1,19 +1,18 @@
 export function Logo() {
   return (
     <div className="relative flex items-center justify-center">
-      <svg width="76" height="76" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 4px 12px rgba(124,92,252,0.45)) drop-shadow(0 0 20px rgba(236,72,153,0.25))' }}>
+      <svg width="76" height="76" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <clipPath id="circleClip">
             <circle cx="100" cy="100" r="100" />
           </clipPath>
           <linearGradient id="chrome" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#e8e8e8" />
-            <stop offset="15%" stop-color="#ffffff" />
-            <stop offset="35%" stop-color="#b0b0b0" />
-            <stop offset="50%" stop-color="#e0e0e0" />
-            <stop offset="65%" stop-color="#808080" />
-            <stop offset="85%" stop-color="#d0d0d0" />
-            <stop offset="100%" stop-color="#a0a0a0" />
+            <stop offset="0%" stop-color="#f0f0f0" />
+            <stop offset="20%" stop-color="#ffffff" />
+            <stop offset="40%" stop-color="#c0c0c0" />
+            <stop offset="55%" stop-color="#e8e8e8" />
+            <stop offset="75%" stop-color="#909090" />
+            <stop offset="100%" stop-color="#b0b0b0" />
           </linearGradient>
           <linearGradient id="goldEdge" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#D4AF37" />
@@ -46,16 +45,21 @@ export function Logo() {
             <stop offset="50%" stop-color="rgba(255,255,255,0.03)" />
             <stop offset="100%" stop-color="rgba(255,255,255,0)" />
           </radialGradient>
-          <filter id="chrome3d">
-            <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="rgba(0,0,0,0.6)" />
+          <filter id="textShadow">
+            <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="rgba(0,0,0,0.5)" />
+          </filter>
+          <filter id="textShadowSub">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1" flood-color="rgba(0,0,0,0.5)" />
+          </filter>
+          <filter id="svgGlow">
+            <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="rgba(124,92,252,0.4)" />
+            <feDropShadow dx="0" dy="0" stdDeviation="20" flood-color="rgba(236,72,153,0.2)" />
           </filter>
         </defs>
 
         <g clip-path="url(#circleClip)">
-          {/* Space background */}
           <circle cx="100" cy="100" r="100" fill="url(#space)" />
 
-          {/* Stars */}
           <circle cx="15" cy="12" r="0.7" fill="rgba(255,255,255,0.7)" />
           <circle cx="185" cy="20" r="0.5" fill="rgba(255,255,255,0.5)" />
           <circle cx="160" cy="8" r="1" fill="rgba(255,255,255,0.9)" />
@@ -76,29 +80,22 @@ export function Logo() {
           <circle cx="60" cy="195" r="0.3" fill="rgba(255,255,255,0.3)" />
           <circle cx="150" cy="3" r="0.4" fill="rgba(255,255,255,0.4)" />
 
-          {/* Nebulas */}
           <ellipse cx="165" cy="160" rx="55" ry="30" fill="rgba(30,90,180,0.06)" transform="rotate(-25 165 160)" />
           <ellipse cx="35" cy="40" rx="45" ry="25" fill="rgba(60,40,160,0.05)" transform="rotate(15 35 40)" />
 
-          {/* Earth sphere */}
           <circle cx="100" cy="100" r="110" fill="url(#earth)" />
 
-          {/* Continents - North America */}
           <path d="M 72,70 Q 77,64 82,66 Q 88,68 90,74 Q 93,82 91,90 Q 89,96 85,100 Q 81,104 78,110 Q 76,106 74,98 Q 71,88 72,78 Z" fill="rgba(34,139,34,0.4)" />
           <path d="M 78,66 Q 84,60 88,62 Q 92,64 90,70 Q 85,72 81,70 Z" fill="rgba(34,139,34,0.35)" />
 
-          {/* Continents - South America */}
           <path d="M 82,112 Q 86,108 88,114 Q 90,120 89,126 Q 87,132 84,138 Q 82,142 80,140 Q 78,134 79,126 Q 80,118 82,112 Z" fill="rgba(34,139,34,0.35)" />
 
-          {/* Continents - Europe/Africa */}
           <path d="M 110,68 Q 115,66 119,70 Q 122,74 120,82 Q 118,90 116,98 Q 114,110 112,118 Q 110,122 108,120 Q 107,114 108,104 Q 109,92 110,80 Z" fill="rgba(34,139,34,0.3)" />
           <path d="M 118,64 Q 123,62 127,66 Q 128,70 124,74 Q 120,72 118,68 Z" fill="rgba(34,139,34,0.25)" />
 
-          {/* Green/brown color variation on continents */}
           <path d="M 75,74 Q 80,70 84,72 Q 86,76 84,80 Q 80,78 76,76 Z" fill="rgba(160,120,60,0.25)" />
           <path d="M 85,116 Q 88,112 90,116 Q 89,120 86,122 Z" fill="rgba(160,120,60,0.2)" />
 
-          {/* City lights */}
           <circle cx="76" cy="82" r="1.2" fill="#FFD700" opacity="0.85" />
           <circle cx="80" cy="86" r="0.8" fill="#FFD700" opacity="0.6" />
           <circle cx="74" cy="90" r="1" fill="#FFD700" opacity="0.7" />
@@ -116,27 +113,20 @@ export function Logo() {
           <circle cx="118" cy="96" r="0.7" fill="#FFD700" opacity="0.6" />
           <circle cx="112" cy="108" r="0.5" fill="#FFD700" opacity="0.4" />
 
-          {/* Specular highlight on Earth */}
           <circle cx="100" cy="100" r="110" fill="url(#earthGlow)" />
           <ellipse cx="84" cy="82" rx="16" ry="20" fill="rgba(255,255,255,0.05)" transform="rotate(-15 84 82)" />
 
-          {/* Lens flare */}
           <circle cx="100" cy="100" r="110" fill="url(#flare)" />
           <circle cx="68" cy="67" r="2.5" fill="rgba(255,255,255,0.55)" />
           <circle cx="68" cy="67" r="6" fill="rgba(255,200,100,0.12)" />
           <circle cx="68" cy="67" r="12" fill="rgba(255,200,100,0.04)" />
           <ellipse cx="58" cy="60" rx="15" ry="1.5" fill="rgba(255,200,100,0.08)" transform="rotate(-30 58 60)" />
 
-          {/* Shadow layer */}
-          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="rgba(0,0,0,0.5)" transform="translate(0,2.5)" filter="url(#chrome3d)">GLAMOURS</text>
-          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="rgba(0,0,0,0.3)" transform="translate(0,1)">GLAMOURS</text>
-          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="url(#chrome)">GLAMOURS</text>
-          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="none" stroke="url(#goldEdge)" stroke-width="0.7">GLAMOURS</text>
+          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="url(#chrome)" filter="url(#textShadow)">GLAMOURS</text>
+          <text x="100" y="116" text-anchor="middle" font-family="Inter, sans-serif" font-size="34" font-weight="900" fill="none" stroke="url(#goldEdge)" stroke-width="1.5">GLAMOURS</text>
 
-          {/* Shadow layer */}
-          <text x="100" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="rgba(0,0,0,0.5)" transform="translate(0,1.5)">MULTIMARCA</text>
-          <text x="100" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="url(#chrome)">MULTIMARCA</text>
-          <text x="100" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="none" stroke="url(#goldEdge)" stroke-width="0.5">MULTIMARCA</text>
+          <text x="100" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="url(#chrome)" filter="url(#textShadowSub)">MULTIMARCA</text>
+          <text x="100" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="700" fill="none" stroke="url(#goldEdge)" stroke-width="1">MULTIMARCA</text>
         </g>
       </svg>
     </div>
