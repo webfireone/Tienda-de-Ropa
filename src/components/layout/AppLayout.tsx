@@ -23,10 +23,12 @@ export function AppLayout() {
   const [showAdminBanner, setShowAdminBanner] = useState(false)
 
   useEffect(() => {
-    if (isAdmin && !localStorage.getItem("glamours-admin-banner-dismissed")) {
+    if (isAdmin && isAdminRoute && !localStorage.getItem("glamours-admin-banner-dismissed")) {
       setShowAdminBanner(true)
+    } else {
+      setShowAdminBanner(false)
     }
-  }, [isAdmin])
+  }, [isAdmin, isAdminRoute])
 
   const dismissAdminBanner = () => {
     setShowAdminBanner(false)
