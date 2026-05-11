@@ -1,9 +1,11 @@
 services:
   - type: web
     name: tienda-de-ropa
-    env: node
-    buildCommand: npm install && npm run build
-    startCommand: node server.js
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: dist
+    healthCheckPath: /
+    autoDeploy: true
     envVars:
       - key: VITE_FIREBASE_API_KEY
         value: AIzaSyDpaNWYpfAI45bMQKoOHzIGKWvESKVIx50
