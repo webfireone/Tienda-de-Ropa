@@ -1,31 +1,37 @@
-import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
+import { db } from "@/lib/firebase"
+import { collection, getDocs } from "firebase/firestore"
 import { getOrders, subscribe } from "@/store/ordersStore"
+import { useState, useEffect } from "react"
 import type { Order } from "@/types"
+
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 export { addOrder } from "@/store/ordersStore"
 
-export function useOrders() {
-  const [orders, setOrders] = useState<Order[]>(getOrders)
-
-  useEffect(() => {
-    const unsub = subscribe(() => {
-      setOrders([...getOrders()])
-    })
-    return unsub
-  }, [])
-
-  return { data: orders, isLoading: false }
+async function fetchOrders(): Promise<Order[]> {
+  if (USE_MOCK) return getOrders()
+  try {
+    const snapshot = await getDocs(collection(db, "orders"))
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Order[]
+  } catch {
+    return getOrders()
+  }
 }
 
-export function useOrder(id: string | undefined) {
-  const [orders, setOrders] = useState<Order[]>(getOrders)
+export function useOrders() {
+  const [localOrders, setLocalOrders] = useState<Order[]>(getOrders)
 
   useEffect(() => {
-    const unsub = subscribe(() => {
-      setOrders([...getOrders()])
-    })
+    if (!USE_MOCK) return
+    const unsub = subscribe(() => setLocalOrders([...getOrders()]))
     return unsub
   }, [])
 
-  return { data: orders.find(o => o.id === id) ?? null, isLoading: false }
+  return useQuery({
+    queryKey: ["orders"],
+    queryFn: fetchOrders,
+    staleTime: USE_MOCK ? Infinity : 10 * 1000,
+    initialData: USE_MOCK ? localOrders : undefined,
+  })
 }

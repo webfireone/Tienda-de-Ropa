@@ -167,7 +167,7 @@ function OrderCard({ order }: { order: Order }) {
 }
 
 export function OrdersPage() {
-  const { data: orders, isLoading } = useOrders()
+  const { data: orders = [], isLoading } = useOrders()
   const [search, setSearch] = useState("")
 
   const filtered = orders.filter(o =>
