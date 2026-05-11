@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { HeroSection } from "@/components/dashboard/Decorative3D"
@@ -91,7 +92,13 @@ export function LandingPage() {
       )}
 
       {/* Features */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
+      <motion.section 
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="max-w-7xl mx-auto px-6 py-12"
+      >
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: Truck, title: "Envío gratis", desc: "desde $120.000", color: "from-violet-500/30 to-fuchsia-500/30" },
@@ -110,7 +117,7 @@ export function LandingPage() {
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Inspírate */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 mx-6 my-16">
@@ -134,7 +141,11 @@ export function LandingPage() {
           {/* Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {ITEMS.map((item, i) => (
-              <div
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: i * 0.15 }}
                 key={item.title}
                 className="group cursor-pointer relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500"
                 onClick={() => navigate("/catalog")}
@@ -159,7 +170,7 @@ export function LandingPage() {
                 <div className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 group-hover:translate-x-0 translate-x-2">
                   <span className="text-white text-lg leading-none">→</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -176,8 +187,12 @@ export function LandingPage() {
             { title: "Catálogo", image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=480&fit=crop", count: "Todos los productos", path: "/catalog", accent: "border-violet-500/30", glow: "from-violet-500/10 via-violet-500/5", iconBg: "bg-violet-500/20" },
             { title: "Outlet", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=480&fit=crop", count: "Precios especiales", path: "/outlet", accent: "border-rose-500/30", glow: "from-rose-500/10 via-rose-500/5", iconBg: "bg-rose-500/20" },
             { title: "Nueva Colección", image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=480&fit=crop", count: "Lo último", path: "/nueva-coleccion", accent: "border-emerald-500/30", glow: "from-emerald-500/10 via-emerald-500/5", iconBg: "bg-emerald-500/20" },
-          ].map(cat => (
-            <div
+          ].map((cat, i) => (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
               key={cat.title}
               className="group cursor-pointer relative aspect-[5/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
               onClick={() => navigate(cat.path)}
@@ -200,7 +215,7 @@ export function LandingPage() {
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>

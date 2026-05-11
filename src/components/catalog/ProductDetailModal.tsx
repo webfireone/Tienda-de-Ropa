@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useCartStore } from "@/store/cartStore"
 import { SIZES } from "@/types"
 import type { Product } from "@/types"
@@ -15,6 +15,18 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "")
   const [selectedSize, setSelectedSize] = useState("")
   const [quantity, setQuantity] = useState(1)
+
+  useEffect(() => {
+    // Bloquear scroll de fondo
+    document.body.style.overflow = "hidden"
+    if ((window as any).lenis) (window as any).lenis.stop()
+
+    return () => {
+      // Restaurar scroll
+      document.body.style.overflow = ""
+      if ((window as any).lenis) (window as any).lenis.start()
+    }
+  }, [])
 
   const currentColor = product.colors.find(c => c.name === selectedColor)
   const totalStock = getTotalStock(product)
@@ -54,8 +66,8 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto md:overflow-hidden rounded-xl bg-card border border-border shadow-2xl animate-fade-up">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl bg-card border border-border shadow-2xl animate-fade-up">
         <button
           onClick={onClose}
           className="absolute top-5 right-5 z-20 w-9 h-9 rounded-full bg-muted hover:bg-secondary transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground"
@@ -63,9 +75,9 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           <X className="h-4 w-4" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:items-start">
           {/* Image — left half */}
-          <div className="relative aspect-square md:aspect-auto md:min-h-[560px] bg-muted overflow-hidden">
+          <div className="relative aspect-square md:aspect-auto md:h-[90vh] bg-muted overflow-hidden md:sticky md:top-0">
             <img
               src={product.imageUrl}
               alt={product.name}
@@ -80,7 +92,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           </div>
 
           {/* Details — right half */}
-          <div className="p-8 md:p-10 flex flex-col gap-5 overflow-y-auto max-h-[560px]">
+          <div className="p-8 md:p-10 flex flex-col gap-5">
             {/* Brand & Title */}
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-2">{product.brand}</p>

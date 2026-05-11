@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 import type { ComponentType } from "react"
@@ -133,22 +134,37 @@ export function HeroSection() {
         </div>
 
         {/* Title */}
-        <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4 leading-[1.1]">
+        <motion.h1 
+          className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4 leading-[1.1]"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
           <span className="gradient-text">Estilo que</span>
           <br />
           <span className="gradient-text">te define</span>
-        </h1>
+        </motion.h1>
 
         {/* Decorative accent */}
-        <div className="flex items-center gap-3 mb-4">
+        <motion.div 
+          className="flex items-center gap-3 mb-4"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
           <div className="h-[1px] w-12 bg-gradient-to-r from-violet-500/60 to-transparent" />
           <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-white/30">Colección 2026</span>
-        </div>
+        </motion.div>
 
         {/* Description */}
-        <p className="text-base text-muted-foreground leading-relaxed max-w-lg mb-8">
+        <motion.p 
+          className="text-base text-muted-foreground leading-relaxed max-w-lg mb-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+        >
           Descubrí las últimas tendencias en moda unisex. Calidad, estilo y compromiso en cada prenda.
-        </p>
+        </motion.p>
 
         {/* CTAs */}
         <div className="flex items-center gap-3">
