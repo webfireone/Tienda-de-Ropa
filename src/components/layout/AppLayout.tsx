@@ -1,7 +1,10 @@
+import { useState, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
 import { DecorativeBackground } from "@/components/dashboard/Decorative3D"
+import { useAuth } from "@/context/AuthContext"
+import { X, Sparkles } from "lucide-react"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -15,12 +18,46 @@ const ADMIN_ROUTES = ["/dashboard", "/products", "/orders", "/alerts", "/import-
 
 export function AppLayout() {
   const location = useLocation()
+  const { isAdmin } = useAuth()
   const isAdminRoute = ADMIN_ROUTES.some(r => location.pathname.startsWith(r))
+  const [showAdminBanner, setShowAdminBanner] = useState(false)
+
+  useEffect(() => {
+    if (isAdmin && !localStorage.getItem("glamours-admin-banner-dismissed")) {
+      setShowAdminBanner(true)
+    }
+  }, [isAdmin])
+
+  const dismissAdminBanner = () => {
+    setShowAdminBanner(false)
+    localStorage.setItem("glamours-admin-banner-dismissed", "true")
+  }
 
   return (
     <SmoothScroll>
       <div className="min-h-screen bg-background relative">
         {isAdminRoute && <DecorativeBackground />}
+
+        {/* Admin welcome banner (one-time) */}
+        {showAdminBanner && (
+          <div className="relative z-50 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-rose-600 text-white">
+            <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-5 w-5 text-yellow-300" />
+                <p className="text-sm font-semibold tracking-wide">
+                  Zona de configuraciones varias de <span className="text-yellow-300">GLAMOUR's</span>
+                </p>
+              </div>
+              <button
+                onClick={dismissAdminBanner}
+                className="p-1 rounded-lg hover:bg-white/10 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <Header />
         <main className="relative z-10">
           <Outlet />

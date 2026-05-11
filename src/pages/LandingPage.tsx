@@ -8,6 +8,7 @@ import { Star, Quote, Truck, RefreshCw, CreditCard, Shield, Sparkles, Tag, Alert
 import { useProducts } from "@/hooks/useFirestore"
 import { usePromotions } from "@/hooks/usePromotions"
 import { db } from "@/lib/firebase"
+import { useAuth } from "@/context/AuthContext"
 import { collection, addDoc } from "firebase/firestore"
 
 const testimonials = [
@@ -32,6 +33,7 @@ function pickRandom(arr: string[], count: number, exclude: string[] = []): strin
 
 export function LandingPage() {
   const navigate = useNavigate()
+  const { isAdmin } = useAuth()
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
   const [subError, setSubError] = useState("")
@@ -400,10 +402,12 @@ export function LandingPage() {
                   <p className="text-xs text-primary/60 font-semibold tracking-wide uppercase">Lun a Vie</p>
                   <p className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-primary/40" /> 09:00–13:00 / 16:30–20:30</p>
                 </div>
+                {!isAdmin && (
                 <div>
                   <p className="text-xs text-primary/60 font-semibold tracking-wide uppercase">Sáb</p>
                   <p className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-primary/40" /> 10:00–13:00 / 16:00–20:00</p>
                 </div>
+                )}
                 </div>
               </div>
           </div>
