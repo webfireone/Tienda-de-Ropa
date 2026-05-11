@@ -1,13 +1,12 @@
 import { useProducts } from "@/hooks/useFirestore"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { PageHero } from "@/components/dashboard/Decorative3D"
+import { ProductCard } from "@/components/products/ProductCard"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, Grid3X3, List, Store, ArrowLeft, Eye } from "lucide-react"
+import { Search, Grid3X3, List, Store, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
-import { getTotalStock } from "@/lib/utils"
 import type { Product } from "@/types"
 
 export function CatalogPage() {
@@ -99,63 +98,29 @@ export function CatalogPage() {
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filtered.map((product, i) => {
-            const totalStock = getTotalStock(product)
-            return (
-              <div
-                key={product.id}
-                className="group cursor-pointer animate-fade-up"
-                style={{ animationDelay: `${i * 0.05}s` }}
-                onClick={() => setSelectedProduct(product)}
-              >
-                  <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm group-hover:shadow-xl group-hover:shadow-primary/10 transition-all duration-500">
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  {totalStock < 10 && (
-                    <Badge variant="destructive" className="absolute top-3 left-3">Poco stock</Badge>
-                  )}
-                  {isAdmin && (
-                    <div className="absolute bottom-3 right-3">
-                      <span className="text-white text-[10px] font-semibold tracking-wide uppercase gradient-primary px-2.5 py-1.5 rounded-full shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <Eye className="h-3 w-3" />
-                        Ver
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <h3 className="font-display text-sm font-semibold mb-0.5">{product.name}</h3>
-                <p className="text-xs text-muted-foreground mb-1 truncate">{product.description}</p>
-                <p className="text-sm font-semibold text-primary">${product.price.toLocaleString("es-AR")}</p>
-              </div>
-            )
-          })}
+          {filtered.map((product, i) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={i}
+              viewMode="grid"
+              isAdmin={isAdmin}
+              onSelect={setSelectedProduct}
+            />
+          ))}
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((product, i) => {
-            const totalStock = getTotalStock(product)
-            return (
-              <div
-                key={product.id}
-                className="flex items-center gap-6 p-4 rounded-2xl bg-card border border-primary/10 hover:border-primary/30 shadow-sm hover:shadow-md hover:shadow-primary/5 transition-all cursor-pointer animate-fade-up"
-                style={{ animationDelay: `${i * 0.05}s` }}
-                onClick={() => setSelectedProduct(product)}
-              >
-                <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
-                  <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-display text-base font-semibold mb-1">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{product.description}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="font-semibold text-primary">${product.price.toLocaleString("es-AR")}</p>
-                  <p className={`text-xs ${totalStock < 10 ? "text-destructive" : "text-muted-foreground"}`}>
-                    Stock: {totalStock}
-                  </p>
-                </div>
-              </div>
-            )
-          })}
+          {filtered.map((product, i) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={i}
+              viewMode="list"
+              isAdmin={isAdmin}
+              onSelect={setSelectedProduct}
+            />
+          ))}
         </div>
       )}
 
