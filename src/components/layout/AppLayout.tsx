@@ -1,6 +1,7 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
+import { DecorativeBackground } from "@/components/dashboard/Decorative3D"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -10,12 +11,18 @@ function WhatsAppIcon({ className }: { className?: string }) {
   )
 }
 
+const ADMIN_ROUTES = ["/dashboard", "/products", "/orders", "/alerts", "/import-export", "/config", "/marketing"]
+
 export function AppLayout() {
+  const location = useLocation()
+  const isAdminRoute = ADMIN_ROUTES.some(r => location.pathname.startsWith(r))
+
   return (
     <SmoothScroll>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background relative">
+        {isAdminRoute && <DecorativeBackground />}
         <Header />
-        <main>
+        <main className="relative z-10">
           <Outlet />
         </main>
 

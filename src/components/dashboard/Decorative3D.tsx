@@ -133,6 +133,61 @@ function MouseGlow() {
   )
 }
 
+export function DecorativeBackground() {
+  const [imgIndex, setImgIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setImgIndex(prev => (prev + 1) % HERO_IMAGES.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] animate-gradient-slow" style={{ backgroundSize: '200% 200%' }} />
+      <div className="hero-grid absolute inset-0 opacity-30 animate-grid-pulse" />
+
+      <MouseGlow />
+      <Particles count={50} />
+
+      {/* Rotating images */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d1a] via-[#0d0d1a]/60 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] via-transparent to-[#0d0d1a]/40 z-10" />
+        {HERO_IMAGES.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            className={`absolute inset-0 w-full h-full object-cover object-center scale-110 transition-opacity duration-1000 ${i === imgIndex ? "opacity-20" : "opacity-0"}`}
+            loading="lazy"
+          />
+        ))}
+      </div>
+
+      {/* Floating orbs */}
+      <FloatingOrb className="top-10 right-20" size="lg" delay={0} idx={0} />
+      <FloatingOrb className="bottom-10 right-40" size="md" delay={1.5} idx={1} />
+      <FloatingOrb className="top-20 left-1/3" size="sm" delay={0.8} idx={2} />
+      <FloatingOrb className="top-1/3 right-1/4" size="sm" delay={2.5} idx={3} />
+
+      {/* Geometric shapes */}
+      <GeometricShape className="top-16 right-32" shape="diamond" delay={0.5} />
+      <GeometricShape className="bottom-16 left-20" shape="hex" delay={1.2} />
+      <GeometricShape className="top-1/2 right-16" shape="square" delay={2} />
+      <GeometricShape className="bottom-1/3 left-1/3" shape="hex" delay={1.8} />
+
+      {/* Orbiting rings */}
+      <OrbitingRing className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" size={320} />
+      <OrbitingRing className="top-1/3 right-1/4" size={160} reverse />
+
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0d0d1a] to-transparent pointer-events-none" />
+    </div>
+  )
+}
+
 export function HeroSection() {
   const navigate = useNavigate()
   const [imgIndex, setImgIndex] = useState(0)
