@@ -23,7 +23,8 @@ export function AppLayout() {
   const [showAdminBanner, setShowAdminBanner] = useState(false)
 
   useEffect(() => {
-    if (isAdmin && isAdminRoute && !localStorage.getItem("glamours-admin-banner-dismissed")) {
+    localStorage.removeItem("glamours-admin-banner-dismissed")
+    if (isAdmin && isAdminRoute && !sessionStorage.getItem("glamours-admin-banner-dismissed")) {
       setShowAdminBanner(true)
     } else {
       setShowAdminBanner(false)
@@ -32,7 +33,7 @@ export function AppLayout() {
 
   const dismissAdminBanner = () => {
     setShowAdminBanner(false)
-    localStorage.setItem("glamours-admin-banner-dismissed", "true")
+    sessionStorage.setItem("glamours-admin-banner-dismissed", "true")
   }
 
   return (
