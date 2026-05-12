@@ -1,9 +1,10 @@
-import { lazy, Suspense, type ComponentType } from "react"
+import { lazy, Suspense, useEffect, type ComponentType } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "@/context/AuthContext"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { CursorGlow } from "@/components/ui/CursorGlow"
+import { applyThemeConfig, type FullThemeConfig } from "@/store/bellezaStore"
 
 function lazyPage<T extends ComponentType<any>>(importFn: () => Promise<{ [K: string]: T }>, name: string) {
   return lazy(() => importFn().then(m => ({ default: m[name] })))
@@ -49,6 +50,16 @@ function PageLoader() {
 }
 
 function App() {
+  useEffect(() => {
+    const savedRaw = localStorage.getItem("belleza-active-config")
+    if (savedRaw) {
+      try {
+        const loaded = JSON.parse(savedRaw) as FullThemeConfig
+        applyThemeConfig(loaded)
+      } catch {}
+    }
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

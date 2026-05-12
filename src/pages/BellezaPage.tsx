@@ -345,67 +345,32 @@ export function BellezaPage() {
         </div>
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
-            {CURATED_CATEGORIES.map((cat) => {
-              const catLooks = CURATED_LOOKS.filter(l => l.category === cat.id)
-              const seenCount = (seenLooks[cat.id] || new Set()).size
-              const total = catLooks.length
-              const isActive = curatedCategory === cat.id
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleSelectCategory(cat.id)}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium whitespace-nowrap transition-all shrink-0",
-                    isActive ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-muted-foreground"
-                  )}
-                >
-                  <span>{cat.emoji}</span>
-                  <span>{cat.name}</span>
-                  <span className="text-[10px] opacity-60">({seenCount}/{total})</span>
-                </button>
-              )
-            })}
-          </div>
-          <div className="flex gap-2 shrink-0 ml-4">
-            <button onClick={handlePrevCurated} className="p-2 rounded-xl border border-border hover:border-primary/30 transition-all">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button onClick={handleNextCurated} className="p-2 rounded-xl gradient-brand text-white hover:opacity-90 transition-all">
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {currentLook && (
-          <div className="flex items-center gap-3 p-3 glass-card rounded-xl">
-            <div className="flex gap-1 shrink-0">
-              {Object.entries(currentLook.config.colors).filter(([k]) => ["primary", "secondary", "accent", "highlight"].includes(k)).map(([k, v]) => (
-                <div key={k} className="w-6 h-6 rounded-md border border-border" style={{ background: v as string }} title={k} />
-              ))}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{currentLook.name}</p>
-              <p className="text-[10px] text-muted-foreground capitalize">{currentLook.category} · {curatedIndex + 1}/{currentCategoryLooks.length}</p>
-            </div>
-            {seenInCategory.has(currentLook.id) && (
-              <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">
-                <Eye className="h-3 w-3" /> Visto
-              </span>
-            )}
-            {allSeenInCategory && (
-              <button onClick={() => { setSeenLooks(prev => ({ ...prev, [curatedCategory]: new Set() })); showToast("Lista reiniciada") }}
-                className="text-[10px] text-primary/70 hover:text-primary underline shrink-0">
-                Reiniciar
+      <div className="mb-4">
+        <div className="flex items-center gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+          {CURATED_CATEGORIES.map((cat) => {
+            const catLooks = CURATED_LOOKS.filter(l => l.category === cat.id)
+            const seenCount = (seenLooks[cat.id] || new Set()).size
+            const total = catLooks.length
+            const isActive = curatedCategory === cat.id
+            return (
+              <button
+                key={cat.id}
+                onClick={() => handleSelectCategory(cat.id)}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium whitespace-nowrap transition-all shrink-0",
+                  isActive ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-muted-foreground"
+                )}
+              >
+                <span>{cat.emoji}</span>
+                <span>{cat.name}</span>
+                <span className="text-[10px] opacity-60">({seenCount}/{total})</span>
               </button>
-            )}
-          </div>
-        )}
+            )
+          })}
+        </div>
       </div>
 
-      <div className="flex gap-1 mb-4 p-1 rounded-xl bg-muted/50 w-fit">
+      <div className="flex gap-1 mb-6 p-1 rounded-xl bg-muted/50 w-fit">
         {[
           { key: "paletas", label: "Paletas", icon: Palette },
           { key: "fondos", label: "Fondos", icon: Layers },
@@ -422,30 +387,86 @@ export function BellezaPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3 space-y-4">
           {activeTab === "paletas" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {PREDEFINED_PALETTES.map((palette) => (
-                  <button key={palette.id} onClick={() => handleApplyPalette(palette)}
-                    className={cn("glass-card p-4 text-left hover-lift group transition-all relative", isPaletteActive(palette) && "ring-2 ring-primary")}>
-                    {isPaletteActive(palette) && (
-                      <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                        <Check className="h-3 w-3" /> Activo
-                      </span>
-                    )}
-                    <div className="flex items-start gap-2 mb-3 pt-1">
-                      <span className="text-2xl">{palette.emoji}</span>
-                      <div>
-                        <h3 className="font-semibold text-sm">{palette.name}</h3>
-                        <p className="text-[10px] text-muted-foreground">{palette.description}</p>
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold">
+                    {CURATED_CATEGORIES.find(c => c.id === curatedCategory)?.emoji} {CURATED_CATEGORIES.find(c => c.id === curatedCategory)?.name} ({currentCategoryLooks.length})
+                  </h3>
+                  <div className="flex gap-2">
+                    <button onClick={handlePrevCurated} className="p-2 rounded-xl border border-border hover:border-primary/30 transition-all">
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={handleNextCurated} className="p-2 rounded-xl gradient-brand text-white hover:opacity-90 transition-all">
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {currentCategoryLooks.map((look, idx) => {
+                    const isActive = config.colors.primary?.toLowerCase() === look.config.colors.primary?.toLowerCase()
+                    const isSeen = (seenLooks[curatedCategory] || new Set()).has(look.id)
+                    return (
+                      <button key={look.id} onClick={() => { setCuratedIndex(idx); handleApplyCuratedLook(look) }}
+                        className={cn("glass-card p-3 text-left hover-lift group transition-all relative", isActive && "ring-2 ring-primary")}>
+                        {isActive && (
+                          <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground z-10">
+                            <Check className="h-3 w-3" />
+                          </span>
+                        )}
+                        <div className="h-12 rounded-lg mb-2" style={{ background: look.config.backgroundGradient }} />
+                        <p className="text-xs font-semibold truncate">{look.name}</p>
+                        <div className="flex gap-1 mt-1">
+                          {Object.entries(look.config.colors).filter(([k]) => ["primary", "secondary", "accent", "highlight"].includes(k)).map(([k, v]) => (
+                            <div key={k} className="w-4 h-4 rounded-sm border border-border" style={{ background: v }} title={k} />
+                          ))}
+                        </div>
+                        {isSeen && !isActive && (
+                          <span className="absolute bottom-2 right-2">
+                            <Eye className="h-3 w-3 text-muted-foreground/50" />
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+                {allSeenInCategory && (
+                  <div className="text-center p-3 rounded-xl bg-primary/10 border border-primary/20">
+                    <p className="text-xs text-primary">Ya viste los {currentCategoryLooks.length} de {CURATED_CATEGORIES.find(c => c.id === curatedCategory)?.name}</p>
+                    <button onClick={() => { setSeenLooks(prev => ({ ...prev, [curatedCategory]: new Set() })); showToast("Lista reiniciada") }}
+                      className="text-[10px] text-primary/70 hover:text-primary underline mt-1">
+                      Reiniciar vista
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Paletas guardadas</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {PREDEFINED_PALETTES.map((palette) => (
+                    <button key={palette.id} onClick={() => handleApplyPalette(palette)}
+                      className={cn("glass-card p-4 text-left hover-lift group transition-all relative", isPaletteActive(palette) && "ring-2 ring-primary")}>
+                      {isPaletteActive(palette) && (
+                        <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                          <Check className="h-3 w-3" /> Activo
+                        </span>
+                      )}
+                      <div className="flex items-start gap-2 mb-3 pt-1">
+                        <span className="text-2xl">{palette.emoji}</span>
+                        <div>
+                          <h3 className="font-semibold text-sm">{palette.name}</h3>
+                          <p className="text-[10px] text-muted-foreground">{palette.description}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-1">
-                      {palette.config.colors && Object.entries(palette.config.colors).slice(0, 6).map(([k, v]) => (
-                        <div key={k} className="w-7 h-7 rounded-md border border-border" style={{ background: v as string }} title={k} />
-                      ))}
-                    </div>
-                  </button>
-                ))}
+                      <div className="flex gap-1">
+                        {palette.config.colors && Object.entries(palette.config.colors).slice(0, 6).map(([k, v]) => (
+                          <div key={k} className="w-7 h-7 rounded-md border border-border" style={{ background: v as string }} title={k} />
+                        ))}
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
