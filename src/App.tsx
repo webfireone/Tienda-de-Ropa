@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/layout/AppLayout"
 import { CursorGlow } from "@/components/ui/CursorGlow"
 import { applyThemeConfig, type FullThemeConfig } from "@/store/bellezaStore"
 import { useSiteTheme } from "@/hooks/useSiteTheme"
+import { useParamsStore } from "@/store/paramsStore"
 
 function lazyPage<T extends ComponentType<any>>(importFn: () => Promise<{ [K: string]: T }>, name: string) {
   return lazy(() => importFn().then(m => ({ default: m[name] })))
@@ -56,6 +57,7 @@ function App() {
 
 function AppRoutes() {
   const { themeFromFirestore, loading } = useSiteTheme()
+  const initFirestoreSync = useParamsStore((s) => s.initFirestoreSync)
 
   useEffect(() => {
     if (loading) return
@@ -70,6 +72,11 @@ function AppRoutes() {
       }
     }
   }, [themeFromFirestore, loading])
+
+  useEffect(() => {
+    const unsub = initFirestoreSync()
+    return () => { unsub?.() }
+  }, [initFirestoreSync])
 
   return (
     <QueryClientProvider client={queryClient}>

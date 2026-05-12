@@ -75,7 +75,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
       <div className="absolute inset-2 flex items-center justify-center pointer-events-none">
-        <div ref={scrollRef} className="relative w-full max-w-3xl rounded-xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto overflow-y-auto overscroll-contain">
+        <div ref={scrollRef} className="relative w-full max-w-3xl rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto overflow-y-auto overscroll-contain">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm transition-colors flex items-center justify-center text-white/80 hover:text-white shadow-md"
@@ -84,7 +84,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           </button>
           <div className="grid grid-cols-1 sm:grid-cols-5">
             {/* Image — left half (2/5) */}
-            <div className="sm:col-span-2 relative bg-muted rounded-t-xl sm:rounded-tr-none sm:rounded-l-xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px]">
+            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px]">
               <img
                 src={product.imageUrl}
                 alt={product.name}

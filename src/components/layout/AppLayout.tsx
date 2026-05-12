@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Outlet } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
@@ -13,6 +13,8 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export function AppLayout() {
+  const [waHovered, setWaHovered] = useState(false)
+
   useEffect(() => {
     migrateOrdersToFirestore()
   }, [])
@@ -25,15 +27,43 @@ export function AppLayout() {
           <Outlet />
         </main>
 
-        {/* Floating WhatsApp button */}
+        {/* Floating WhatsApp */}
         <a
           href="https://wa.me/5491122618116"
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-brand text-white shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 hover:scale-105 transition-all duration-300 flex items-center justify-center animate-glow"
+          onMouseEnter={() => setWaHovered(true)}
+          onMouseLeave={() => setWaHovered(false)}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group"
           aria-label="Contactar por WhatsApp"
         >
-          <WhatsAppIcon className="h-7 w-7" />
+          {/* Label */}
+          <div
+            className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+              waHovered ? "w-32 opacity-100" : "w-0 opacity-0"
+            }`}
+          >
+            <div className="whitespace-nowrap bg-foreground text-background px-4 py-2.5 rounded-l-full text-xs font-semibold tracking-wide shadow-lg">
+              Escribinos
+            </div>
+          </div>
+
+          {/* Button */}
+          <div
+            className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+              waHovered ? "translate-x-0" : ""
+            }`}
+            style={{
+              background: "linear-gradient(135deg, #7c5cfc, #ec4899)",
+              boxShadow: waHovered
+                ? "0 0 0 4px rgba(124,92,252,0.15), 0 12px 40px rgba(124,92,252,0.4)"
+                : "0 4px 20px rgba(124,92,252,0.3)",
+            }}
+          >
+            {/* Pulse rings */}
+            <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: "linear-gradient(135deg, #7c5cfc, #ec4899)" }} />
+            <WhatsAppIcon className="h-7 w-7 text-white relative z-10" />
+          </div>
         </a>
       </div>
     </SmoothScroll>

@@ -39,11 +39,12 @@ function SectionCard({ icon: Icon, title, description, children }: { icon: React
 }
 
 export function GlobalParamsForm() {
-  const { params, updateParams } = useParamsStore()
+  const { params, updateParams, saveToFirestore } = useParamsStore()
   const { isAdmin } = useAuth()
 
   const update = (partial: Partial<GlobalParams>) => {
     updateParams({ ...params, ...partial })
+    saveToFirestore()
   }
 
   return (

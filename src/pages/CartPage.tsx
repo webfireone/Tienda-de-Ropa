@@ -15,7 +15,7 @@ export function CartPage() {
   const navigate = useNavigate()
   const { items, removeItem, updateQuantity } = useCartStore()
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const { params, updateParams } = useParamsStore()
+  const { params, updateParams, saveToFirestore } = useParamsStore()
   const { isAdmin } = useAuth()
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
@@ -216,10 +216,13 @@ export function CartPage() {
                           <span className="text-xs">Envío gratis</span>
                           <Switch
                             checked={params.shipping.freeShippingEnabled}
-                            onChange={(checked) => updateParams({
-                              ...params,
-                              shipping: { ...params.shipping, freeShippingEnabled: checked }
-                            })}
+                            onChange={(checked) => {
+                              updateParams({
+                                ...params,
+                                shipping: { ...params.shipping, freeShippingEnabled: checked }
+                              })
+                              saveToFirestore()
+                            }}
                           />
                         </div>
                         <div className="flex justify-between text-xs p-2 rounded-lg bg-muted/50">

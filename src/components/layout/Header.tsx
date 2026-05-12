@@ -3,6 +3,7 @@ import { useCartStore } from "@/store/cartStore"
 import { useParamsStore } from "@/store/paramsStore"
 import { useLocation } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
 import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
@@ -37,6 +38,13 @@ export function Header() {
   const { params } = useParamsStore()
   const navigate = useNavigate()
   const location = useLocation()
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 20)
+    window.addEventListener("scroll", handler, { passive: true })
+    return () => window.removeEventListener("scroll", handler)
+  }, [])
 
   const allLinks = isAdmin ? adminLinks : navLinks
 
@@ -47,6 +55,14 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50">
+      {/* Drop shadow on scroll */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-500"
+        style={{
+          boxShadow: scrolled ? "0 8px 32px rgba(124,92,252,0.15)" : "none",
+        }}
+      />
+
       {showBanner && (
         <div className="relative overflow-hidden bg-foreground text-background py-2">
           <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-violet-600/20" />
@@ -80,8 +96,23 @@ export function Header() {
         </div>
       )}
 
-      <div className="glass border-b border-primary/5">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4">
+      <div
+        className={`glass relative transition-all duration-500 ${scrolled ? "backdrop-blur-xl" : ""}`}
+        style={{
+          borderBottom: scrolled
+            ? "1px solid rgba(124,92,252,0.2)"
+            : "1px solid rgba(124,92,252,0.08)",
+        }}
+      >
+        {/* Gradient border line at top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px transition-opacity duration-500 z-10"
+          style={{
+            background: "linear-gradient(90deg, transparent, rgba(124,92,252,0.7), rgba(236,72,153,0.6), transparent)",
+            opacity: scrolled ? 0.8 : 0.4,
+          }}
+        />
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4 relative z-0">
           {/* Logo (solo para no-admin) */}
           {!isAdmin && (
             <div
