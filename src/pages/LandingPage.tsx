@@ -166,6 +166,11 @@ export function LandingPage() {
                 <div className="w-full h-full bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              {/* Editorial lighting */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-transparent" />
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-8">
                 <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-white/30 mb-2">{item.title}</p>
                 <p className="text-sm text-white/60">{item.desc}</p>
@@ -206,6 +211,11 @@ export function LandingPage() {
             >
               <img src={cat.image} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+              {/* Editorial light on hover */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/[0.06] via-transparent to-transparent" />
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
               <div className="absolute bottom-0 left-0 right-0 p-8">
                 <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-white/30 mb-2">{cat.count}</p>
                 <h3 className="font-display text-3xl md:text-4xl font-bold text-white tracking-tight">{cat.title}</h3>
@@ -385,9 +395,10 @@ export function LandingPage() {
                 href={item.href}
                 target={item.href ? "_blank" : undefined}
                 rel={item.href ? "noopener noreferrer" : undefined}
-                className="group relative flex flex-col items-center justify-center py-16 bg-background hover:bg-white/5 transition-colors duration-500"
+                className="group relative flex flex-col items-center justify-center py-16 bg-background hover:bg-white/[0.03] transition-colors duration-500"
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/0 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/0 via-primary/[0.06] to-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 border-x border-transparent group-hover:border-white/[0.03] transition-colors duration-500" />
                 {item.icon === "instagram" ? (
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-10 w-10 text-white/20 group-hover:text-white/60 mb-4 transition-colors duration-500">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />

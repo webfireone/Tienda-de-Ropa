@@ -108,8 +108,10 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
           transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
           transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)" : "transform 0.1s ease-out",
           boxShadow: tilt.x === 0 && tilt.y === 0
-            ? "0 4px 20px rgba(0,0,0,0.3)"
-            : `0 20px 50px rgba(124,92,252,${glowIntensity + Math.abs(tilt.x + tilt.y) * 0.005})`,
+            ? size === "hero"
+              ? "0 20px 60px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3)"
+              : "0 8px 30px rgba(0,0,0,0.4)"
+            : `0 24px 60px rgba(0,0,0,0.5), 0 0 40px rgba(124,92,252,${glowIntensity})`,
         }}
       >
         <div
@@ -149,6 +151,12 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
           onLoad={() => setImageLoaded(true)}
         />
 
+        {/* Editorial lighting overlay */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.04] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a15]/60 via-[20%] to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a15]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">

@@ -54,15 +54,12 @@ export function Header() {
   const segments = bannerText.split("·").map(s => s.trim()).filter(Boolean)
 
   return (
-    <header className="sticky top-0 z-50">
-      {/* Drop shadow on scroll */}
-      <div
-        className="absolute inset-0 pointer-events-none transition-all duration-500"
-        style={{
-          boxShadow: scrolled ? "0 8px 32px rgba(124,92,252,0.15)" : "none",
-        }}
-      />
-
+    <header
+      className={cn(
+        "sticky top-0 z-50 transition-all duration-500",
+        scrolled ? "shadow-[0_8px_32px_rgba(124,92,252,0.12)]" : ""
+      )}
+    >
       {showBanner && (
         <div className="relative overflow-hidden bg-foreground text-background py-2">
           <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-violet-600/20" />
