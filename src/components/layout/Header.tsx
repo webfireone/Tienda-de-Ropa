@@ -25,6 +25,7 @@ const adminLinks: NavLink[] = [
   { to: "/orders", label: "Pedidos", icon: ClipboardList },
   { to: "/alerts", label: "Alertas", icon: AlertTriangle },
   { to: "/import-export", label: "Import/Export", icon: FileUp },
+  { to: "/belleza", label: "Belleza", icon: Sparkles },
   { to: "/config", label: "Config", icon: Settings },
   { to: "/marketing", label: "Marketing", icon: BarChart3 },
 ]

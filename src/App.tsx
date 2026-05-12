@@ -25,6 +25,7 @@ const MarketingPage = lazyPage(() => import("@/pages/MarketingPage"), "Marketing
 const OrdersPage = lazyPage(() => import("@/pages/OrdersPage"), "OrdersPage")
 const AdminHomePage = lazyPage(() => import("@/pages/AdminHomePage"), "AdminHomePage")
 const NotFoundPage = lazyPage(() => import("@/pages/NotFoundPage"), "NotFoundPage")
+const BellezaPage = lazyPage(() => import("@/pages/BellezaPage"), "BellezaPage")
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +72,7 @@ function App() {
                 <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
                 <Route path="/marketing" element={<MarketingPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/belleza" element={<BellezaPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
