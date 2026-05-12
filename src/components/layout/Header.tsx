@@ -1,8 +1,9 @@
 import { useAuth } from "@/context/AuthContext"
 import { useCartStore } from "@/store/cartStore"
+import { useParamsStore } from "@/store/paramsStore"
 import { useLocation } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
 import { type ComponentType } from "react"
@@ -33,21 +34,50 @@ const adminLinks: NavLink[] = [
 export function Header() {
   const { isAdmin, user, signOut, setMockRole } = useAuth()
   const { totalItems } = useCartStore()
+  const { params } = useParamsStore()
   const navigate = useNavigate()
   const location = useLocation()
 
   const allLinks = isAdmin ? adminLinks : navLinks
 
+  const showBanner = !isAdmin && params.shipping.announcementBannerEnabled && params.shipping.announcementBannerText
+
+  const bannerText = params.shipping.announcementBannerText || "Envío gratis en compras +$120.000 · 3 cuotas sin interés"
+  const segments = bannerText.split("·").map(s => s.trim()).filter(Boolean)
+
   return (
     <header className="sticky top-0 z-50">
-      {!isAdmin && (
-      <div className="gradient-brand text-white text-[10px] tracking-[0.2em] uppercase text-center py-2 px-4">
-        <span className="inline-flex items-center gap-2">
-          <Sparkles className="h-3 w-3" />
-          Envío gratis en compras +$120.000 · 3 cuotas sin interés
-          <Sparkles className="h-3 w-3" />
-        </span>
-      </div>
+      {showBanner && (
+        <div className="relative overflow-hidden bg-foreground text-background py-2">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-fuchsia-600/20 to-violet-600/20" />
+          <div className="relative flex items-center">
+            <div className="shrink-0 px-4 z-10 flex items-center gap-2">
+              <Truck className="h-3 w-3" />
+            </div>
+            <div className="overflow-hidden flex-1">
+              <div className="flex animate-marquee whitespace-nowrap" style={{ width: "max-content" }}>
+                {[...Array(3)].map((_, rep) => (
+                  <div key={rep} className="flex items-center gap-6 px-4">
+                    {segments.map((seg, i) => (
+                      <span key={i} className="flex items-center gap-3">
+                        <span className="font-semibold text-[11px] tracking-[0.15em] uppercase">
+                          {seg}
+                        </span>
+                        {i < segments.length - 1 && (
+                          <span className="text-[11px] opacity-40">·</span>
+                        )}
+                      </span>
+                    ))}
+                    <span className="px-4 opacity-30">·</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="shrink-0 px-4 z-10 flex items-center gap-2">
+              <CreditCard className="h-3 w-3" />
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="glass border-b border-primary/5">

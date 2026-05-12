@@ -86,6 +86,8 @@ export interface GlobalParams {
     fixedCost: number
     freeShippingThreshold: number
     freeShippingEnabled: boolean
+    announcementBannerEnabled: boolean
+    announcementBannerText: string
   }
   financial: {
     monthlyInflation: number

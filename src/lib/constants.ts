@@ -23,6 +23,8 @@ export const DEFAULT_PARAMS: GlobalParams = {
     fixedCost: 5000,
     freeShippingThreshold: 100000,
     freeShippingEnabled: true,
+    announcementBannerEnabled: true,
+    announcementBannerText: "Envío gratis en compras +$120.000 · 3 cuotas sin interés",
   },
   financial: {
     monthlyInflation: 3.5,

@@ -245,6 +245,36 @@ export function GlobalParamsForm() {
             />
           </Field>
         )}
+
+        <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
+          <div>
+            <label className="text-sm font-medium text-foreground">Banner de anuncio</label>
+            <p className="flex items-start gap-1 mt-1">
+              <Info className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
+              <span className="text-[11px] text-muted-foreground leading-relaxed">
+                Activa el banner superior con mensaje animado tipo marquee.
+              </span>
+            </p>
+          </div>
+          <Switch
+            checked={params.shipping.announcementBannerEnabled}
+            onChange={(checked) => update({ shipping: { ...params.shipping, announcementBannerEnabled: checked } })}
+          />
+        </div>
+
+        {params.shipping.announcementBannerEnabled && (
+          <Field
+            label="Texto del banner"
+            help="Texto que se muestra en el banner superior animado. Usa · como separador entre mensajes."
+          >
+            <Input
+              value={params.shipping.announcementBannerText}
+              disabled={!isAdmin}
+              onChange={(e) => update({ shipping: { ...params.shipping, announcementBannerText: e.target.value } })}
+              placeholder="Envío gratis en compras +$120.000 · 3 cuotas sin interés"
+            />
+          </Field>
+        )}
       </SectionCard>
 
       {/* Financiero */}
