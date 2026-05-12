@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
-import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
+import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, applyThemeConfig, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
 import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -166,6 +166,7 @@ export function BellezaPage() {
       hover: palette.config.hover || config.hover,
     }
     applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast(`"${palette.name}" aplicada`)
   }
@@ -177,6 +178,7 @@ export function BellezaPage() {
       backgroundGradient: bg.css,
     }
     applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast(`"${bg.name}" aplicado`)
   }
@@ -189,6 +191,7 @@ export function BellezaPage() {
       backgroundGradient: css,
     }
     applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast(`Gradient "${g.name}" aplicado`)
   }
@@ -201,6 +204,7 @@ export function BellezaPage() {
       backgroundGradient: css,
     }
     applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast("Gradient personalizado aplicado")
   }
@@ -209,6 +213,7 @@ export function BellezaPage() {
     randomize()
     const newConfig = useBellezaStore.getState().config
     applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast("Combinación aleatoria aplicada")
   }
@@ -222,6 +227,7 @@ export function BellezaPage() {
 
   const handleLoadLook = (look: SavedLook) => {
     applyFullConfig(look.config)
+    applyThemeConfig(look.config)
     localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
     showToast(`"${look.name}" cargado`)
   }
