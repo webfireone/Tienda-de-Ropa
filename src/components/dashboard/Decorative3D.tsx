@@ -52,7 +52,7 @@ export function HeroSection() {
 
       {/* Content */}
       <motion.div
-        className="relative z-10 flex flex-col justify-center min-h-[620px] max-w-2xl px-12 md:px-16"
+        className="relative z-10 flex flex-col justify-center min-h-[620px] max-w-xl px-8 md:px-16 lg:px-20"
         style={{ y: textY }}
       >
         <motion.div
@@ -67,13 +67,13 @@ export function HeroSection() {
         </motion.div>
 
         <motion.h1
-          className="font-display text-7xl md:text-9xl font-bold tracking-tighter leading-[0.85] mb-6"
+          className="font-display text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.85] mb-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2 }}
         >
           <span className="block gradient-text">GLAMOURS</span>
-          <span className="block text-white/15 text-3xl md:text-4xl font-light tracking-[0.25em] mt-2">
+          <span className="block text-white/15 text-xl sm:text-2xl lg:text-3xl font-light tracking-[0.25em] mt-2">
             colección
           </span>
         </motion.h1>
