@@ -345,7 +345,67 @@ export function BellezaPage() {
         </div>
       </div>
 
-      <div className="flex gap-1 mb-6 p-1 rounded-xl bg-muted/50 w-fit">
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {CURATED_CATEGORIES.map((cat) => {
+              const catLooks = CURATED_LOOKS.filter(l => l.category === cat.id)
+              const seenCount = (seenLooks[cat.id] || new Set()).size
+              const total = catLooks.length
+              const isActive = curatedCategory === cat.id
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleSelectCategory(cat.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-medium whitespace-nowrap transition-all shrink-0",
+                    isActive ? "border-primary bg-primary/5 text-primary" : "border-border hover:border-primary/50 text-muted-foreground"
+                  )}
+                >
+                  <span>{cat.emoji}</span>
+                  <span>{cat.name}</span>
+                  <span className="text-[10px] opacity-60">({seenCount}/{total})</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex gap-2 shrink-0 ml-4">
+            <button onClick={handlePrevCurated} className="p-2 rounded-xl border border-border hover:border-primary/30 transition-all">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button onClick={handleNextCurated} className="p-2 rounded-xl gradient-brand text-white hover:opacity-90 transition-all">
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {currentLook && (
+          <div className="flex items-center gap-3 p-3 glass-card rounded-xl">
+            <div className="flex gap-1 shrink-0">
+              {Object.entries(currentLook.config.colors).filter(([k]) => ["primary", "secondary", "accent", "highlight"].includes(k)).map(([k, v]) => (
+                <div key={k} className="w-6 h-6 rounded-md border border-border" style={{ background: v as string }} title={k} />
+              ))}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{currentLook.name}</p>
+              <p className="text-[10px] text-muted-foreground capitalize">{currentLook.category} · {curatedIndex + 1}/{currentCategoryLooks.length}</p>
+            </div>
+            {seenInCategory.has(currentLook.id) && (
+              <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">
+                <Eye className="h-3 w-3" /> Visto
+              </span>
+            )}
+            {allSeenInCategory && (
+              <button onClick={() => { setSeenLooks(prev => ({ ...prev, [curatedCategory]: new Set() })); showToast("Lista reiniciada") }}
+                className="text-[10px] text-primary/70 hover:text-primary underline shrink-0">
+                Reiniciar
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-1 mb-4 p-1 rounded-xl bg-muted/50 w-fit">
         {[
           { key: "paletas", label: "Paletas", icon: Palette },
           { key: "fondos", label: "Fondos", icon: Layers },
@@ -551,80 +611,6 @@ export function BellezaPage() {
               <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Preview</h3>
             </div>
             <MiniPreview config={config} />
-          </div>
-
-          <div className="glass-card p-4">
-            <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3">Categorías</h3>
-            <div className="grid grid-cols-2 gap-2 mb-4">
-              {CURATED_CATEGORIES.map((cat) => {
-                const catLooks = CURATED_LOOKS.filter(l => l.category === cat.id)
-                const seenCount = (seenLooks[cat.id] || new Set()).size
-                const total = catLooks.length
-                const isActive = curatedCategory === cat.id
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => handleSelectCategory(cat.id)}
-                    className={cn(
-                      "p-3 rounded-xl border-2 text-left transition-all",
-                      isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-lg">{cat.emoji}</span>
-                      <div>
-                        <p className="text-xs font-semibold">{cat.name}</p>
-                        <p className="text-[9px] text-muted-foreground">{seenCount}/{total} vistos</p>
-                      </div>
-                    </div>
-                    {total > 0 && (
-                      <div className="h-1 rounded-full bg-muted overflow-hidden">
-                        <div className="h-full gradient-brand transition-all" style={{ width: `${(seenCount / total) * 100}%` }} />
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-
-            {currentLook && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold">{currentLook.name}</p>
-                    <p className="text-[10px] text-muted-foreground capitalize">{currentLook.category} · {curatedIndex + 1}/{currentCategoryLooks.length}</p>
-                  </div>
-                  {seenInCategory.has(currentLook.id) && (
-                    <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                      <Eye className="h-3 w-3" /> Visto
-                    </span>
-                  )}
-                </div>
-
-                {allSeenInCategory && (
-                  <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
-                    <p className="text-xs font-semibold text-primary">Ya viste todos los de {CURATED_CATEGORIES.find(c => c.id === curatedCategory)?.name}</p>
-                    <button onClick={() => {
-                      setSeenLooks(prev => ({ ...prev, [curatedCategory]: new Set() }))
-                      showToast("Lista reiniciada")
-                    }} className="text-[10px] text-primary/70 hover:text-primary underline mt-1">
-                      Reiniciar vista
-                    </button>
-                  </div>
-                )}
-
-                <div className="flex gap-2">
-                  <button onClick={handlePrevCurated} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-border hover:border-primary/30 transition-all text-xs font-medium">
-                    <ChevronLeft className="h-4 w-4" />
-                    Anterior
-                  </button>
-                  <button onClick={handleNextCurated} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl gradient-brand text-white text-xs font-medium hover:opacity-90 transition-all">
-                    Siguiente
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="glass-card p-4">
