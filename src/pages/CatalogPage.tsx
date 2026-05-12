@@ -11,6 +11,20 @@ import type { Product } from "@/types"
 
 const CATEGORIES = ["Todos", "Remeras", "Pantalones", "Buzos", "Camisas", "Accesorios", "Calzado", "Bolsos", "Gorras", "Carteras"]
 
+type CardSize = "hero" | "tall" | "regular"
+
+const EDITORIAL_PATTERN: CardSize[] = [
+  "hero",
+  "regular", "tall", "regular",
+  "regular", "regular", "tall",
+  "tall", "regular", "regular",
+  "regular", "tall",
+]
+
+function getCardSize(index: number): CardSize {
+  return EDITORIAL_PATTERN[index % EDITORIAL_PATTERN.length]
+}
+
 export function CatalogPage() {
   const navigate = useNavigate()
   const { data: products = [], isLoading } = useProducts()
@@ -20,7 +34,7 @@ export function CatalogPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedCategory, setSelectedCategory] = useState("Todos")
   const [showFilters, setShowFilters] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(12)
+  const [visibleCount, setVisibleCount] = useState(24)
   const headerRef = useRef<HTMLDivElement>(null)
 
   const brands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort()
@@ -44,20 +58,41 @@ export function CatalogPage() {
   const hasMore = filtered.length > visibleCount
 
   useEffect(() => {
-    setVisibleCount(12)
+    setVisibleCount(24)
   }, [selectedCategory, search, selectedBrands])
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand])
   }
 
+  const getGridClass = (size: CardSize): string => {
+    switch (size) {
+      case "hero": return "col-span-2 row-span-2"
+      case "tall": return "col-span-1 row-span-2"
+      default: return "col-span-1 row-span-1"
+    }
+  }
+
+  const getSkeletonClass = (size: CardSize): string => {
+    switch (size) {
+      case "hero": return "col-span-2 row-span-2"
+      case "tall": return "col-span-1 row-span-2"
+      default: return "col-span-1 row-span-1"
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-6 pt-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <ProductCardSkeleton key={i} viewMode="grid" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[320px]">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <div
+                key={i}
+                className={`${getSkeletonClass(EDITORIAL_PATTERN[i % EDITORIAL_PATTERN.length])} rounded-2xl overflow-hidden`}
+              >
+                <ProductCardSkeleton viewMode="grid" />
+              </div>
             ))}
           </div>
         </div>
@@ -95,7 +130,6 @@ export function CatalogPage() {
       {/* Sticky Controls */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-7xl mx-auto px-6">
-          {/* Category Pills */}
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-3 scrollbar-none">
             {categories.map(cat => (
               <button
@@ -112,7 +146,6 @@ export function CatalogPage() {
             ))}
           </div>
 
-          {/* Search + Controls */}
           <div className="flex items-center gap-3 pb-3">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -155,7 +188,6 @@ export function CatalogPage() {
             </div>
           </div>
 
-          {/* Brand Filters */}
           {showFilters && (
             <div className="pb-3 border-t border-border/30 pt-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-semibold">Marcas</p>
@@ -188,24 +220,31 @@ export function CatalogPage() {
           </div>
         ) : viewMode === "grid" ? (
           <>
-            {/* Masonry Grid */}
-            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-              {visible.map((product, i) => (
-                <div key={product.id} className="break-inside-avoid animate-fade-up" style={{ animationDelay: `${(i % 12) * 60}ms` }}>
-                  <ProductCard
-                    product={product}
-                    index={i}
-                    viewMode="grid"
-                    isAdmin={isAdmin}
-                    onSelect={setSelectedProduct}
-                  />
-                </div>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[280px]">
+              {visible.map((product, i) => {
+                const size = getCardSize(i)
+                return (
+                  <div
+                    key={product.id}
+                    className={`${getGridClass(size)} animate-fade-up overflow-hidden rounded-2xl`}
+                    style={{ animationDelay: `${(i % 12) * 50}ms` }}
+                  >
+                    <ProductCard
+                      product={product}
+                      index={i}
+                      viewMode="grid"
+                      size={size}
+                      isAdmin={isAdmin}
+                      onSelect={setSelectedProduct}
+                    />
+                  </div>
+                )
+              })}
             </div>
             {hasMore && (
               <div className="text-center mt-10">
                 <button
-                  onClick={() => setVisibleCount(v => v + 12)}
+                  onClick={() => setVisibleCount(v => v + 24)}
                   className="px-8 py-3 text-xs font-medium tracking-widest uppercase border border-foreground rounded-full hover:bg-foreground hover:text-background transition-all duration-300"
                 >
                   Ver más ({filtered.length - visibleCount} restantes)
@@ -229,7 +268,7 @@ export function CatalogPage() {
             {hasMore && (
               <div className="text-center pt-4">
                 <button
-                  onClick={() => setVisibleCount(v => v + 12)}
+                  onClick={() => setVisibleCount(v => v + 24)}
                   className="px-8 py-3 text-xs font-medium tracking-widest uppercase border border-foreground rounded-full hover:bg-foreground hover:text-background transition-all duration-300"
                 >
                   Ver más

@@ -2,15 +2,18 @@ import { useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import type { Product } from "@/types"
 
+type GridSize = "hero" | "tall" | "regular"
+
 interface ProductCardProps {
   product: Product
   index?: number
   viewMode?: "grid" | "list"
+  size?: GridSize
   isAdmin?: boolean
   onSelect: (product: Product) => void
 }
 
-export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, onSelect }: ProductCardProps) {
+export function ProductCard({ product, index = 0, viewMode = "grid", size = "regular", isAdmin, onSelect }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [imageLoaded, setImageLoaded] = useState(false)
@@ -82,23 +85,31 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
     )
   }
 
+  const imageAspect = size === "hero"
+    ? "aspect-[3/5]"
+    : size === "tall"
+    ? "aspect-[3/4]"
+    : "aspect-[3/4]"
+
+  const glowIntensity = size === "hero" ? 0.25 : size === "tall" ? 0.2 : 0.15
+
   return (
     <div
       ref={cardRef}
-      className="group cursor-pointer animate-fade-up"
+      className="group cursor-pointer animate-fade-up h-full"
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={() => onSelect(product)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       <div
-        className="relative aspect-[3/4] rounded-2xl overflow-hidden transition-all duration-500"
+        className={cn("relative rounded-2xl overflow-hidden transition-all duration-500 h-full", imageAspect)}
         style={{
           transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
           transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)" : "transform 0.1s ease-out",
           boxShadow: tilt.x === 0 && tilt.y === 0
             ? "0 4px 20px rgba(0,0,0,0.3)"
-            : `0 20px 50px rgba(124,92,252,${0.15 + Math.abs(tilt.x + tilt.y) * 0.005})`,
+            : `0 20px 50px rgba(124,92,252,${glowIntensity + Math.abs(tilt.x + tilt.y) * 0.005})`,
         }}
       >
         <div
@@ -181,18 +192,30 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
         <div className="absolute inset-x-3 bottom-3 z-20">
           <div className="flex items-end justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/40 mb-0.5">
+              <p className={cn(
+                "uppercase mb-0.5 text-white/40",
+                size === "hero" ? "text-[10px] font-semibold tracking-[0.25em]" : "text-[9px] font-semibold tracking-[0.2em]"
+              )}>
                 {product.brand}
               </p>
-              <h3 className="font-display text-sm font-semibold leading-tight text-white mb-1 line-clamp-2 group-hover:text-white/90 transition-colors">
+              <h3 className={cn(
+                "font-display font-semibold leading-tight text-white mb-1 line-clamp-2 group-hover:text-white/90 transition-colors",
+                size === "hero" ? "text-base" : "text-sm"
+              )}>
                 {product.name}
               </h3>
-              <p className="text-xs text-white/50 line-clamp-1 mb-2">
+              <p className={cn(
+                "text-white/50 line-clamp-1 mb-2",
+                size === "hero" ? "text-xs" : "text-[11px]"
+              )}>
                 {product.description}
               </p>
             </div>
             <div className="text-right shrink-0 ml-3">
-              <p className="font-display text-lg font-bold text-white">
+              <p className={cn(
+                "font-display font-bold text-white",
+                size === "hero" ? "text-xl" : "text-lg"
+              )}>
                 ${product.price.toLocaleString("es-AR")}
               </p>
               {product.seccion === "outlet" && (
@@ -210,9 +233,6 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
             <span className="text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300">→</span>
           </div>
         </div>
-      </div>
-
-      <div className="mt-4 px-1">
       </div>
     </div>
   )

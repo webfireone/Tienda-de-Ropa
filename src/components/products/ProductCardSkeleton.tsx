@@ -21,14 +21,8 @@ export function ProductCardSkeleton({ viewMode = "grid" }: ProductCardSkeletonPr
   }
 
   return (
-    <div className="space-y-3 shimmer rounded-2xl p-3">
-      <div className="aspect-[3/4] rounded-2xl bg-muted/50" />
-      <div className="space-y-2 p-1">
-        <div className="h-3 w-12 rounded bg-muted/50" />
-        <div className="h-4 w-36 rounded bg-muted/50" />
-        <div className="h-3 w-28 rounded bg-muted/50" />
-        <div className="h-4 w-16 rounded bg-muted/50" />
-      </div>
+    <div className="h-full rounded-2xl overflow-hidden bg-card/30">
+      <div className="h-full rounded-2xl shimmer" />
     </div>
   )
 }
