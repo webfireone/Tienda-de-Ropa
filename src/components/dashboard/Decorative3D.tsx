@@ -145,7 +145,7 @@ export function DecorativeBackground() {
 
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] animate-gradient-slow" style={{ backgroundSize: '200% 200%' }} />
+      <div className="absolute inset-0" style={{ background: "var(--color-background)" }} />
       <div className="hero-grid absolute inset-0 opacity-30 animate-grid-pulse" />
 
       <MouseGlow />
@@ -153,8 +153,8 @@ export function DecorativeBackground() {
 
       {/* Rotating images */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d1a] via-[#0d0d1a]/60 to-transparent z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] via-transparent to-[#0d0d1a]/40 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 z-10" />
         {HERO_IMAGES.map((src, i) => (
           <img
             key={src}
@@ -183,7 +183,7 @@ export function DecorativeBackground() {
       <OrbitingRing className="top-1/3 right-1/4" size={160} reverse />
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0d0d1a] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
     </div>
   )
 }
@@ -200,7 +200,7 @@ export function HeroSection() {
   }, [])
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 min-h-[520px] animate-gradient-slow" style={{ backgroundSize: '200% 200%' }}>
+    <div className="relative overflow-hidden rounded-3xl border border-primary/10 min-h-[520px]" style={{ background: "var(--color-background)" }}>
       <div className="hero-grid absolute inset-0 opacity-30 animate-grid-pulse" />
 
       <MouseGlow />
@@ -208,9 +208,9 @@ export function HeroSection() {
 
       {/* Ghost editorial image (rotating) */}
       <div className="absolute right-0 top-0 bottom-0 w-[45%] hidden md:block overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d1a] via-[#0d0d1a]/40 to-transparent z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] via-transparent to-[#0d0d1a]/20 z-10" />
-        <div className="absolute inset-0 bg-[#0d0d1a]/5 z-[1]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 z-10" />
+        <div className="absolute inset-0 bg-black/5 z-[1]" />
         {HERO_IMAGES.map((src, i) => (
           <img
             key={src}
@@ -303,14 +303,14 @@ export function HeroSection() {
       </div>
 
       {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0d0d1a] to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
     </div>
   )
 }
 
 export function PageHero({ title, subtitle, icon: Icon }: { title: string; subtitle?: string; icon?: ComponentType<{ className?: string }> }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 p-8 mb-8">
+    <div className="relative overflow-hidden rounded-2xl border border-primary/10 p-8 mb-8" style={{ background: "var(--color-background)" }}>
       <div className="hero-grid absolute inset-0 opacity-20" />
       <FloatingOrb className="top-5 right-10" size="sm" delay={0.3} idx={0} />
       <FloatingOrb className="bottom-5 right-20" size="sm" delay={1} idx={1} />

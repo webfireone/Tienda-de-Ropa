@@ -129,7 +129,7 @@ export function LandingPage() {
       </motion.section>
 
       {/* Inspírate */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border border-primary/10 mx-6 my-16">
+      <section className="relative overflow-hidden rounded-3xl border border-primary/10 mx-6 my-16" style={{ background: "var(--color-background)" }}>
         <div className="hero-grid absolute inset-0 opacity-30" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
@@ -230,7 +230,7 @@ export function LandingPage() {
       </section>
 
       {/* Brand Story */}
-      <section className="bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border-y border-primary/10 py-20">
+      <section className="border-y border-primary/10 py-20" style={{ background: "var(--color-background)" }}>
         <div className="max-w-3xl mx-auto px-6 text-center glass-deep rounded-3xl p-10">
           <Quote className="h-10 w-10 mx-auto mb-6 text-primary/30" />
           <blockquote className="font-display text-2xl md:text-3xl leading-relaxed mb-6 font-medium">
@@ -334,7 +334,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative overflow-hidden bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border-t border-primary/10 pt-16 pb-8">
+      <footer className="relative overflow-hidden border-t border-primary/10 pt-16 pb-8" style={{ background: "var(--color-background)" }}>
         <div className="absolute inset-0 hero-grid opacity-20" />
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
