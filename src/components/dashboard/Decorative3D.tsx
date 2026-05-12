@@ -72,8 +72,8 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2 }}
         >
-          <span className="block gradient-text text-[clamp(3.5rem,12vw,8rem)]">GLAMOURS</span>
-          <span className="block text-white/15 text-[clamp(1rem,4vw,2.5rem)] font-light tracking-[0.25em] mt-2">
+          <span className="block gradient-text text-[clamp(3rem,8vw,6rem)]">GLAMOURS</span>
+          <span className="block text-white/15 text-[clamp(0.875rem,2.5vw,1.75rem)] font-light tracking-[0.25em] mt-2">
             colección
           </span>
         </motion.h1>
