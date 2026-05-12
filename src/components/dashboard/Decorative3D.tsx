@@ -22,12 +22,12 @@ export function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-3xl border border-white/5 min-h-[600px]"
+      className="relative overflow-hidden rounded-3xl border border-white/5 min-h-[600px] flex"
       style={{ background: "var(--color-background)" }}
     >
       <div className="hero-grid absolute inset-0 opacity-[0.03]" />
 
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="relative w-3/5 overflow-hidden shrink-0">
         <motion.div
           className="absolute inset-0 origin-center"
           style={{ scale: imageScale, opacity: imageOpacity }}
@@ -38,13 +38,12 @@ export function HeroSection() {
             className="w-full h-full object-cover object-center"
           />
         </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-background)] via-[var(--color-background)]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)]/60 via-transparent to-[var(--color-background)]/20" />
-        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[var(--color-background)]/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-background)]/10 via-transparent to-[var(--color-background)]/20" />
       </div>
 
       <motion.div
-        className="relative z-10 flex flex-col justify-center min-h-[600px] max-w-2xl px-12 md:px-16"
+        className="relative z-10 flex flex-col justify-center flex-1 px-12 md:px-16"
         style={{ y: textY }}
       >
         <motion.div
