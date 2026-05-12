@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
-import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, checkContrast, applyThemeConfig, type PredefinedPalette, type SavedLook } from "@/store/bellezaStore"
-import { Sparkles, RotateCcw, Save, Eye, EyeOff, Sun, Moon, Clock, Wand2, ChevronDown, ChevronUp, AlertTriangle, Check, Trash2, Palette, Type, Layers, MousePointer, Layout, Upload } from "lucide-react"
+import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, checkContrast, applyThemeConfig, type PredefinedPalette, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
+import { Sparkles, RotateCcw, Save, Wand2, ChevronDown, ChevronUp, AlertTriangle, Check, Trash2, Palette, Type, Layers, MousePointer, Layout, Upload, Moon, Sun, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const COLOR_KEYS = [
@@ -120,31 +120,34 @@ export function BellezaPage() {
   const { isAdmin } = useAuth()
   const navigate = useViewTransitionNavigate()
   const {
-    config, savedLooks, hasChanges,
+    config, savedLooks,
     setColors, setBackground, setBackgroundGradient, setEffects,
     setTypography, setLayout, setHover, setMode,
-    saveLook, loadLook, deleteLook, resetToDefault, randomize,
+    saveLook, loadLook, deleteLook, resetToDefault, randomize, applyFullConfig,
   } = useBellezaStore()
 
   const [savedName, setSavedName] = useState("")
-  const [previewActive, setPreviewActive] = useState(false)
   const [customGradient, setCustomGradient] = useState("")
   const [activeTab, setActiveTab] = useState<"palettes" | "colors" | "bg" | "fonts" | "layout" | "saved">("palettes")
+
+  useEffect(() => {
+    const activeRaw = localStorage.getItem("belleza-active-config")
+    if (activeRaw) {
+      try {
+        const loaded = JSON.parse(activeRaw) as FullThemeConfig
+        applyFullConfig(loaded)
+        applyThemeConfig(loaded)
+      } catch {}
+    }
+  }, [])
 
   useEffect(() => {
     if (!isAdmin) navigate("/")
   }, [isAdmin, navigate])
 
   useEffect(() => {
-    if (previewActive) {
-      applyThemeConfig(config)
-    }
-    return () => {
-      if (previewActive) {
-        applyThemeConfig(config)
-      }
-    }
-  }, [config, previewActive])
+    applyThemeConfig(config)
+  }, [config])
 
   useEffect(() => {
     const savedRaw = localStorage.getItem("belleza-saved-looks")
@@ -175,18 +178,15 @@ export function BellezaPage() {
     if (palette.config.background) setBackground(palette.config.background as any)
     if (palette.config.backgroundGradient) setBackgroundGradient(palette.config.backgroundGradient)
     if (palette.config.hover) setHover(palette.config.hover)
-    setPreviewActive(true)
   }
 
   const handleRandomize = () => {
     randomize()
-    setPreviewActive(true)
   }
 
   const handleReset = () => {
     resetToDefault()
     applyThemeConfig(useBellezaStore.getState().config)
-    setPreviewActive(false)
   }
 
   if (!isAdmin) return null
@@ -202,13 +202,6 @@ export function BellezaPage() {
           <p className="text-sm text-muted-foreground">Rediseñá tu web al instante, sin escribir código.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setPreviewActive(!previewActive)}
-            className={cn("flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all", previewActive ? "gradient-brand text-white" : "border border-border hover:border-primary/30 hover:text-primary")}
-          >
-            {previewActive ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            {previewActive ? "Vista activa" : "Vista previa"}
-          </button>
           <button onClick={handleRandomize} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-primary/30 hover:text-primary transition-all">
             <Wand2 className="h-4 w-4" />
             Random
@@ -220,31 +213,21 @@ export function BellezaPage() {
         </div>
       </div>
 
-      {hasChanges && previewActive && (
-        <div className="mb-6 p-4 rounded-2xl bg-warning/10 border border-warning/30 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-warning" />
-            <span className="text-sm">Tenés cambios sin guardar. Estás viéndolos en vista previa.</span>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => { setPreviewActive(false); setHasChanges(false) }}
-              className="px-4 py-1.5 rounded-lg text-xs font-medium border border-border hover:border-primary/30 transition-all"
-            >
-              Descartar
-            </button>
-            <button
-              onClick={() => {
-                localStorage.setItem("belleza-active-config", JSON.stringify(config))
-                setHasChanges(false)
-              }}
-              className="px-4 py-1.5 rounded-lg text-xs font-medium gradient-brand text-white shadow-sm"
-            >
-              Guardar en web
-            </button>
-          </div>
+      <div className="mb-6 p-3 rounded-2xl glass-card flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <span className="text-xs">Cada cambio se aplica INSTANTÁNEAMENTE en toda la web.</span>
         </div>
-      )}
+        <button
+          onClick={() => {
+            localStorage.setItem("belleza-active-config", JSON.stringify(config))
+          }}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-xl text-xs font-medium gradient-brand text-white shadow-sm btn-micro"
+        >
+          <Save className="h-3 w-3" />
+          Guardar como favorito
+        </button>
+      </div>
 
       <div className="flex gap-1 mb-6 p-1 rounded-xl bg-muted/50 w-fit">
         {[
@@ -364,7 +347,7 @@ export function BellezaPage() {
                 {PRESET_BACKGROUNDS.map((bg) => (
                   <button
                     key={bg.id}
-                    onClick={() => { setBackground(bg.id); setPreviewActive(true) }}
+                    onClick={() => setBackground(bg.id)}
                     className={cn(
                       "relative h-16 rounded-xl overflow-hidden border-2 transition-all",
                       config.background === bg.id ? "border-primary shadow-sm" : "border-border hover:border-primary/30"
@@ -395,7 +378,7 @@ export function BellezaPage() {
                     className="flex-1 text-xs font-mono bg-muted border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <button
-                    onClick={() => { setBackgroundGradient(customGradient); setPreviewActive(true) }}
+                    onClick={() => setBackgroundGradient(customGradient)}
                     className="px-4 py-2 rounded-xl text-xs font-medium border border-border hover:border-primary/30 transition-all"
                   >
                     Aplicar
@@ -661,7 +644,7 @@ export function BellezaPage() {
                       </div>
                       <div className="flex gap-1 shrink-0">
                         <button
-                          onClick={() => { loadLook(look.id); setPreviewActive(true) }}
+                          onClick={() => loadLook(look.id)}
                           className="p-2 rounded-lg hover:bg-muted transition-colors"
                           title="Cargar"
                         >
@@ -750,8 +733,4 @@ export function BellezaPage() {
       </div>
     </div>
   )
-}
-
-function setHasChanges(v: boolean) {
-  useBellezaStore.setState({ hasChanges: v })
 }
