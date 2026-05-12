@@ -258,6 +258,10 @@ export function BellezaPage() {
           <p className="text-sm text-muted-foreground">Hacé click en una paleta o fondo para aplicarlo al instante.</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={handleRandomize} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium gradient-brand text-white shadow-sm btn-micro hover:opacity-90 transition-all">
+            <Wand2 className="h-4 w-4" />
+            Aleatorio
+          </button>
           <button onClick={resetToDefault} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-destructive/30 hover:text-destructive transition-all">
             <RotateCcw className="h-4 w-4" />
             Reset
@@ -306,12 +310,6 @@ export function BellezaPage() {
                     </div>
                   </button>
                 ))}
-              </div>
-              <div className="glass-card p-4 flex gap-3">
-                <button onClick={handleRandomize} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl gradient-brand text-white font-medium text-sm hover:opacity-90 transition-opacity btn-micro">
-                  <Wand2 className="h-4 w-4" />
-                  Generar combinación aleatoria
-                </button>
               </div>
             </div>
           )}
