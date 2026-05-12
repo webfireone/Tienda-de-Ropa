@@ -1,9 +1,39 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
-import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, applyThemeConfig, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
+import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
 import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+const GRADIENT_PRESETS = [
+  { name: "Violeta", from: "#7c3aed", to: "#ec4899", angle: "135deg" },
+  { name: "Cielo", from: "#0ea5e9", to: "#06b6d4", angle: "135deg" },
+  { name: "Oro", from: "#d4af37", to: "#fbbf24", angle: "135deg" },
+  { name: "Rosa", from: "#f472b6", to: "#fb7185", angle: "135deg" },
+  { name: "Verde", from: "#22c55e", to: "#84cc16", angle: "135deg" },
+  { name: "Naranja", from: "#f97316", to: "#f59e0b", angle: "135deg" },
+  { name: "Rojo", from: "#ef4444", to: "#f97316", angle: "135deg" },
+  { name: "Azul", from: "#3b82f6", to: "#8b5cf6", angle: "135deg" },
+  { name: "Celeste", from: "#38bdf8", to: "#a78bfa", angle: "135deg" },
+  { name: "Magenta", from: "#d946ef", to: "#f43f5e", angle: "135deg" },
+  { name: "Verde azulado", from: "#14b8a6", to: "#22d3ee", angle: "135deg" },
+  { name: "Amarillo", from: "#eab308", to: "#facc15", angle: "135deg" },
+]
+
+const PASTEL_BACKGROUNDS = [
+  { id: "pastel-lavender", name: "Lavanda", preview: "linear-gradient(135deg, #e9d5ff, #ddd6fe, #e9d5ff)", css: "linear-gradient(135deg, #e9d5ff, #ddd6fe, #e9d5ff)" },
+  { id: "pastel-peach", name: "Durazno", preview: "linear-gradient(135deg, #fed7aa, #fdba74, #fed7aa)", css: "linear-gradient(135deg, #fed7aa, #fdba74, #fed7aa)" },
+  { id: "pastel-mint", name: "Menta", preview: "linear-gradient(135deg, #a7f3d0, #6ee7b7, #a7f3d0)", css: "linear-gradient(135deg, #a7f3d0, #6ee7b7, #a7f3d0)" },
+  { id: "pastel-pink", name: "Rosa pastel", preview: "linear-gradient(135deg, #fbcfe8, #f9a8d4, #fbcfe8)", css: "linear-gradient(135deg, #fbcfe8, #f9a8d4, #fbcfe8)" },
+  { id: "pastel-blue", name: "Azul pastel", preview: "linear-gradient(135deg, #bfdbfe, #93c5fd, #bfdbfe)", css: "linear-gradient(135deg, #bfdbfe, #93c5fd, #bfdbfe)" },
+  { id: "pastel-yellow", name: "Amarillo pastel", preview: "linear-gradient(135deg, #fef08a, #fde047, #fef08a)", css: "linear-gradient(135deg, #fef08a, #fde047, #fef08a)" },
+  { id: "pastel-rose", name: "Rosa cálido", preview: "linear-gradient(135deg, #fecdd3, #fda4af, #fecdd3)", css: "linear-gradient(135deg, #fecdd3, #fda4af, #fecdd3)" },
+  { id: "pastel-purple", name: "Púrpura pastel", preview: "linear-gradient(135deg, #e9d5ff, #c4b5fd, #e9d5ff)", css: "linear-gradient(135deg, #e9d5ff, #c4b5fd, #e9d5ff)" },
+  { id: "pastel-sky", name: "Cielo pastel", preview: "linear-gradient(135deg, #bae6fd, #7dd3fc, #bae6fd)", css: "linear-gradient(135deg, #bae6fd, #7dd3fc, #bae6fd)" },
+  { id: "pastel-green", name: "Verde pastel", preview: "linear-gradient(135deg, #bbf7d0, #86efac, #bbf7d0)", css: "linear-gradient(135deg, #bbf7d0, #86efac, #bbf7d0)" },
+  { id: "pastel-orange", name: "Naranja pastel", preview: "linear-gradient(135deg, #fed7aa, #fb923c, #fed7aa)", css: "linear-gradient(135deg, #fed7aa, #fb923c, #fed7aa)" },
+  { id: "pastel-teal", name: "Verde azulado", preview: "linear-gradient(135deg, #99f6e4, #5eead4, #99f6e4)", css: "linear-gradient(135deg, #99f6e4, #5eead4, #99f6e4)" },
+]
 
 function MiniPreview({ config }: { config: FullThemeConfig }) {
   const c = config.colors
@@ -95,9 +125,10 @@ export function BellezaPage() {
   } = useBellezaStore()
 
   const [savedName, setSavedName] = useState("")
-  const [customGradient, setCustomGradient] = useState("")
   const [activeTab, setActiveTab] = useState<"paletas" | "fondos" | "guardados">("paletas")
   const [toastMsg, setToastMsg] = useState<string | null>(null)
+  const [customFrom, setCustomFrom] = useState("#7c3aed")
+  const [customTo, setCustomTo] = useState("#ec4899")
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
@@ -107,21 +138,6 @@ export function BellezaPage() {
   useEffect(() => {
     if (!isAdmin) navigate("/")
   }, [isAdmin, navigate])
-
-  useEffect(() => {
-    const activeRaw = localStorage.getItem("belleza-active-config")
-    if (activeRaw) {
-      try {
-        const loaded = JSON.parse(activeRaw) as FullThemeConfig
-        applyFullConfig(loaded)
-        applyThemeConfig(loaded)
-      } catch {}
-    }
-  }, [])
-
-  useEffect(() => {
-    applyThemeConfig(config)
-  }, [config])
 
   useEffect(() => {
     const savedRaw = localStorage.getItem("belleza-saved-looks")
@@ -149,40 +165,50 @@ export function BellezaPage() {
       backgroundGradient: palette.config.backgroundGradient || config.backgroundGradient,
       hover: palette.config.hover || config.hover,
     }
-    applyThemeConfig(newConfig)
+    applyFullConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast(`"${palette.name}" aplicada`)
   }
 
-  const handleApplyBackground = (bg: any) => {
+  const handleApplyPresetBg = (bg: any) => {
     const newConfig: FullThemeConfig = {
       ...config,
       background: bg.id,
       backgroundGradient: bg.css,
     }
-    applyThemeConfig(newConfig)
+    applyFullConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast(`Fondo "${bg.name}" aplicado`)
+    showToast(`"${bg.name}" aplicado`)
+  }
+
+  const handleApplyGradientPreset = (g: typeof GRADIENT_PRESETS[0]) => {
+    const css = `linear-gradient(${g.angle}, ${g.from}, ${g.to})`
+    const newConfig: FullThemeConfig = {
+      ...config,
+      background: "custom",
+      backgroundGradient: css,
+    }
+    applyFullConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    showToast(`Gradient "${g.name}" aplicado`)
   }
 
   const handleApplyCustomGradient = () => {
-    if (customGradient.trim()) {
-      const newConfig: FullThemeConfig = {
-        ...config,
-        background: "custom" as any,
-        backgroundGradient: customGradient.trim(),
-      }
-      applyThemeConfig(newConfig)
-      localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-      showToast("Gradient personalizado aplicado")
-      setCustomGradient("")
+    const css = `linear-gradient(135deg, ${customFrom}, ${customTo})`
+    const newConfig: FullThemeConfig = {
+      ...config,
+      background: "custom",
+      backgroundGradient: css,
     }
+    applyFullConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    showToast("Gradient personalizado aplicado")
   }
 
   const handleRandomize = () => {
     randomize()
     const newConfig = useBellezaStore.getState().config
-    applyThemeConfig(newConfig)
+    applyFullConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast("Combinación aleatoria aplicada")
   }
@@ -196,7 +222,6 @@ export function BellezaPage() {
 
   const handleLoadLook = (look: SavedLook) => {
     applyFullConfig(look.config)
-    applyThemeConfig(look.config)
     localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
     showToast(`"${look.name}" cargado`)
   }
@@ -206,7 +231,12 @@ export function BellezaPage() {
   }
 
   const isBgActive = (bg: any) => {
-    return config.background === bg.id
+    return config.background === bg.id || config.backgroundGradient === bg.css
+  }
+
+  const isGradientActive = (g: typeof GRADIENT_PRESETS[0]) => {
+    const css = `linear-gradient(${g.angle}, ${g.from}, ${g.to})`
+    return config.backgroundGradient === css
   }
 
   if (!isAdmin) return null
@@ -219,7 +249,7 @@ export function BellezaPage() {
             <Sparkles className="h-5 w-5 text-primary" />
             <h1 className="font-display text-2xl font-bold gradient-text">BELLEZA</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Elegí una paleta o fondo y presioná "Aplicar" para ver los cambios.</p>
+          <p className="text-sm text-muted-foreground">Hacé click en una paleta o fondo para aplicarlo al instante.</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={resetToDefault} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-destructive/30 hover:text-destructive transition-all">
@@ -281,36 +311,106 @@ export function BellezaPage() {
           )}
 
           {activeTab === "fondos" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
-                {PRESET_BACKGROUNDS.map((bg) => (
-                  <button key={bg.id} onClick={() => handleApplyBackground(bg)}
-                    className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", isBgActive(bg) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
-                    {isBgActive(bg) && (
-                      <span className="absolute top-1 right-1 z-10">
-                        <Check className="h-3 w-3 text-white drop-shadow" />
-                      </span>
-                    )}
-                    <div className="absolute inset-0" style={{ background: bg.preview }} />
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 py-1 px-1">
-                      <span className="text-[9px] text-white font-medium">{bg.name}</span>
-                    </div>
-                  </button>
-                ))}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Fondos oscuros</h3>
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                  {PRESET_BACKGROUNDS.filter(b => !b.id.includes("snow") && !b.id.includes("light") && !b.id.includes("peach") && !b.id.includes("lavender") && !b.id.includes("cream") && !b.id.includes("sky-light") && !b.id.includes("pastel")).map((bg) => (
+                    <button key={bg.id} onClick={() => handleApplyPresetBg(bg)}
+                      className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", isBgActive(bg) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                      {isBgActive(bg) && (
+                        <span className="absolute top-1 right-1 z-10">
+                          <Check className="h-3 w-3 text-white drop-shadow" />
+                        </span>
+                      )}
+                      <div className="absolute inset-0" style={{ background: bg.preview }} />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 py-1 px-1">
+                        <span className="text-[9px] text-white font-medium">{bg.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Fondos claros</h3>
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                  {PRESET_BACKGROUNDS.filter(b => b.id.includes("snow") || b.id.includes("light") || b.id.includes("peach") || b.id.includes("lavender") || b.id.includes("cream") || b.id.includes("sky-light")).map((bg) => (
+                    <button key={bg.id} onClick={() => handleApplyPresetBg(bg)}
+                      className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", isBgActive(bg) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                      {isBgActive(bg) && (
+                        <span className="absolute top-1 right-1 z-10">
+                          <Check className="h-3 w-3 text-black drop-shadow" />
+                        </span>
+                      )}
+                      <div className="absolute inset-0" style={{ background: bg.preview }} />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/40 py-1 px-1">
+                        <span className="text-[9px] text-white font-medium">{bg.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Fondos pastel</h3>
+                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+                  {PASTEL_BACKGROUNDS.map((bg) => (
+                    <button key={bg.id} onClick={() => handleApplyPresetBg(bg)}
+                      className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", isBgActive(bg) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                      {isBgActive(bg) && (
+                        <span className="absolute top-1 right-1 z-10">
+                          <Check className="h-3 w-3 text-black drop-shadow" />
+                        </span>
+                      )}
+                      <div className="absolute inset-0" style={{ background: bg.preview }} />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/30 py-1 px-1">
+                        <span className="text-[9px] text-white font-medium">{bg.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Gradients de color</h3>
+                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                  {GRADIENT_PRESETS.map((g) => (
+                    <button key={g.name} onClick={() => handleApplyGradientPreset(g)}
+                      title={g.name}
+                      className={cn("relative h-12 rounded-xl overflow-hidden border-2 transition-all", isGradientActive(g) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                      <div className="absolute inset-0" style={{ background: `linear-gradient(${g.angle}, ${g.from}, ${g.to})` }} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="glass-card p-4">
-                <label className="text-xs font-semibold block mb-2">Gradient personalizado</label>
-                <div className="flex gap-2">
-                  <input type="text" value={customGradient} onChange={(e) => setCustomGradient(e.target.value)}
-                    placeholder="linear-gradient(135deg, #0d0d1a, #7c5cfc)"
-                    className="flex-1 text-xs font-mono bg-muted border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary" />
-                  <button onClick={handleApplyCustomGradient} className="px-4 py-2 rounded-xl text-xs font-medium gradient-brand text-white transition-all">
+                <h3 className="text-xs font-semibold mb-3">Gradient personalizado</h3>
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <label className="text-[10px] text-muted-foreground block mb-1">Color 1</label>
+                    <div className="flex gap-2 items-center">
+                      <input type="color" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)}
+                        className="w-10 h-10 rounded-lg cursor-pointer border border-border appearance-none" style={{ background: customFrom }} />
+                      <input type="text" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)}
+                        className="flex-1 text-xs font-mono bg-muted border border-border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[10px] text-muted-foreground block mb-1">Color 2</label>
+                    <div className="flex gap-2 items-center">
+                      <input type="color" value={customTo} onChange={(e) => setCustomTo(e.target.value)}
+                        className="w-10 h-10 rounded-lg cursor-pointer border border-border appearance-none" style={{ background: customTo }} />
+                      <input type="text" value={customTo} onChange={(e) => setCustomTo(e.target.value)}
+                        className="flex-1 text-xs font-mono bg-muted border border-border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary" />
+                    </div>
+                  </div>
+                  <button onClick={handleApplyCustomGradient} className="px-5 py-2.5 rounded-xl text-sm font-medium gradient-brand text-white transition-all whitespace-nowrap">
                     Aplicar
                   </button>
                 </div>
-                {customGradient && (
-                  <div className="mt-2 w-full h-12 rounded-xl border border-border" style={{ background: customGradient }} />
-                )}
+                <div className="mt-3 w-full h-12 rounded-xl border border-border" style={{ background: `linear-gradient(135deg, ${customFrom}, ${customTo})` }} />
               </div>
             </div>
           )}
