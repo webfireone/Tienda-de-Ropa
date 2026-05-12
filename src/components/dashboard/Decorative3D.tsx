@@ -29,30 +29,25 @@ export function HeroSection() {
       <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-10 right-10 w-64 h-64 rounded-full bg-fuchsia-600/8 blur-3xl pointer-events-none" />
 
-      {/* Image layer */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute inset-0 origin-center"
-          style={{ scale: imageScale, opacity: imageOpacity }}
-        >
-          <img
-            src={currentImage}
-            alt="Hero"
-            className="w-full h-full object-cover object-center"
-          />
-        </motion.div>
-        {/* Cinematic overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0d1a] 0%, #0d0d1a/60 40%, #0d0d1a/20 100%" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a] 0%, transparent 40%" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent 60%, rgba(13,13,26,0.8) 100%" />
-        {/* Editorial light leak */}
-        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-white/10 via-transparent to-transparent" />
-        <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-violet-400/5 via-transparent to-transparent" />
-      </div>
-
-      {/* Content */}
+      {/* Image — left side only, doesn't interfere with text */}
       <motion.div
-        className="relative z-10 flex flex-col justify-center min-h-[620px] max-w-xl px-8 md:px-16 lg:px-20"
+        className="absolute inset-y-0 left-0 overflow-hidden origin-left"
+        style={{ width: "55%", scale: imageScale, opacity: imageOpacity }}
+      >
+        <img
+          src={currentImage}
+          alt="Hero"
+          className="w-full h-full object-cover object-center"
+        />
+        {/* Image right fade */}
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-r from-transparent to-[var(--color-background)]" />
+        {/* Top/bottom fade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-background)] 0%, transparent 15%, transparent 85%, #0d0d1a 100%" />
+      </motion.div>
+
+      {/* Content — right side, full dark background */}
+      <motion.div
+        className="relative z-10 flex flex-col justify-center min-h-[620px] px-12 lg:px-20"
         style={{ y: textY }}
       >
         <motion.div
@@ -61,7 +56,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="mb-8"
         >
-          <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-white/25">
+          <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-white/40">
             Moda Unisex · Luján, Buenos Aires
           </span>
         </motion.div>
@@ -72,8 +67,8 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2 }}
         >
-          <span className="block gradient-text text-[clamp(3rem,8vw,6rem)]">GLAMOURS</span>
-          <span className="block text-white/15 text-[clamp(0.875rem,2.5vw,1.75rem)] font-light tracking-[0.25em] mt-2">
+          <span className="block gradient-text text-[clamp(3.5rem,8vw,6rem)]">GLAMOURS</span>
+          <span className="block text-white/30 text-[clamp(1rem,3vw,2rem)] font-light tracking-[0.25em] mt-2">
             colección
           </span>
         </motion.h1>
@@ -87,7 +82,7 @@ export function HeroSection() {
         />
 
         <motion.p
-          className="text-sm text-white/35 leading-relaxed max-w-sm mb-10 font-light"
+          className="text-sm text-white/50 leading-relaxed max-w-md mb-10 font-light"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
