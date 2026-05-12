@@ -76,7 +76,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       </button>
 
       <div className="absolute inset-4 flex items-start justify-center overflow-y-auto pointer-events-none">
-        <div className="relative w-full max-w-5xl my-4 rounded-xl bg-card border border-border shadow-2xl animate-fade-up pointer-events-auto">
+        <div className="relative w-full max-w-5xl my-4 rounded-xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Image — left half */}
             <div className="relative bg-muted rounded-t-xl md:rounded-tr-none md:rounded-l-xl overflow-hidden">
@@ -224,10 +224,10 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                 disabled={!isConfigured || !!cantAddReason}
                 onClick={handleAdd}
                 className={cn(
-                  "flex-1 h-12 text-sm font-semibold tracking-wide transition-all flex items-center justify-center gap-2 shadow-sm",
+                  "flex-1 h-12 text-sm font-semibold tracking-wide flex items-center justify-center gap-2 shadow-sm btn-micro",
                   !isConfigured || cantAddReason
                     ? "bg-muted text-muted-foreground/50 cursor-not-allowed shadow-none"
-                    : "bg-primary text-primary-foreground hover:opacity-90 active:scale-[0.98]"
+                    : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
                 )}
               >
                 <ShoppingCart className="h-4 w-4" />

@@ -101,7 +101,7 @@ export function LandingPage() {
       )}
 
       {/* Features */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
@@ -115,7 +115,7 @@ export function LandingPage() {
             { icon: CreditCard, title: "3 cuotas", desc: "sin interés", color: "from-cyan-500/30 to-blue-500/30" },
             { icon: Shield, title: "Seguro", desc: "100% protegido", color: "from-emerald-500/30 to-teal-500/30" },
           ].map(({ icon: Icon, title, desc, color }) => (
-            <div key={title} className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-primary/10 shadow-sm hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group">
+            <div key={title} className="glass-card p-4 hover-lift cursor-default">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                 <Icon className="h-5 w-5 text-primary" />
               </div>
@@ -135,7 +135,7 @@ export function LandingPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
           {/* Header */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 backdrop-blur-sm border border-primary/10 text-xs font-semibold text-primary mb-4 w-fit shadow-sm mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-xs font-semibold text-primary mb-4 w-fit shadow-sm mx-auto">
               <div className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
               Inspiración
             </div>
@@ -156,7 +156,7 @@ export function LandingPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.7, delay: i * 0.15 }}
                 key={item.title}
-                className="group cursor-pointer relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500"
+                className="group cursor-pointer relative aspect-[3/4] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 glass-card"
                 onClick={() => navigate("/catalog")}
               >
                 {currentImages[i] ? (
@@ -203,7 +203,7 @@ export function LandingPage() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.8, delay: i * 0.2, ease: "easeOut" }}
               key={cat.title}
-              className="group cursor-pointer relative aspect-[5/4] rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500"
+              className="group cursor-pointer relative aspect-[5/4] rounded-2xl overflow-hidden shadow-lg transition-all duration-500 hover-lift glass-card"
               onClick={() => navigate(cat.path)}
             >
               <img src={cat.image} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -231,13 +231,13 @@ export function LandingPage() {
 
       {/* Brand Story */}
       <section className="bg-gradient-to-br from-[#0d0d1a] via-[#161627] to-[#1a0a2e] border-y border-primary/10 py-20">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+        <div className="max-w-3xl mx-auto px-6 text-center glass-deep rounded-3xl p-10">
           <Quote className="h-10 w-10 mx-auto mb-6 text-primary/30" />
           <blockquote className="font-display text-2xl md:text-3xl leading-relaxed mb-6 font-medium">
             "Vestir es una forma de expresar quién eres. Nos enorgullece inspirar a través de la ropa, para que cada persona se sienta auténtica y segura."
           </blockquote>
           <p className="text-sm text-muted-foreground tracking-wider uppercase mb-8">— Equipo de Tienda de Ropa</p>
-          <Button variant="default" onClick={() => navigate("/catalog")}>
+          <Button variant="default" onClick={() => navigate("/catalog")} className="btn-micro hover-lift">
             Conocé nuestra colección
           </Button>
         </div>
@@ -251,7 +251,7 @@ export function LandingPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((t, i) => (
-            <div key={i} className="p-6 rounded-2xl bg-card border border-primary/10 shadow-sm hover:shadow-md hover:shadow-primary/5 transition-all duration-300 animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
+            <div key={i} className="p-6 glass-card hover-lift animate-fade-up" style={{ animationDelay: `${i * 0.1}s` }}>
               <div className="flex gap-1 mb-3">
                 {Array.from({ length: 5 }).map((_, s) => (
                   <Star key={s} className={`h-3.5 w-3.5 ${s < t.rating ? "text-amber-400 fill-amber-400" : "text-border"}`} />
@@ -271,7 +271,7 @@ export function LandingPage() {
         <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-primary/5 blur-3xl animate-float" />
         <div className="absolute bottom-10 left-10 w-48 h-48 rounded-full bg-primary/5 blur-3xl animate-float-reverse" />
 
-        <div className="max-w-xl mx-auto px-6 text-center relative z-10">
+        <div className="max-w-xl mx-auto px-6 text-center relative z-10 scroll-reveal">
           <Sparkles className="h-8 w-8 mx-auto mb-4 text-primary/60" />
           <h2 className="font-display text-3xl font-bold mb-4">
             <span className="gradient-text">¿Listo para actualizar tu estilo?</span>
@@ -311,7 +311,7 @@ export function LandingPage() {
                   required
                   className="flex-1 bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-primary rounded-xl"
                 />
-                <Button type="submit" disabled={subLoading} className="bg-primary text-primary-foreground hover:opacity-90 shadow-xl whitespace-nowrap rounded-xl disabled:opacity-50">
+                <Button type="submit" disabled={subLoading} className="bg-primary text-primary-foreground hover:opacity-90 shadow-xl whitespace-nowrap rounded-xl disabled:opacity-50 btn-micro hover-lift">
                   {subLoading ? "Enviando..." : "Suscribirme"}
                 </Button>
               </div>

@@ -5,13 +5,13 @@ import { ProductCard } from "@/components/products/ProductCard"
 import { ProductCardSkeleton } from "@/components/products/ProductCardSkeleton"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
 import { Search, Grid3X3, List, Store, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import type { Product } from "@/types"
 
 export function CatalogPage() {
-  const navigate = useNavigate()
+  const navigate = useViewTransitionNavigate()
   const { data: products = [], isLoading } = useProducts()
   const { isAdmin } = useAuth()
   const [search, setSearch] = useState("")
@@ -68,7 +68,7 @@ export function CatalogPage() {
         ))}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 rounded-2xl bg-card border border-primary/10 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 p-4 rounded-2xl glass-card shadow-sm">
         <div className="flex items-center gap-3 flex-1 max-w-md">
           <Search className="h-4 w-4 text-muted-foreground" />
           <Input

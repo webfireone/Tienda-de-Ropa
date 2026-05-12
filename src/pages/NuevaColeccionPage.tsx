@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
 import { useProducts } from "@/hooks/useFirestore"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { ProductCard } from "@/components/products/ProductCard"
@@ -10,7 +10,7 @@ import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import type { Product } from "@/types"
 
 export function NuevaColeccionPage() {
-  const navigate = useNavigate()
+  const navigate = useViewTransitionNavigate()
   const { data: products = [], isLoading } = useProducts()
   const { isAdmin } = useAuth()
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)

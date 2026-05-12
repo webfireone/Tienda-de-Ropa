@@ -39,7 +39,7 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
     return (
       <div
         ref={cardRef}
-        className="flex items-center gap-6 p-4 rounded-2xl bg-card border border-primary/10 hover:border-primary/30 shadow-sm hover:shadow-md hover:shadow-primary/5 transition-all cursor-pointer animate-fade-up"
+        className="flex items-center gap-6 p-4 rounded-2xl glass-card hover-lift cursor-pointer animate-fade-up"
         style={{ animationDelay: `${index * 0.05}s` }}
         onClick={() => onSelect(product)}
       >
@@ -74,10 +74,11 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={() => onSelect(product)}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => { handleMouseLeave(); cardRef.current?.classList.remove("magnetic") }}
+      onMouseEnter={() => cardRef.current?.classList.add("magnetic")}
     >
       <div
-        className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm transition-all duration-500"
+        className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm transition-all duration-500 glass-card"
         style={{
           transform: `perspective(600px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1, 1, 1)`,
           transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.5s ease-out" : "transform 0.1s ease-out",
