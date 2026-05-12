@@ -828,38 +828,69 @@ function generateRandomSafeConfig(): FullThemeConfig {
     { primary: "#e11d48", highlight: "#fb923c" },
     { primary: "#7c3aed", highlight: "#f43f5e" },
     { primary: "#059669", highlight: "#f59e0b" },
+    { primary: "#2563eb", highlight: "#06b6d4" },
+    { primary: "#dc2626", highlight: "#f87171" },
+    { primary: "#d4af37", highlight: "#fbbf24" },
+    { primary: "#4d7c0f", highlight: "#a3e635" },
+    { primary: "#0891b2", highlight: "#5eead4" },
+    { primary: "#be123c", highlight: "#f9a8d4" },
+    { primary: "#6d28d9", highlight: "#c4b5fd" },
+    { primary: "#f43f5e", highlight: "#fdba74" },
+    { primary: "#475569", highlight: "#38bdf8" },
+    { primary: "#6b7280", highlight: "#93c5fd" },
   ]
-  const bgOptions = [
-    { background: "gradient-dark", gradient: "linear-gradient(135deg, #0d0d1a, #1a0a2e, #161627)" },
-    { background: "gradient-sunset", gradient: "linear-gradient(135deg, #1a0a2e, #2d1b4e, #4a1942)" },
-    { background: "gradient-ocean", gradient: "linear-gradient(135deg, #0a1628, #0d1f3c, #162447)" },
-    { background: "gradient-purple", gradient: "linear-gradient(135deg, #1a0a2e, #2d1b69, #3d2080)" },
-    { background: "solid-dark", gradient: "#0a0a0a" },
-    { background: "gradient-forest", gradient: "linear-gradient(135deg, #0d1a0d, #1a2e1a, #162816)" },
-    { background: "gradient-sky", gradient: "linear-gradient(135deg, #0a1a2e, #0d2d4e, #161647)" },
+  const gradientPalette = [
+    { c1: "#7c3aed", c2: "#ec4899" },
+    { c1: "#0ea5e9", c2: "#06b6d4" },
+    { c1: "#d4af37", c2: "#fbbf24" },
+    { c1: "#f472b6", c2: "#fb7185" },
+    { c1: "#22c55e", c2: "#84cc16" },
+    { c1: "#f97316", c2: "#f59e0b" },
+    { c1: "#ef4444", c2: "#f97316" },
+    { c1: "#3b82f6", c2: "#8b5cf6" },
+    { c1: "#38bdf8", c2: "#a78bfa" },
+    { c1: "#d946ef", c2: "#f43f5e" },
+    { c1: "#14b8a6", c2: "#22d3ee" },
+    { c1: "#eab308", c2: "#facc15" },
+    { c1: "#f472b6", c2: "#a78bfa" },
+    { c1: "#2563eb", c2: "#22d3ee" },
+    { c1: "#e11d48", c2: "#fcd34d" },
+    { c1: "#dc2626", c2: "#fbbf24" },
+    { c1: "#059669", c2: "#34d399" },
+    { c1: "#4338ca", c2: "#a5b4fc" },
+    { c1: "#0891b2", c2: "#5eead4" },
+    { c1: "#be123c", c2: "#f9a8d4" },
+    { c1: "#10b981", c2: "#6ee7b7" },
+    { c1: "#8b5cf6", c2: "#f0abfc" },
+    { c1: "#15803d", c2: "#86efac" },
+    { c1: "#ea580c", c2: "#fde047" },
   ]
+  const angles = ["135deg", "180deg", "45deg", "90deg", "225deg"]
   const { primary, highlight } = baseColors[Math.floor(Math.random() * baseColors.length)]
-  const bg = bgOptions[Math.floor(Math.random() * bgOptions.length)]
+  const grad = gradientPalette[Math.floor(Math.random() * gradientPalette.length)]
+  const angle = angles[Math.floor(Math.random() * angles.length)]
+  const gradient = `linear-gradient(${angle}, ${grad.c1}, ${grad.c2})`
+  const bgId = "custom"
 
-  const fg = isLightColor(bg.gradient) ? "#1a1a2e" : "#f0f0f8"
-  const card = isLightColor(bg.gradient) ? "#ffffff" : "#161627"
-  const muted = isLightColor(bg.gradient) ? "#f0f0f0" : "#1a1a30"
+  const fg = isLightColor(grad.c1) ? "#1a1a2e" : "#f0f0f8"
+  const card = isLightColor(grad.c1) ? "#ffffff" : "#161627"
+  const muted = isLightColor(grad.c1) ? "#f0f0f0" : "#1a1a30"
 
   return {
     colors: {
       primary,
       primaryForeground: isLightColor(primary) ? "#1a1a2e" : "#ffffff",
-      secondary: isLightColor(bg.gradient) ? "#e0e0e0" : "#1f1f3a",
+      secondary: isLightColor(grad.c1) ? "#e0e0e0" : "#1f1f3a",
       secondaryForeground: highlight,
       accent: adjustBrightness(primary, -0.3),
       accentForeground: isLightColor(primary) ? "#ffffff" : "#f0f0f0",
-      background: isLightColor(bg.gradient) ? bg.gradient : (bg.gradient.includes("#") ? bg.gradient : "#0d0d1a"),
+      background: gradient,
       foreground: fg,
       card: card,
       cardForeground: fg,
       muted: muted,
       mutedForeground: isLightColor(muted) ? "#666666" : "#8888a8",
-      border: adjustBrightness(card, bg.gradient.includes("1a0a2e") ? 0.1 : 0.05),
+      border: adjustBrightness(card, 0.05),
       success: "#10b981",
       warning: "#f59e0b",
       destructive: "#ef4444",
@@ -867,9 +898,9 @@ function generateRandomSafeConfig(): FullThemeConfig {
       input: muted,
       ring: primary,
     },
-    background: bg.background as BackgroundType,
-    backgroundColor: bg.gradient,
-    backgroundGradient: bg.gradient,
+    background: bgId as BackgroundType,
+    backgroundColor: gradient,
+    backgroundGradient: gradient,
     backgroundPattern: "",
     backgroundImage: "",
     effects: { particles: Math.random() > 0.5, orbs: Math.random() > 0.5, grid: Math.random() > 0.3, glass: true, grain: Math.random() > 0.7, noise: false },
