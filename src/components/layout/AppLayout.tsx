@@ -19,7 +19,7 @@ export function AppLayout() {
 
   return (
     <SmoothScroll>
-      <div className="min-h-screen bg-background relative">
+      <div className="min-h-screen relative" style={{ background: "var(--color-background)" }}>
         <Header />
         <main className="relative z-10">
           <ViewTransitionOutlet />

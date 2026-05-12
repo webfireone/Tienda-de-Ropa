@@ -232,6 +232,13 @@ export function BellezaPage() {
     showToast(`"${look.name}" cargado`)
   }
 
+  const handleReset = () => {
+    resetToDefault()
+    applyThemeConfig(useBellezaStore.getState().config)
+    localStorage.removeItem("belleza-active-config")
+    showToast("Restaurado al default")
+  }
+
   const isPaletteActive = (palette: any) => {
     return config.colors.primary?.toLowerCase() === palette.config.colors?.primary?.toLowerCase()
   }
@@ -262,7 +269,7 @@ export function BellezaPage() {
             <Wand2 className="h-4 w-4" />
             Aleatorio
           </button>
-          <button onClick={resetToDefault} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-destructive/30 hover:text-destructive transition-all">
+          <button onClick={handleReset} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-destructive/30 hover:text-destructive transition-all">
             <RotateCcw className="h-4 w-4" />
             Reset
           </button>

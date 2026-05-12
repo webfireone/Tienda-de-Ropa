@@ -28,7 +28,7 @@ export function Sidebar() {
   const links = clientLinks
 
   return (
-    <aside className="w-64 border-r border-border bg-background min-h-screen p-6 flex flex-col">
+    <aside className="w-64 border-r border-border min-h-screen p-6 flex flex-col" style={{ background: "var(--color-background)" }}>
       <div
         className="flex items-center gap-3 mb-10 cursor-pointer"
         onClick={() => navigate("/")}
