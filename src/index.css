@@ -510,4 +510,66 @@ body {
   transform: scale(0.94);
 }
 
+/* ═══════════════════════════════════════
+   SCROLLBAR UTILITIES
+   ═══════════════════════════════════════ */
+
+.no-scrollbar,
+.no-scrollbar * {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ═══════════════════════════════════════
+   ACCESSIBILITY
+   ═══════════════════════════════════════ */
+
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-reveal,
+  .scroll-reveal-fast,
+  .scroll-reveal-slow,
+  .scroll-blur-in,
+  .scroll-parallax-bg,
+  .animate-float,
+  .animate-float-reverse,
+  .animate-pulse-glow,
+  .animate-gradient,
+  .animate-gradient-slow,
+  .animate-orbit,
+  .animate-orbit-reverse,
+  .animate-glow,
+  .animate-particle,
+  .animate-grid-pulse,
+  .gradient-text-animated,
+  .gradient-text-shimmer,
+  .gradient-text-rainbow,
+  .gradient-text-luxury,
+  .gradient-text-pulse,
+  .shimmer {
+    animation: none !important;
+  }
+}
+
 
