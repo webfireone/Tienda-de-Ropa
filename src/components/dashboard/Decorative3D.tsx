@@ -22,7 +22,7 @@ export function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-3xl min-h-[620px] border border-white/[0.06]"
+      className="relative overflow-hidden rounded-3xl min-h-[620px] border border-white/[0.06] w-full"
       style={{ background: "var(--color-background)" }}
     >
       {/* Ambient glow */}

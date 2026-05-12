@@ -65,8 +65,8 @@ export function LandingPage() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="max-w-7xl mx-auto px-6 pt-8">
+      {/* Hero — full width */}
+      <section className="px-6 pt-8">
         <HeroSection />
       </section>
 
