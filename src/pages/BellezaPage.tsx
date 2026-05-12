@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
 import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, applyThemeConfig, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
-import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2 } from "lucide-react"
+import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 function MiniPreview({ config }: { config: FullThemeConfig }) {
@@ -72,18 +72,37 @@ function MiniPreview({ config }: { config: FullThemeConfig }) {
   )
 }
 
+function Toast({ message, visible }: { message: string; visible: boolean }) {
+  return (
+    <div className={cn(
+      "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300",
+      visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+    )}>
+      <div className="flex items-center gap-2 px-4 py-2 rounded-xl gradient-brand text-white text-sm font-medium shadow-lg">
+        <Check className="h-4 w-4" />
+        {message}
+      </div>
+    </div>
+  )
+}
+
 export function BellezaPage() {
   const { isAdmin } = useAuth()
   const navigate = useViewTransitionNavigate()
   const {
     config, savedLooks,
-    setColors, setBackground, setBackgroundGradient,
-    saveLook, loadLook, deleteLook, resetToDefault, randomize, applyFullConfig,
+    saveLook, deleteLook, resetToDefault, randomize, applyFullConfig,
   } = useBellezaStore()
 
   const [savedName, setSavedName] = useState("")
   const [customGradient, setCustomGradient] = useState("")
   const [activeTab, setActiveTab] = useState<"paletas" | "fondos" | "guardados">("paletas")
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(null), 2500)
+  }
 
   useEffect(() => {
     if (!isAdmin) navigate("/")
@@ -122,33 +141,72 @@ export function BellezaPage() {
     localStorage.setItem("belleza-saved-looks", JSON.stringify(savedLooks))
   }, [savedLooks])
 
-  const handleRandomize = () => {
-    randomize()
-  }
-
   const handleApplyPalette = (palette: any) => {
-    if (palette.config.colors) setColors(palette.config.colors as any)
-    if (palette.config.background) setBackground(palette.config.background as any)
-    if (palette.config.backgroundGradient) setBackgroundGradient(palette.config.backgroundGradient)
-    if (palette.config.hover) useBellezaStore.getState().config.hover = palette.config.hover
+    const newConfig: FullThemeConfig = {
+      ...config,
+      colors: palette.config.colors ? { ...config.colors, ...palette.config.colors } : config.colors,
+      background: palette.config.background || config.background,
+      backgroundGradient: palette.config.backgroundGradient || config.backgroundGradient,
+      hover: palette.config.hover || config.hover,
+    }
+    applyThemeConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    showToast(`"${palette.name}" aplicada`)
   }
 
   const handleApplyBackground = (bg: any) => {
-    setBackground(bg.id)
-    setBackgroundGradient(bg.css)
+    const newConfig: FullThemeConfig = {
+      ...config,
+      background: bg.id,
+      backgroundGradient: bg.css,
+    }
+    applyThemeConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    showToast(`Fondo "${bg.name}" aplicado`)
   }
 
   const handleApplyCustomGradient = () => {
     if (customGradient.trim()) {
-      setBackgroundGradient(customGradient.trim())
+      const newConfig: FullThemeConfig = {
+        ...config,
+        background: "custom" as any,
+        backgroundGradient: customGradient.trim(),
+      }
+      applyThemeConfig(newConfig)
+      localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+      showToast("Gradient personalizado aplicado")
       setCustomGradient("")
     }
+  }
+
+  const handleRandomize = () => {
+    randomize()
+    const newConfig = useBellezaStore.getState().config
+    applyThemeConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    showToast("Combinación aleatoria aplicada")
   }
 
   const handleSave = () => {
     if (!savedName.trim()) return
     saveLook(savedName.trim())
     setSavedName("")
+    showToast("Look guardado")
+  }
+
+  const handleLoadLook = (look: SavedLook) => {
+    applyFullConfig(look.config)
+    applyThemeConfig(look.config)
+    localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
+    showToast(`"${look.name}" cargado`)
+  }
+
+  const isPaletteActive = (palette: any) => {
+    return config.colors.primary?.toLowerCase() === palette.config.colors?.primary?.toLowerCase()
+  }
+
+  const isBgActive = (bg: any) => {
+    return config.background === bg.id
   }
 
   if (!isAdmin) return null
@@ -161,13 +219,9 @@ export function BellezaPage() {
             <Sparkles className="h-5 w-5 text-primary" />
             <h1 className="font-display text-2xl font-bold gradient-text">BELLEZA</h1>
           </div>
-          <p className="text-sm text-muted-foreground">Rediseñá tu web al instante, sin escribir código.</p>
+          <p className="text-sm text-muted-foreground">Elegí una paleta o fondo y presioná "Aplicar" para ver los cambios.</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handleRandomize} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-primary/30 hover:text-primary transition-all">
-            <Wand2 className="h-4 w-4" />
-            Random
-          </button>
           <button onClick={resetToDefault} className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:border-destructive/30 hover:text-destructive transition-all">
             <RotateCcw className="h-4 w-4" />
             Reset
@@ -196,8 +250,13 @@ export function BellezaPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {PREDEFINED_PALETTES.map((palette) => (
                   <button key={palette.id} onClick={() => handleApplyPalette(palette)}
-                    className="glass-card p-4 text-left hover-lift group transition-all">
-                    <div className="flex items-start gap-2 mb-3">
+                    className={cn("glass-card p-4 text-left hover-lift group transition-all relative", isPaletteActive(palette) && "ring-2 ring-primary")}>
+                    {isPaletteActive(palette) && (
+                      <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                        <Check className="h-3 w-3" /> Activo
+                      </span>
+                    )}
+                    <div className="flex items-start gap-2 mb-3 pt-1">
                       <span className="text-2xl">{palette.emoji}</span>
                       <div>
                         <h3 className="font-semibold text-sm">{palette.name}</h3>
@@ -212,8 +271,9 @@ export function BellezaPage() {
                   </button>
                 ))}
               </div>
-              <div className="glass-card p-4">
-                <button onClick={handleRandomize} className="w-full py-3 rounded-xl gradient-brand text-white font-medium text-sm hover:opacity-90 transition-opacity btn-micro">
+              <div className="glass-card p-4 flex gap-3">
+                <button onClick={handleRandomize} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl gradient-brand text-white font-medium text-sm hover:opacity-90 transition-opacity btn-micro">
+                  <Wand2 className="h-4 w-4" />
                   Generar combinación aleatoria
                 </button>
               </div>
@@ -225,7 +285,12 @@ export function BellezaPage() {
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {PRESET_BACKGROUNDS.map((bg) => (
                   <button key={bg.id} onClick={() => handleApplyBackground(bg)}
-                    className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", config.background === bg.id ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                    className={cn("relative h-16 rounded-xl overflow-hidden border-2 transition-all", isBgActive(bg) ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50")}>
+                    {isBgActive(bg) && (
+                      <span className="absolute top-1 right-1 z-10">
+                        <Check className="h-3 w-3 text-white drop-shadow" />
+                      </span>
+                    )}
                     <div className="absolute inset-0" style={{ background: bg.preview }} />
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 py-1 px-1">
                       <span className="text-[9px] text-white font-medium">{bg.name}</span>
@@ -283,7 +348,7 @@ export function BellezaPage() {
                         <p className="text-[10px] text-muted-foreground">{new Date(look.createdAt).toLocaleDateString("es-AR")}</p>
                       </div>
                       <div className="flex gap-1 shrink-0">
-                        <button onClick={() => loadLook(look.id)}
+                        <button onClick={() => handleLoadLook(look)}
                           className="p-2 rounded-lg hover:bg-muted transition-colors" title="Cargar">
                           <Upload className="h-4 w-4" />
                         </button>
@@ -315,6 +380,8 @@ export function BellezaPage() {
           </div>
         </div>
       </div>
+
+      <Toast message={toastMsg || ""} visible={!!toastMsg} />
     </div>
   )
 }

@@ -42,6 +42,9 @@ export type BackgroundType =
   | "gradient-lavender"
   | "gradient-sky-light"
   | "gradient-cream"
+  | "custom"
+  | "gradient-sky-light"
+  | "gradient-cream"
 
 export interface PresetBackground {
   id: BackgroundType
@@ -376,6 +379,160 @@ const PREDEFINED_PALETTES: PredefinedPalette[] = [
     },
     recommended: ["#a16207", "#ca8a04", "#fefce8"],
     avoid: ["#0000ff", "#ff00ff"],
+  },
+  {
+    id: "bold-red-black",
+    name: "Rojo Pasión",
+    emoji: "❤️‍🔥",
+    description: "Rojo intenso con negro. Audaz, eléctrico, imposible de ignorar.",
+    config: {
+      colors: { primary: "#dc2626", highlight: "#f87171", background: "#0a0000", foreground: "#f8f0f0", card: "#120808", muted: "#1a0a0a", border: "#2a1010", secondary: "#120808", success: "#22c55e", warning: "#f59e0b", destructive: "#dc2626", primaryForeground: "#ffffff", secondaryForeground: "#dc2626", accent: "#991b1b", accentForeground: "#ffffff", mutedForeground: "#6b5555", cardForeground: "#f8f0f0", input: "#1a0a0a", ring: "#dc2626" },
+      background: "gradient-dark",
+      backgroundGradient: "linear-gradient(135deg, #0a0000, #1a0505, #0a0000)",
+      hover: { liftDistance: "4px", glowColor: "#dc2626", glowIntensity: 0.2, transitionDuration: "0.2s" },
+    },
+    recommended: ["#dc2626", "#ffffff", "#0a0000"],
+    avoid: ["#0000ff", "#888888"],
+  },
+  {
+    id: "electric-blue",
+    name: "Azul Eléctrico",
+    emoji: "⚡",
+    description: "Azul neón vibrante, tecnológico, moderno y urbano.",
+    config: {
+      colors: { primary: "#2563eb", highlight: "#06b6d4", background: "#030712", foreground: "#f0f8ff", card: "#0a1628", muted: "#0f1f35", border: "#1a3a5c", secondary: "#0a1628", success: "#10b981", warning: "#f59e0b", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#2563eb", accent: "#0284c7", accentForeground: "#ffffff", mutedForeground: "#6080a0", cardForeground: "#f0f8ff", input: "#0f1f35", ring: "#2563eb" },
+      background: "gradient-ocean",
+      backgroundGradient: "linear-gradient(135deg, #030712, #0a1628, #030712)",
+      hover: { liftDistance: "4px", glowColor: "#2563eb", glowIntensity: 0.2, transitionDuration: "0.2s" },
+    },
+    recommended: ["#2563eb", "#06b6d4", "#030712"],
+    avoid: ["#ff0000", "#888888"],
+  },
+  {
+    id: "evening-gold",
+    name: "Noche Dorada",
+    emoji: "🌙",
+    description: "Azul medianoche con oro. Sofisticado, elegante, premium.",
+    config: {
+      colors: { primary: "#d4af37", highlight: "#fbbf24", background: "#050a14", foreground: "#f0ead6", card: "#0a1018", muted: "#0f1520", border: "#1a2030", secondary: "#0a1018", success: "#10b981", warning: "#d4af37", destructive: "#ef4444", primaryForeground: "#050a14", secondaryForeground: "#d4af37", accent: "#b8860b", accentForeground: "#f0ead6", mutedForeground: "#6070a0", cardForeground: "#f0ead6", input: "#0f1520", ring: "#d4af37" },
+      background: "solid-dark",
+      backgroundGradient: "#050a14",
+      hover: { liftDistance: "4px", glowColor: "#d4af37", glowIntensity: 0.25, transitionDuration: "0.3s" },
+    },
+    recommended: ["#d4af37", "#fbbf24", "#050a14"],
+    avoid: ["#ff0000", "#00ff00"],
+  },
+  {
+    id: "gothic-dark",
+    name: "Gótico Oscuro",
+    emoji: "🖤",
+    description: "Púrpura profundo con rosa oscuro. Misterioso y dramático.",
+    config: {
+      colors: { primary: "#7c3aed", highlight: "#ec4899", background: "#0a0010", foreground: "#f0e0f8", card: "#120018", muted: "#180020", border: "#280030", secondary: "#120018", success: "#10b981", warning: "#f59e0b", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#7c3aed", accent: "#5b21b6", accentForeground: "#f0e0f8", mutedForeground: "#887088", cardForeground: "#f0e0f8", input: "#180020", ring: "#7c3aed" },
+      background: "gradient-purple",
+      backgroundGradient: "linear-gradient(135deg, #0a0010, #1a0a30, #0a0010)",
+      hover: { liftDistance: "4px", glowColor: "#7c3aed", glowIntensity: 0.2, transitionDuration: "0.3s" },
+    },
+    recommended: ["#7c3aed", "#ec4899", "#0a0010"],
+    avoid: ["#ffff00", "#00ff00"],
+  },
+  {
+    id: "urban-concrete",
+    name: "Urbano Concreto",
+    emoji: "🏙️",
+    description: "Gris urbano con naranja. Industrial, streetwear, moderno.",
+    config: {
+      colors: { primary: "#64748b", highlight: "#f97316", background: "#18181b", foreground: "#f4f4f5", card: "#27272a", muted: "#3f3f46", border: "#52525b", secondary: "#27272a", success: "#10b981", warning: "#f97316", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#64748b", accent: "#78716c", accentForeground: "#ffffff", mutedForeground: "#71717a", cardForeground: "#f4f4f5", input: "#3f3f46", ring: "#64748b" },
+      background: "solid-dark",
+      backgroundGradient: "#18181b",
+      hover: { liftDistance: "4px", glowColor: "#f97316", glowIntensity: 0.15, transitionDuration: "0.3s" },
+    },
+    recommended: ["#64748b", "#f97316", "#18181b"],
+    avoid: ["#0000ff", "#ff00ff"],
+  },
+  {
+    id: "editorial-black",
+    name: "Editorial Blanca",
+    emoji: "📖",
+    description: "Blanco puro con negro. Minimalismo editorial, tipográfico.",
+    config: {
+      colors: { primary: "#000000", highlight: "#404040", background: "#ffffff", foreground: "#000000", card: "#fafafa", muted: "#f5f5f5", border: "#e0e0e0", secondary: "#f5f5f5", success: "#22c55e", warning: "#d97706", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#000000", accent: "#737373", accentForeground: "#ffffff", mutedForeground: "#a3a3a3", cardForeground: "#000000", input: "#f5f5f5", ring: "#000000" },
+      background: "solid-white-min",
+      backgroundGradient: "#ffffff",
+      hover: { liftDistance: "2px", glowColor: "#000000", glowIntensity: 0.05, transitionDuration: "0.3s" },
+    },
+    recommended: ["#000000", "#ffffff", "#404040"],
+    avoid: ["#ff0000", "#0000ff"],
+  },
+  {
+    id: "tropical-teal",
+    name: "Tropical Aqua",
+    emoji: "🌴",
+    description: "Verde azulado con coral. Vacaciones, frescura, verano.",
+    config: {
+      colors: { primary: "#0d9488", highlight: "#fb7185", background: "#f0fdfa", foreground: "#134e4a", card: "#ffffff", muted: "#ccfbf1", border: "#99f6e4", secondary: "#ccfbf1", success: "#10b981", warning: "#fb923c", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#0d9488", accent: "#14b8a6", accentForeground: "#ffffff", mutedForeground: "#5eead4", cardForeground: "#134e4a", input: "#ccfbf1", ring: "#0d9488" },
+      background: "gradient-sky-light",
+      backgroundGradient: "linear-gradient(135deg, #f0fdfa, #ccfbf1, #f0fdfa)",
+      hover: { liftDistance: "3px", glowColor: "#0d9488", glowIntensity: 0.08, transitionDuration: "0.3s" },
+    },
+    recommended: ["#0d9488", "#fb7185", "#f0fdfa"],
+    avoid: ["#000000", "#888888"],
+  },
+  {
+    id: "berry-purple",
+    name: "Baya Púrpura",
+    emoji: "🫐",
+    description: "Morado berry con rosa. Frutal, joven, moderno.",
+    config: {
+      colors: { primary: "#7c3aed", highlight: "#f472b6", background: "#faf5ff", foreground: "#3b0764", card: "#ffffff", muted: "#f3e8ff", border: "#e9d5ff", secondary: "#f3e8ff", success: "#10b981", warning: "#fb923c", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#7c3aed", accent: "#c026d3", accentForeground: "#ffffff", mutedForeground: "#a855f7", cardForeground: "#3b0764", input: "#f3e8ff", ring: "#7c3aed" },
+      background: "gradient-lavender",
+      backgroundGradient: "linear-gradient(135deg, #faf5ff, #f3e8ff, #faf5ff)",
+      hover: { liftDistance: "3px", glowColor: "#7c3aed", glowIntensity: 0.1, transitionDuration: "0.3s" },
+    },
+    recommended: ["#7c3aed", "#f472b6", "#faf5ff"],
+    avoid: ["#000000", "#ff6600"],
+  },
+  {
+    id: "desert-sand",
+    name: "Desierto Arena",
+    emoji: "🏜️",
+    description: "Terracota y arena. Natural, bohemio, artesanales.",
+    config: {
+      colors: { primary: "#c2410c", highlight: "#d97706", background: "#fef7ed", foreground: "#431407", card: "#ffffff", muted: "#ffedd5", border: "#fed7aa", secondary: "#ffedd5", success: "#16a34a", warning: "#d97706", destructive: "#dc2626", primaryForeground: "#ffffff", secondaryForeground: "#c2410c", accent: "#9a3412", accentForeground: "#ffffff", mutedForeground: "#c2410c", cardForeground: "#431407", input: "#ffedd5", ring: "#c2410c" },
+      background: "gradient-peach",
+      backgroundGradient: "linear-gradient(135deg, #fef7ed, #ffedd5, #fef7ed)",
+      hover: { liftDistance: "3px", glowColor: "#c2410c", glowIntensity: 0.08, transitionDuration: "0.3s" },
+    },
+    recommended: ["#c2410c", "#d97706", "#fef7ed"],
+    avoid: ["#0000ff", "#ff00ff"],
+  },
+  {
+    id: "sage-earth",
+    name: "Salvia Natural",
+    emoji: "🌱",
+    description: "Verde salvia y crema. Eco-friendly, sostenible, orgánico.",
+    config: {
+      colors: { primary: "#4d7c0f", highlight: "#a3e635", background: "#f7faf5", foreground: "#1a2e05", card: "#ffffff", muted: "#e9f5e1", border: "#bbf7d0", secondary: "#e9f5e1", success: "#22c55e", warning: "#f59e0b", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#4d7c0f", accent: "#65a30d", accentForeground: "#ffffff", mutedForeground: "#4d7c0f", cardForeground: "#1a2e05", input: "#e9f5e1", ring: "#4d7c0f" },
+      background: "gradient-snow",
+      backgroundGradient: "linear-gradient(135deg, #f7faf5, #e9f5e1, #f7faf5)",
+      hover: { liftDistance: "3px", glowColor: "#4d7c0f", glowIntensity: 0.08, transitionDuration: "0.3s" },
+    },
+    recommended: ["#4d7c0f", "#a3e635", "#f7faf5"],
+    avoid: ["#ff0000", "#0000ff"],
+  },
+  {
+    id: "midnight-blue",
+    name: "Medianoche",
+    emoji: "🌌",
+    description: "Azul profundo con blanco. Nocturno, elegante, misterioso.",
+    config: {
+      colors: { primary: "#1e3a8a", highlight: "#93c5fd", background: "#030411", foreground: "#f0f4ff", card: "#0a1525", muted: "#0f1f35", border: "#1a2f50", secondary: "#0a1525", success: "#10b981", warning: "#f59e0b", destructive: "#ef4444", primaryForeground: "#ffffff", secondaryForeground: "#1e3a8a", accent: "#1d4ed8", accentForeground: "#ffffff", mutedForeground: "#6080c0", cardForeground: "#f0f4ff", input: "#0f1f35", ring: "#1e3a8a" },
+      background: "gradient-sky",
+      backgroundGradient: "linear-gradient(135deg, #030411, #0a1525, #030411)",
+      hover: { liftDistance: "4px", glowColor: "#1e3a8a", glowIntensity: 0.15, transitionDuration: "0.3s" },
+    },
+    recommended: ["#1e3a8a", "#93c5fd", "#030411"],
+    avoid: ["#ff0000", "#ffff00"],
   },
 ]
 
