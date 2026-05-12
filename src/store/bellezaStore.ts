@@ -675,7 +675,7 @@ export function applyThemeConfig(config: FullThemeConfig) {
   root.style.setProperty("--color-secondary-foreground", c.secondaryForeground)
   root.style.setProperty("--color-accent", c.accent)
   root.style.setProperty("--color-accent-foreground", c.accentForeground)
-  root.style.setProperty("--color-background", c.background)
+  root.style.setProperty("--color-background", config.backgroundGradient)
   root.style.setProperty("--color-foreground", c.foreground)
   root.style.setProperty("--color-card", c.card)
   root.style.setProperty("--color-card-foreground", c.cardForeground)
