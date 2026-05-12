@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
-import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, applyThemeConfig, type SavedLook, type FullThemeConfig } from "@/store/bellezaStore"
-import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check } from "lucide-react"
+import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
+import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const GRADIENT_PRESETS = [
@@ -130,6 +130,10 @@ export function BellezaPage() {
   const [customFrom, setCustomFrom] = useState("#7c3aed")
   const [customTo, setCustomTo] = useState("#ec4899")
 
+  const [curatedCategory, setCuratedCategory] = useState<string>("minimalista")
+  const [curatedIndex, setCuratedIndex] = useState(0)
+  const [seenLooks, setSeenLooks] = useState<Record<string, Set<string>>>({})
+
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 2500)
@@ -138,6 +142,28 @@ export function BellezaPage() {
   useEffect(() => {
     if (!isAdmin) navigate("/")
   }, [isAdmin, navigate])
+
+  useEffect(() => {
+    const saved = localStorage.getItem("belleza-seen-looks")
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved) as Record<string, string[]>
+        const converted: Record<string, Set<string>> = {}
+        for (const [cat, ids] of Object.entries(parsed)) {
+          converted[cat] = new Set(ids)
+        }
+        setSeenLooks(converted)
+      } catch {}
+    }
+  }, [])
+
+  useEffect(() => {
+    const simplified: Record<string, string[]> = {}
+    for (const [cat, ids] of Object.entries(seenLooks)) {
+      simplified[cat] = Array.from(ids)
+    }
+    localStorage.setItem("belleza-seen-looks", JSON.stringify(simplified))
+  }, [seenLooks])
 
   useEffect(() => {
     const savedRaw = localStorage.getItem("belleza-saved-looks")
@@ -156,6 +182,11 @@ export function BellezaPage() {
   useEffect(() => {
     localStorage.setItem("belleza-saved-looks", JSON.stringify(savedLooks))
   }, [savedLooks])
+
+  const currentCategoryLooks = CURATED_LOOKS.filter(l => l.category === curatedCategory)
+  const currentLook = currentCategoryLooks[curatedIndex]
+  const seenInCategory = seenLooks[curatedCategory] || new Set()
+  const allSeenInCategory = currentCategoryLooks.length > 0 && currentCategoryLooks.every(l => seenInCategory.has(l.id))
 
   const handleApplyPalette = (palette: any) => {
     const newConfig: FullThemeConfig = {
@@ -216,6 +247,44 @@ export function BellezaPage() {
     applyThemeConfig(newConfig)
     localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
     showToast("Combinación aleatoria aplicada")
+  }
+
+  const handleApplyCuratedLook = (look: CuratedLook) => {
+    applyFullConfig(look.config)
+    applyThemeConfig(look.config)
+    localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
+    showToast(`"${look.name}" aplicada`)
+  }
+
+  const handleNextCurated = () => {
+    if (!currentLook) return
+
+    setSeenLooks(prev => {
+      const catSeen = prev[curatedCategory] || new Set()
+      const newSeen = new Set(catSeen)
+      newSeen.add(currentLook.id)
+      return { ...prev, [curatedCategory]: newSeen }
+    })
+
+    const nextIdx = (curatedIndex + 1) % currentCategoryLooks.length
+    setCuratedIndex(nextIdx)
+    handleApplyCuratedLook(currentCategoryLooks[nextIdx])
+  }
+
+  const handlePrevCurated = () => {
+    if (!currentLook) return
+    const prevIdx = (curatedIndex - 1 + currentCategoryLooks.length) % currentCategoryLooks.length
+    setCuratedIndex(prevIdx)
+    handleApplyCuratedLook(currentCategoryLooks[prevIdx])
+  }
+
+  const handleSelectCategory = (catId: string) => {
+    setCuratedCategory(catId)
+    setCuratedIndex(0)
+    const looks = CURATED_LOOKS.filter(l => l.category === catId)
+    if (looks.length > 0) {
+      handleApplyCuratedLook(looks[0])
+    }
   }
 
   const handleSave = () => {
@@ -482,6 +551,80 @@ export function BellezaPage() {
               <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Preview</h3>
             </div>
             <MiniPreview config={config} />
+          </div>
+
+          <div className="glass-card p-4">
+            <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3">Categorías</h3>
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {CURATED_CATEGORIES.map((cat) => {
+                const catLooks = CURATED_LOOKS.filter(l => l.category === cat.id)
+                const seenCount = (seenLooks[cat.id] || new Set()).size
+                const total = catLooks.length
+                const isActive = curatedCategory === cat.id
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleSelectCategory(cat.id)}
+                    className={cn(
+                      "p-3 rounded-xl border-2 text-left transition-all",
+                      isActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">{cat.emoji}</span>
+                      <div>
+                        <p className="text-xs font-semibold">{cat.name}</p>
+                        <p className="text-[9px] text-muted-foreground">{seenCount}/{total} vistos</p>
+                      </div>
+                    </div>
+                    {total > 0 && (
+                      <div className="h-1 rounded-full bg-muted overflow-hidden">
+                        <div className="h-full gradient-brand transition-all" style={{ width: `${(seenCount / total) * 100}%` }} />
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            {currentLook && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold">{currentLook.name}</p>
+                    <p className="text-[10px] text-muted-foreground capitalize">{currentLook.category} · {curatedIndex + 1}/{currentCategoryLooks.length}</p>
+                  </div>
+                  {seenInCategory.has(currentLook.id) && (
+                    <span className="flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      <Eye className="h-3 w-3" /> Visto
+                    </span>
+                  )}
+                </div>
+
+                {allSeenInCategory && (
+                  <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
+                    <p className="text-xs font-semibold text-primary">Ya viste todos los de {CURATED_CATEGORIES.find(c => c.id === curatedCategory)?.name}</p>
+                    <button onClick={() => {
+                      setSeenLooks(prev => ({ ...prev, [curatedCategory]: new Set() }))
+                      showToast("Lista reiniciada")
+                    }} className="text-[10px] text-primary/70 hover:text-primary underline mt-1">
+                      Reiniciar vista
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <button onClick={handlePrevCurated} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-border hover:border-primary/30 transition-all text-xs font-medium">
+                    <ChevronLeft className="h-4 w-4" />
+                    Anterior
+                  </button>
+                  <button onClick={handleNextCurated} className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl gradient-brand text-white text-xs font-medium hover:opacity-90 transition-all">
+                    Siguiente
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="glass-card p-4">
