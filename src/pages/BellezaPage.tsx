@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
 import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
+import { useSiteTheme } from "@/hooks/useSiteTheme"
 import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -117,12 +118,25 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 }
 
 export function BellezaPage() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, user } = useAuth()
   const navigate = useViewTransitionNavigate()
   const {
     config, savedLooks,
     saveLook, deleteLook, resetToDefault, randomize, applyFullConfig,
   } = useBellezaStore()
+  const { saveSiteTheme, isFirestoreAvailable } = useSiteTheme()
+  const saveSiteThemeRef = useRef(saveSiteTheme)
+  saveSiteThemeRef.current = saveSiteTheme
+
+  const applyTheme = (newConfig: FullThemeConfig, label: string) => {
+    applyFullConfig(newConfig)
+    applyThemeConfig(newConfig)
+    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
+    if (isAdmin && isFirestoreAvailable) {
+      saveSiteThemeRef.current(newConfig, user?.email)
+    }
+    showToast(label)
+  }
 
   const [savedName, setSavedName] = useState("")
   const [activeTab, setActiveTab] = useState<"paletas" | "fondos" | "guardados">("paletas")
@@ -196,10 +210,7 @@ export function BellezaPage() {
       backgroundGradient: palette.config.backgroundGradient || config.backgroundGradient,
       hover: palette.config.hover || config.hover,
     }
-    applyFullConfig(newConfig)
-    applyThemeConfig(newConfig)
-    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast(`"${palette.name}" aplicada`)
+    applyTheme(newConfig, `"${palette.name}" aplicada`)
   }
 
   const handleApplyPresetBg = (bg: any) => {
@@ -208,10 +219,7 @@ export function BellezaPage() {
       background: bg.id,
       backgroundGradient: bg.css,
     }
-    applyFullConfig(newConfig)
-    applyThemeConfig(newConfig)
-    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast(`"${bg.name}" aplicado`)
+    applyTheme(newConfig, `"${bg.name}" aplicado`)
   }
 
   const handleApplyGradientPreset = (g: typeof GRADIENT_PRESETS[0]) => {
@@ -221,10 +229,7 @@ export function BellezaPage() {
       background: "custom",
       backgroundGradient: css,
     }
-    applyFullConfig(newConfig)
-    applyThemeConfig(newConfig)
-    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast(`Gradient "${g.name}" aplicado`)
+    applyTheme(newConfig, `Gradient "${g.name}" aplicado`)
   }
 
   const handleApplyCustomGradient = () => {
@@ -234,26 +239,17 @@ export function BellezaPage() {
       background: "custom",
       backgroundGradient: css,
     }
-    applyFullConfig(newConfig)
-    applyThemeConfig(newConfig)
-    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast("Gradient personalizado aplicado")
+    applyTheme(newConfig, "Gradient personalizado aplicado")
   }
 
   const handleRandomize = () => {
     randomize()
     const newConfig = useBellezaStore.getState().config
-    applyFullConfig(newConfig)
-    applyThemeConfig(newConfig)
-    localStorage.setItem("belleza-active-config", JSON.stringify(newConfig))
-    showToast("Combinación aleatoria aplicada")
+    applyTheme(newConfig, "Combinación aleatoria aplicada")
   }
 
   const handleApplyCuratedLook = (look: CuratedLook) => {
-    applyFullConfig(look.config)
-    applyThemeConfig(look.config)
-    localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
-    showToast(`"${look.name}" aplicada`)
+    applyTheme(look.config, `"${look.name}" aplicada`)
   }
 
   const handleNextCurated = () => {
@@ -295,16 +291,17 @@ export function BellezaPage() {
   }
 
   const handleLoadLook = (look: SavedLook) => {
-    applyFullConfig(look.config)
-    applyThemeConfig(look.config)
-    localStorage.setItem("belleza-active-config", JSON.stringify(look.config))
-    showToast(`"${look.name}" cargado`)
+    applyTheme(look.config, `"${look.name}" cargado`)
   }
 
   const handleReset = () => {
     resetToDefault()
-    applyThemeConfig(useBellezaStore.getState().config)
+    const defaultConfig = useBellezaStore.getState().config
+    applyThemeConfig(defaultConfig)
     localStorage.removeItem("belleza-active-config")
+    if (isAdmin && isFirestoreAvailable) {
+      saveSiteThemeRef.current(defaultConfig, user?.email)
+    }
     showToast("Restaurado al default")
   }
 

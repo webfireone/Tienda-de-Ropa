@@ -121,7 +121,7 @@ export const analytics = typeof window !== "undefined" ? getAnalytics(app) : nul
 | `products` | Catálogo de productos | Product[] |
 | `orders` | Pedidos | Order[] |
 | `users` | Usuarios y roles | User[] |
-| `config` | Parámetros globales | GlobalParams |
+| `siteConfig/theme` | Tema global del sitio | `{ config: FullThemeConfig, updatedAt, updatedBy }` |
 | `promotions` | Promociones activas | Promotion[] |
 | `subscribers` | Suscriptores newsletter | Subscriber[] |
 
@@ -361,7 +361,8 @@ Tienda de Ropa/
 │   │   ├── useProducts.ts        # CRUD productos, sales, orders
 │   │   ├── useOrders.ts          # Pedidos
 │   │   ├── useAlerts.ts          # Alertas automáticas
-│   │   └── usePromotions.ts      # Promociones y suscriptores
+│   │   ├── usePromotions.ts      # Promociones y suscriptores
+│   │   └── useSiteTheme.ts       # Tema global realtime (Firestore)
 │   ├── context/
 │   │   ├── AuthContext.tsx        # Autenticación
 │   │   ├── CartContext.tsx       # Carrito (NO USADO - ver store)
@@ -387,6 +388,7 @@ Tienda de Ropa/
 ├── public/
 │   ├── manual-usuario.pdf
 │   └── logos/
+├── firestore.rules                # Reglas de seguridad Firestore
 ├── dist/                         # Build output
 ├── index.html
 ├── package.json
@@ -495,24 +497,74 @@ interface ParamsStore {
 ---
 
 ### Theme Store (`src/store/themeStore.ts`)
-**Propósito**: Configuración visual de la app
+**Propósito**: Sistema completo de personalización visual de la app.
+
+**Store Belleza** (`src/store/bellezaStore.ts`):
 
 ```typescript
-interface ThemeConfig {
-  colors: ColorPalette
-  background: BackgroundType
-  effects: { particles, orbs, grid, glass }
-  typography: { fontDisplay, fontBody }
+interface FullThemeConfig {
+  colors: ColorPalette           // 19 colores (primary, secondary, accent, etc.)
+  background: BackgroundType      // ID del fondo seleccionado
+  backgroundGradient: string     // CSS gradient o color del fondo
+  effects: EffectsConfig          // partículas, orbs, grid, glass, grain
+  typography: TypographyConfig    // fuentes, peso, tamaño, line-height
+  layout: LayoutConfig          // border-radius, spacing, shadow, blur
+  hover: HoverConfig            // lift, glow, transición
+  mode: "dark" | "light" | "auto"
 }
 ```
 
-**Presets de colores**:
-- GLAMOURS Violeta (default)
-- Cyberpunk
-- Oro Negro
-- Verde Matrix
-- Rosa Pastel
-- Azul Océano
+**CURATED_LOOKS** — 50 looks curados organizados en 7 categorías:
+
+| Categoría | Cant. | Descripción |
+|-----------|-------|-------------|
+| minimalista | 6 | Blanco, negro, gris. Lo esencial. |
+| pastel | 8 | Colores suaves y delicados. |
+| moderno | 8 | Bold, vibrante, neón. |
+| ejecutivo | 8 | Profesional, corporativo, elegante. |
+| nocturno | 6 | Oscuro, misterioso, dramático. |
+| bohémio | 6 | Tierra, natural, artesanal. |
+| glamour | 8 | El estilo de la marca. |
+
+**CURATED_CATEGORIES** — Categorías disponibles para navegar.
+
+**applyThemeConfig(config)** — Aplica el tema al `:root` del documento:
+- Setea todas las CSS variables de colores (`--color-primary`, `--color-background`, etc.)
+- Aplica el `backgroundGradient` al body
+- Genera estilos dinámicos (hover-glow, hover-lift, glass-card)
+- **Persistencia**: `belleza-active-config` en localStorage
+
+**Persistencia**:
+- Al cambiar tema → `applyFullConfig` + `applyThemeConfig` + `localStorage` + **Firestore** (`siteConfig/theme`)
+- Al iniciar app (`App.tsx`) → suscribe a Firestore, si existe tema lo aplica, si no usa `localStorage`
+
+### Hook `useSiteTheme` (`src/hooks/useSiteTheme.ts`)
+```typescript
+useSiteTheme() -> {
+  themeFromFirestore: FullThemeConfig | null,
+  loading: boolean,
+  saveSiteTheme: (config: FullThemeConfig, userEmail?: string) => Promise<boolean>,
+  isFirestoreAvailable: boolean
+}
+```
+- Suscribe un `onSnapshot` al documento `siteConfig/theme` en Firestore
+- Cuando Firestore tiene un tema, lo guarda en `localStorage` y lo aplica
+- Si Firestore no está disponible (modo mock), usa `localStorage` como fallback
+- `saveSiteTheme` solo debe llamarse si `isAdmin === true`
+
+### Sincronización realtime del tema:
+- **Todos los usuarios** suscriben `onSnapshot` a `siteConfig/theme` → ven cambios instantáneos
+- **Solo admins** pueden escribir en Firestore (ver reglas en `firestore.rules`)
+- Cada vez que un admin aplica un tema en Belleza, se guarda en Firestore
+- Firestore notifica a todos los clientes suscritos → actualización instantánea
+- **Costo en free tier**: 1 read por usuario conectado + 1 write por cambio del admin. Con 100 usuarios simultáneos y 10 cambios de tema/día: ~1.1K reads/día (2% del límite de 50K)
+
+### Colecciones de Firestore:
+
+| Colección | Propósito | Estructura |
+|-----------|-----------|------------|
+| `siteConfig/theme` | Tema global del sitio | `{ config: FullThemeConfig, updatedAt, updatedBy }` |
+| `products` | Catálogo de productos | Product[] |
 
 ---
 
@@ -831,10 +883,24 @@ Stock para una talla específica
 
 *(Esta sección se actualiza después de cada modificación)*
 
-### Fecha: [Por actualizar]
-- **Cambio**: [Descripción del cambio]
-- **Errores presentados**: [Errores que surgieron]
-- **Solución aplicada**: [Cómo se resolvió]
+### Fecha: 12/05/2026
+- **Cambio**: Sistema de sincronización realtime del tema global via Firestore
+  - Nuevo hook `useSiteTheme` suscribe a `siteConfig/theme` con `onSnapshot`
+  - Admin que cambia tema en Belleza → se guarda en Firestore → todos los usuarios ven el cambio instantáneamente
+  - Solo admins pueden escribir el tema (ver `firestore.rules`)
+  - Fallback a localStorage si Firestore no disponible (modo mock)
+  - Build 0 errores
+
+### Fecha: 12/05/2026
+- **Cambio**: Producto detalle modal mejoras
+  - Imagen usa `object-cover` para cubrir todo el panel
+  - Modal usa `createPortal` para evitar conflictos de z-index
+  - Scroll interno del modal con prevención de scroll propagation
+  - Modal reducido (max-w-3xl en vez de max-w-5xl)
+  - Botón X movido dentro del modal con backdrop semi-transparente
+  - Badge OUTLET/NUEVO removido de la imagen del modal
+  - Z-index elevado (z-[99999]) para estar siempre por encima del header
+  - Build 0 errores
 
 ---
 

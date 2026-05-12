@@ -5,6 +5,7 @@ import { AuthProvider } from "@/context/AuthContext"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { CursorGlow } from "@/components/ui/CursorGlow"
 import { applyThemeConfig, type FullThemeConfig } from "@/store/bellezaStore"
+import { useSiteTheme } from "@/hooks/useSiteTheme"
 
 function lazyPage<T extends ComponentType<any>>(importFn: () => Promise<{ [K: string]: T }>, name: string) {
   return lazy(() => importFn().then(m => ({ default: m[name] })))
@@ -50,15 +51,25 @@ function PageLoader() {
 }
 
 function App() {
+  return <AppRoutes />
+}
+
+function AppRoutes() {
+  const { themeFromFirestore, loading } = useSiteTheme()
+
   useEffect(() => {
-    const savedRaw = localStorage.getItem("belleza-active-config")
-    if (savedRaw) {
-      try {
-        const loaded = JSON.parse(savedRaw) as FullThemeConfig
-        applyThemeConfig(loaded)
-      } catch {}
+    if (loading) return
+    if (themeFromFirestore) {
+      applyThemeConfig(themeFromFirestore)
+    } else {
+      const savedRaw = localStorage.getItem("belleza-active-config")
+      if (savedRaw) {
+        try {
+          applyThemeConfig(JSON.parse(savedRaw) as FullThemeConfig)
+        } catch {}
+      }
     }
-  }, [])
+  }, [themeFromFirestore, loading])
 
   return (
     <QueryClientProvider client={queryClient}>
