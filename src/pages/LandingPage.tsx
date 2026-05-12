@@ -140,7 +140,7 @@ export function LandingPage() {
               Inspiración
             </div>
             <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-3">
-              <span className="gradient-text">Descubrí tu estilo</span>
+              <span className="gradient-text-animated">Descubrí tu estilo</span>
             </h2>
             <p className="text-base text-muted-foreground max-w-lg mx-auto">
               Looks seleccionados para cada ocasión. Encontrá la inspiración que buscás.
@@ -247,7 +247,7 @@ export function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-2">Testimonios</p>
-          <h2 className="font-display text-3xl font-bold"><span className="gradient-text">#ComunidadTienda</span></h2>
+          <h2 className="font-display text-3xl font-bold"><span className="gradient-text-shimmer">#ComunidadTienda</span></h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((t, i) => (

@@ -65,31 +65,32 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     : null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-xl bg-card border border-border shadow-2xl animate-fade-up">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 z-20 w-9 h-9 rounded-full bg-muted hover:bg-secondary transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
+    <div className="fixed inset-0 z-[100]">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 md:items-start">
-          {/* Image — left half */}
-          <div className="relative aspect-square md:aspect-auto md:h-[90vh] bg-muted overflow-hidden md:sticky md:top-0">
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-700"
-            />
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background/40 to-transparent" />
-            {sectionBadge && (
-              <span className={`absolute top-5 left-5 text-[10px] font-semibold tracking-widest px-3 py-1.5 ${sectionBadge.className}`}>
-                {sectionBadge.label}
-              </span>
-            )}
-          </div>
+      <button
+        onClick={onClose}
+        className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-muted/80 hover:bg-secondary backdrop-blur-sm transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground shadow-lg"
+      >
+        <X className="h-4 w-4" />
+      </button>
+
+      <div className="absolute inset-4 flex items-start justify-center overflow-y-auto pointer-events-none">
+        <div className="relative w-full max-w-5xl my-4 rounded-xl bg-card border border-border shadow-2xl animate-fade-up pointer-events-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            {/* Image — left half */}
+            <div className="relative bg-muted rounded-t-xl md:rounded-tr-none md:rounded-l-xl overflow-hidden">
+              <img
+                src={product.imageUrl}
+                alt={product.name}
+                className="w-full h-full object-contain max-h-[60vh] md:max-h-none"
+              />
+              {sectionBadge && (
+                <span className={`absolute top-5 left-5 text-[10px] font-semibold tracking-widest px-3 py-1.5 ${sectionBadge.className}`}>
+                  {sectionBadge.label}
+                </span>
+              )}
+            </div>
 
           {/* Details — right half */}
           <div className="p-8 md:p-10 flex flex-col gap-5">
@@ -239,6 +240,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
               <span className="flex items-center gap-1.5"><Package className="h-3.5 w-3.5" /> Stock total: <span className="font-medium text-foreground">{totalStock}</span></span>
               <span className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> <span className="font-medium text-foreground">{product.colors.length}</span> colores</span>
             </div>
+          </div>
           </div>
         </div>
       </div>

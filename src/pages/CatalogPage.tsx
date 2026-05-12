@@ -2,6 +2,7 @@ import { useProducts } from "@/hooks/useFirestore"
 import { Input } from "@/components/ui/input"
 import { PageHero } from "@/components/dashboard/Decorative3D"
 import { ProductCard } from "@/components/products/ProductCard"
+import { ProductCardSkeleton } from "@/components/products/ProductCardSkeleton"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -30,10 +31,11 @@ export function CatalogPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          Cargando...
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <ProductCardSkeleton key={i} viewMode={viewMode} />
+          ))}
         </div>
       </div>
     )
