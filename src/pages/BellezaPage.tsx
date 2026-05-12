@@ -53,8 +53,8 @@ function MiniPreview({ config }: { config: FullThemeConfig }) {
   return (
     <div className="space-y-3">
       <div
-        className="p-4 rounded-xl"
-        style={{ background: c.background, color: c.foreground, fontFamily: `'${config.typography.fontBody}', sans-serif` }}
+        className="p-4 rounded-xl overflow-hidden relative"
+        style={{ background: config.backgroundGradient, color: c.foreground, fontFamily: `'${config.typography.fontBody}', sans-serif` }}
       >
         <div className="flex items-center gap-2 mb-3">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: c.primary, color: c.primaryForeground }}>
@@ -263,12 +263,7 @@ export function BellezaPage() {
   }
 
   const setBackgroundWithChange = (background: any) => {
-    handleAnyChange()
     setBackground(background)
-    if (isDirty && draftConfig) {
-      const preset = PRESET_BACKGROUNDS.find(b => b.id === background)
-      setDraftConfig({ ...draftConfig, background, backgroundGradient: preset?.css || "" })
-    }
   }
 
   const handleApplyPalette = (palette: PredefinedPalette) => {
@@ -441,15 +436,18 @@ export function BellezaPage() {
                 ))}
               </div>
               <div className="mt-4">
-                <label className="text-xs font-semibold block mb-2">Gradient personalizado</label>
+                <label className="text-xs font-semibold block mb-2">Gradient personalizado (CSS completo)</label>
                 <div className="flex gap-2">
                   <input type="text" value={customGradient} onChange={(e) => setCustomGradient(e.target.value)}
                     placeholder="linear-gradient(135deg, #0d0d1a, #7c5cfc)"
                     className="flex-1 text-xs font-mono bg-muted border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary" />
-                  <button onClick={() => setBackgroundGradient(customGradient)} className="px-4 py-2 rounded-xl text-xs font-medium border border-border hover:border-primary/30 transition-all">
+                  <button onClick={() => { setBackgroundGradient(customGradient); setCustomGradient("") }} className="px-4 py-2 rounded-xl text-xs font-medium border border-border hover:border-primary/30 transition-all">
                     Aplicar
                   </button>
                 </div>
+                {customGradient && (
+                  <div className="mt-2 w-full h-10 rounded-xl border border-border" style={{ background: customGradient }} />
+                )}
               </div>
               <div className="mt-4 grid grid-cols-3 gap-3">
                 {["particles", "orbs", "grid", "glass", "grain"].map((effect) => (
