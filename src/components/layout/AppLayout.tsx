@@ -1,7 +1,7 @@
 import { useEffect } from "react"
+import { Outlet } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
-import { ViewTransitionOutlet } from "./ViewTransitionOutlet"
 import { migrateOrdersToFirestore } from "@/lib/migrateOrders"
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -22,7 +22,7 @@ export function AppLayout() {
       <div className="min-h-screen relative" style={{ background: "var(--color-background)" }}>
         <Header />
         <main className="relative z-10">
-          <ViewTransitionOutlet />
+          <Outlet />
         </main>
 
         {/* Floating WhatsApp button */}

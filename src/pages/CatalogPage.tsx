@@ -5,13 +5,13 @@ import { ProductCard } from "@/components/products/ProductCard"
 import { ProductCardSkeleton } from "@/components/products/ProductCardSkeleton"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
-import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
+import { useNavigate } from "react-router-dom"
 import { Search, Grid3X3, List, Store, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import type { Product } from "@/types"
 
 export function CatalogPage() {
-  const navigate = useViewTransitionNavigate()
+  const navigate = useNavigate()
   const { data: products = [], isLoading } = useProducts()
   const { isAdmin } = useAuth()
   const [search, setSearch] = useState("")

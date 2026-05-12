@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/context/AuthContext"
-import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
+import { useNavigate } from "react-router-dom"
 import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
 import { useSiteTheme } from "@/hooks/useSiteTheme"
 import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye } from "lucide-react"
@@ -119,7 +119,7 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 
 export function BellezaPage() {
   const { isAdmin, user } = useAuth()
-  const navigate = useViewTransitionNavigate()
+  const navigate = useNavigate()
   const {
     config, savedLooks,
     saveLook, deleteLook, resetToDefault, randomize, applyFullConfig,

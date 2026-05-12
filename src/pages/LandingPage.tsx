@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -32,7 +32,7 @@ function pickRandom(arr: string[], count: number, exclude: string[] = []): strin
 }
 
 export function LandingPage() {
-  const navigate = useViewTransitionNavigate()
+  const navigate = useNavigate()
   const { isAdmin } = useAuth()
 
   useEffect(() => {
