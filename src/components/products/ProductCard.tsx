@@ -1,7 +1,5 @@
 import { useRef, useState } from "react"
-import { cn, getTotalStock } from "@/lib/utils"
-import { Eye } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import type { Product } from "@/types"
 
 interface ProductCardProps {
@@ -15,6 +13,7 @@ interface ProductCardProps {
 export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, onSelect }: ProductCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
+  const [imageLoaded, setImageLoaded] = useState(false)
   const totalStock = getTotalStock(product)
   const sectionBadge = product.seccion === "outlet"
     ? { label: "OUTLET", className: "gradient-warm" }
@@ -28,7 +27,7 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
     if (!rect) return
     const x = (e.clientX - rect.left) / rect.width - 0.5
     const y = (e.clientY - rect.top) / rect.height - 0.5
-    setTilt({ x: -y * 12, y: x * 12 })
+    setTilt({ x: -y * 10, y: x * 10 })
   }
 
   const handleMouseLeave = () => {
@@ -39,26 +38,42 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
     return (
       <div
         ref={cardRef}
-        className="flex items-center gap-6 p-4 rounded-2xl glass-card hover-lift cursor-pointer animate-fade-up"
+        className="group flex items-center gap-5 p-3 rounded-2xl border border-transparent hover:border-primary/20 transition-all duration-500 cursor-pointer animate-fade-up bg-card/30 hover:bg-card/60"
         style={{ animationDelay: `${index * 0.05}s` }}
         onClick={() => onSelect(product)}
       >
-        <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0">
-          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+        <div className="relative w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-muted">
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-muted animate-pulse" />
+          )}
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            onLoad={() => setImageLoaded(true)}
+          />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
+          <div className="flex items-center gap-2 mb-1">
             {sectionBadge && (
               <span className={cn("text-[9px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full text-white", sectionBadge.className)}>
                 {sectionBadge.label}
               </span>
             )}
+            {isAdmin && (
+              <span className="w-4 h-4 rounded-full gradient-primary flex items-center justify-center text-white text-[8px]">
+                <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </span>
+            )}
           </div>
-          <h3 className="font-display text-base font-semibold mb-0.5">{product.name}</h3>
+          <h3 className="font-display text-base font-semibold mb-0.5 group-hover:text-primary transition-colors">{product.name}</h3>
           <p className="text-sm text-muted-foreground truncate">{product.description}</p>
         </div>
         <div className="text-right shrink-0">
-          <p className="font-semibold text-primary">${product.price.toLocaleString("es-AR")}</p>
+          <p className="font-semibold text-primary text-lg">${product.price.toLocaleString("es-AR")}</p>
           <p className={cn("text-xs", totalStock < 10 ? "text-destructive" : "text-muted-foreground")}>
             Stock: {totalStock}
           </p>
@@ -74,78 +89,137 @@ export function ProductCard({ product, index = 0, viewMode = "grid", isAdmin, on
       style={{ animationDelay: `${index * 0.05}s` }}
       onClick={() => onSelect(product)}
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => { handleMouseLeave(); cardRef.current?.classList.remove("magnetic") }}
-      onMouseEnter={() => cardRef.current?.classList.add("magnetic")}
+      onMouseLeave={handleMouseLeave}
     >
       <div
-        className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-muted to-card overflow-hidden mb-3 shadow-sm transition-all duration-500 glass-card"
+        className="relative aspect-[3/4] rounded-2xl overflow-hidden transition-all duration-500"
         style={{
-          transform: `perspective(600px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1, 1, 1)`,
-          transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.5s ease-out" : "transform 0.1s ease-out",
+          transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)" : "transform 0.1s ease-out",
+          boxShadow: tilt.x === 0 && tilt.y === 0
+            ? "0 4px 20px rgba(0,0,0,0.3)"
+            : `0 20px 50px rgba(124,92,252,${0.15 + Math.abs(tilt.x + tilt.y) * 0.005})`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d1a]/40 via-transparent to-transparent z-[1] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div
+          className="absolute inset-0 rounded-2xl border transition-all duration-500 pointer-events-none z-10"
+          style={{
+            borderColor: "transparent",
+            boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.05)",
+          }}
+        />
+
+        <div
+          className="absolute inset-0 rounded-2xl border transition-all duration-500 pointer-events-none z-10"
+          style={{
+            border: "1px solid transparent",
+            boxShadow: "inset 0 0 0 1px rgba(124,92,252,0)",
+            ...(tilt.x !== 0 || tilt.y !== 0 ? {
+              border: "1px solid rgba(124,92,252,0.3)",
+              boxShadow: "inset 0 0 0 1px rgba(124,92,252,0.1)",
+            } : {}),
+          }}
+        />
+
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a30] to-[#161627]">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/5 animate-shimmer" />
+          </div>
+        )}
+
         <img
           src={product.imageUrl}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          className={cn(
+            "w-full h-full object-cover transition-all duration-700",
+            imageLoaded ? "opacity-100" : "opacity-0",
+            "group-hover:scale-105"
+          )}
+          onLoad={() => setImageLoaded(true)}
         />
 
-        <div className="absolute top-3 left-3 z-[2] flex flex-col gap-2">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a15]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
           {sectionBadge && (
-            <span className={cn("text-[9px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full text-white shadow-lg", sectionBadge.className)}>
+            <span className={cn("text-[9px] font-semibold tracking-wider uppercase px-3 py-1 rounded-full text-white shadow-lg", sectionBadge.className)}>
               {sectionBadge.label}
             </span>
           )}
           {totalStock > 0 && totalStock < 10 && (
-            <Badge variant="destructive" className="text-[9px] px-2.5 py-1">
+            <span className="text-[9px] font-semibold tracking-wider uppercase px-3 py-1 rounded-full bg-black/50 backdrop-blur-sm text-white/80 border border-white/10">
               Poco stock
-            </Badge>
+            </span>
           )}
         </div>
 
         {totalStock === 0 && (
-          <div className="absolute inset-0 z-[2] flex items-center justify-center bg-[#0d0d1a]/60 backdrop-blur-[1px]">
-            <span className="text-xs font-semibold tracking-wider uppercase text-white/60">Sin stock</span>
-          </div>
-        )}
-
-        {isAdmin && (
-          <div className="absolute bottom-3 right-3 z-[2]">
-            <span className="text-white text-[10px] font-semibold tracking-wide uppercase gradient-primary px-2.5 py-1.5 rounded-full shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-1 group-hover:translate-y-0">
-              <Eye className="h-3 w-3" />
-              Ver
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <span className="text-xs font-semibold tracking-[0.2em] uppercase text-white/60 border border-white/20 px-4 py-2 rounded-full backdrop-blur-sm bg-black/30">
+              Sin stock
             </span>
           </div>
         )}
 
-        <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-[1]" />
-        <div className="absolute bottom-3 left-3 right-3 z-[2]">
-          <div className="h-[1px] bg-gradient-to-r from-primary/40 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute top-3 right-3 z-20 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-400 delay-75 flex items-center gap-2">
+          {isAdmin && (
+            <div className="w-7 h-7 rounded-full gradient-primary flex items-center justify-center text-white shadow-lg">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+          )}
+          <div className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white/80 hover:bg-white/20 hover:border-white/20 transition-all duration-300 hover:scale-110">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </div>
+        </div>
+
+        <div className="absolute inset-x-3 bottom-3 z-20">
+          <div className="flex items-end justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] font-semibold tracking-[0.2em] uppercase text-white/40 mb-0.5">
+                {product.brand}
+              </p>
+              <h3 className="font-display text-sm font-semibold leading-tight text-white mb-1 line-clamp-2 group-hover:text-white/90 transition-colors">
+                {product.name}
+              </h3>
+              <p className="text-xs text-white/50 line-clamp-1 mb-2">
+                {product.description}
+              </p>
+            </div>
+            <div className="text-right shrink-0 ml-3">
+              <p className="font-display text-lg font-bold text-white">
+                ${product.price.toLocaleString("es-AR")}
+              </p>
+              {product.seccion === "outlet" && (
+                <p className="text-[9px] font-bold text-rose-300 tracking-wider">DESCUENTO</p>
+              )}
+            </div>
+          </div>
+
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-3 mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="flex items-center justify-center gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400 delay-100">
+            <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/70 group-hover:text-white transition-colors">
+              Ver producto
+            </span>
+            <span className="text-white/50 group-hover:text-white group-hover:translate-x-1 transition-all duration-300">→</span>
+          </div>
         </div>
       </div>
 
-      <div className="space-y-0.5">
-        <p className="text-[10px] font-semibold tracking-wider uppercase text-muted-foreground/60">
-          {product.brand}
-        </p>
-        <h3 className="font-display text-sm font-semibold leading-tight group-hover:text-primary transition-colors">
-          {product.name}
-        </h3>
-        <p className="text-xs text-muted-foreground truncate">
-          {product.description}
-        </p>
-        <div className="flex items-center gap-2 pt-0.5">
-          <p className="text-sm font-bold text-primary">
-            ${product.price.toLocaleString("es-AR")}
-          </p>
-          {product.seccion === "outlet" && (
-            <span className="text-[9px] font-bold text-rose-400 bg-rose-400/10 px-1.5 py-0.5 rounded">
-              DESCUENTO
-            </span>
-          )}
-        </div>
+      <div className="mt-4 px-1">
       </div>
     </div>
   )
+}
+
+function getTotalStock(product: Product): number {
+  return product.colors.reduce((total, color) => {
+    return total + Object.values(color.sizes).reduce((sum, qty) => sum + qty, 0)
+  }, 0)
 }
