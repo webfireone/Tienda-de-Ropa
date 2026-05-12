@@ -67,13 +67,13 @@ export function HeroSection() {
         </motion.div>
 
         <motion.h1
-          className="font-display text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.85] mb-6"
+          className="font-display font-bold tracking-tighter leading-[0.85] mb-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2 }}
         >
-          <span className="block gradient-text">GLAMOURS</span>
-          <span className="block text-white/15 text-xl sm:text-2xl lg:text-3xl font-light tracking-[0.25em] mt-2">
+          <span className="block gradient-text text-[clamp(3.5rem,12vw,8rem)]">GLAMOURS</span>
+          <span className="block text-white/15 text-[clamp(1rem,4vw,2.5rem)] font-light tracking-[0.25em] mt-2">
             colección
           </span>
         </motion.h1>

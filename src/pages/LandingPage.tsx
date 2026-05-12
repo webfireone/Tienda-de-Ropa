@@ -360,7 +360,7 @@ export function LandingPage() {
       {/* Footer — staggered reveals */}
       <footer className="relative overflow-hidden pt-20 pb-8 border-t border-white/5" style={{ background: "var(--color-background)" }}>
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
-          <span className="font-display text-[16vw] font-bold leading-none tracking-tighter text-white/[0.02] whitespace-nowrap">
+          <span className="font-display font-bold leading-none tracking-tighter text-white/[0.015] whitespace-nowrap" style={{ fontSize: "clamp(4rem, 18vw, 14rem)" }}>
             GLAMOURS
           </span>
         </div>
@@ -370,8 +370,8 @@ export function LandingPage() {
             <Reveal variant="fade-up" duration={0.6} className="text-[10px] tracking-[0.5em] uppercase text-white/30 font-semibold mb-3">
               Desde 2019
             </Reveal>
-            <Reveal variant="blur-in" delay={0.1} duration={0.8} threshold={0.2} className="font-display text-7xl md:text-9xl lg:text-[12rem] font-bold tracking-tighter leading-none gradient-text">
-              GLAMOURS
+            <Reveal variant="blur-in" delay={0.1} duration={0.8} threshold={0.2} className="font-display font-bold tracking-tighter leading-none gradient-text">
+              <span className="text-[clamp(3rem,10vw,9rem)]">GLAMOURS</span>
             </Reveal>
             <Reveal variant="fade-up" delay={0.2} duration={0.5} className="text-[10px] tracking-[0.4em] uppercase text-white/20 mt-4">
               Moda Unisex · Luján, Buenos Aires
