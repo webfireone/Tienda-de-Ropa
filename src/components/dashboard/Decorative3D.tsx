@@ -22,32 +22,29 @@ export function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-3xl min-h-[620px] border border-white/[0.06] w-full"
+      className="relative overflow-hidden rounded-3xl border border-white/5 min-h-[600px]"
       style={{ background: "var(--color-background)" }}
     >
-      {/* Ambient glow */}
-      <div className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 right-10 w-64 h-64 rounded-full bg-fuchsia-600/8 blur-3xl pointer-events-none" />
+      <div className="hero-grid absolute inset-0 opacity-[0.03]" />
 
-      {/* Image — left side only, doesn't interfere with text */}
-      <motion.div
-        className="absolute inset-y-0 left-0 overflow-hidden origin-left"
-        style={{ width: "55%", scale: imageScale, opacity: imageOpacity }}
-      >
-        <img
-          src={currentImage}
-          alt="Hero"
-          className="w-full h-full object-cover object-center"
-        />
-        {/* Image right fade */}
-        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-r from-transparent to-[var(--color-background)]" />
-        {/* Top/bottom fade */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-background)] 0%, transparent 15%, transparent 85%, #0d0d1a 100%" />
-      </motion.div>
+      <div className="absolute inset-0 overflow-hidden">
+        <motion.div
+          className="absolute inset-0 origin-center"
+          style={{ scale: imageScale, opacity: imageOpacity }}
+        >
+          <img
+            src={currentImage}
+            alt="Hero"
+            className="w-full h-full object-cover object-center"
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-background)] via-[var(--color-background)]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)]/60 via-transparent to-[var(--color-background)]/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5" />
+      </div>
 
-      {/* Content — right side, full dark background */}
       <motion.div
-        className="relative z-10 flex flex-col justify-center min-h-[620px] px-12 lg:px-20"
+        className="relative z-10 flex flex-col justify-center min-h-[600px] max-w-2xl px-12 md:px-16"
         style={{ y: textY }}
       >
         <motion.div
@@ -56,25 +53,25 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="mb-8"
         >
-          <span className="text-[10px] font-semibold tracking-[0.4em] uppercase text-white/40">
-            Moda Unisex · Luján, Buenos Aires
+          <span className="text-[10px] font-semibold tracking-[0.3em] uppercase text-white/30">
+            Moda Unisex · Desde 2019
           </span>
         </motion.div>
 
         <motion.h1
-          className="font-display font-bold tracking-tighter leading-[0.85] mb-6"
+          className="font-display text-6xl md:text-8xl font-bold tracking-tight leading-[0.9] mb-6"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.2 }}
         >
-          <span className="block gradient-text text-[clamp(3.5rem,8vw,6rem)]">GLAMOURS</span>
-          <span className="block text-white/30 text-[clamp(1rem,3vw,2rem)] font-light tracking-[0.25em] mt-2">
+          <span className="block text-white/90">GLAMOURS</span>
+          <span className="block text-white/20 text-4xl md:text-5xl font-light tracking-[0.15em] mt-1">
             colección
           </span>
         </motion.h1>
 
         <motion.div
-          className="h-px w-12 bg-gradient-to-r from-violet-400/50 to-transparent mb-6"
+          className="h-px w-16 bg-gradient-to-r from-violet-500/60 to-transparent mb-6"
           initial={{ opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
@@ -82,7 +79,7 @@ export function HeroSection() {
         />
 
         <motion.p
-          className="text-sm text-white/50 leading-relaxed max-w-md mb-10 font-light"
+          className="text-sm text-white/40 leading-relaxed max-w-sm mb-10 font-light"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
@@ -98,14 +95,14 @@ export function HeroSection() {
         >
           <button
             onClick={() => navigate("/catalog")}
-            className="group relative overflow-hidden px-8 py-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white text-[11px] font-semibold tracking-[0.2em] uppercase hover:bg-white/10 hover:border-white/20 transition-all duration-500"
+            className="group relative overflow-hidden px-8 py-4 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white text-xs font-semibold tracking-[0.2em] uppercase hover:bg-white/10 hover:border-white/20 transition-all duration-500"
           >
             <span className="relative z-10">Ver colección</span>
             <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </button>
           <button
             onClick={() => navigate("/nueva-coleccion")}
-            className="px-8 py-4 rounded-full text-white/35 text-[11px] font-medium tracking-wide hover:text-white/60 transition-colors duration-300"
+            className="px-8 py-4 rounded-full text-white/40 text-xs font-medium tracking-wide hover:text-white/70 transition-colors duration-300"
           >
             Nueva colección →
           </button>
@@ -118,8 +115,8 @@ export function HeroSection() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 1 }}
       >
-        <div className="w-8 h-px bg-white/15" />
-        <span className="text-[10px] font-medium tracking-[0.25em] uppercase text-white/15">
+        <div className="w-8 h-px bg-white/20" />
+        <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-white/20">
           Otoño-Invierno 2026
         </span>
       </motion.div>
@@ -128,7 +125,12 @@ export function HeroSection() {
 }
 
 export function DecorativeBackground() {
-  return null
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <div className="absolute inset-0" style={{ background: "var(--color-background)" }} />
+      <div className="hero-grid absolute inset-0 opacity-[0.03]" />
+    </div>
+  )
 }
 
 export function PageHero({
