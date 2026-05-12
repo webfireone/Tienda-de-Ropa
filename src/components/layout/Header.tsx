@@ -1,6 +1,7 @@
 import { useAuth } from "@/context/AuthContext"
 import { useCartStore } from "@/store/cartStore"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useLocation } from "react-router-dom"
+import { useViewTransitionNavigate } from "@/hooks/useViewTransitionNavigate"
 import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
@@ -31,7 +32,7 @@ const adminLinks: NavLink[] = [
 export function Header() {
   const { isAdmin, user, signOut, setMockRole } = useAuth()
   const { totalItems } = useCartStore()
-  const navigate = useNavigate()
+  const navigate = useViewTransitionNavigate()
   const location = useLocation()
 
   const allLinks = isAdmin ? adminLinks : navLinks
