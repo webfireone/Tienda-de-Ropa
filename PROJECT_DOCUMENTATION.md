@@ -1823,3 +1823,109 @@ const activePromos = promotions.filter(
 ### 30.3. Suscriptores
 
 Los usuarios que se suscriben en el newsletter se guardan en Firestore (colección `subscribers`).
+
+---
+
+## 31. Sistema de Descuentos (previousPrice)
+
+### 31.1. Concepto
+
+El campo `previousPrice` (anteriormente `cost`) representa el **precio anterior** del producto. Cuando `previousPrice > price`, el producto está en oferta y se muestra:
+
+- **Precio tachado** (el anterior)
+- **Porcentaje de descuento en rojo** (`-X%`)
+
+### 31.2. Migración desde `cost`
+
+- `Product.cost` → `Product.previousPrice` (renombrado)
+- `Sale.cost` eliminado (ya no se usa para cálculos de margen)
+- `calculations.ts` simplificado: eliminados `calculateGrossMargin` y `calculateNetMargin`
+- `KpiData.grossMargin` y `KpiData.netMargin` devuelven siempre 0
+- `Projection.grossMargin` y `Projection.netMargin` eliminados
+
+### 31.3. Migración automática desde Firebase
+
+En `useProducts.ts`, la función `migrateProduct` convierte automáticamente productos viejos que tengan `cost` al nuevo campo `previousPrice`:
+
+```typescript
+if ("cost" in migrated && !("previousPrice" in migrated)) {
+  migrated.previousPrice = migrated.cost
+  delete migrated.cost
+}
+```
+
+### 31.4. Visualización en UI
+
+| Componente | Display |
+|------------|---------|
+| `ProductForm` | Label "Costo" → "Precio anterior". Se muestra tachado en resumen |
+| `ProductCard` (grid) | `previousPrice > price` → muestra `-X%` en rojo debajo del precio |
+| `ProductCard` (list) | Mismo badge rojo `-X%` |
+| `ProductDetailModal` | Precio tachado + badge rojo `-X%` |
+
+### 31.5. Regla de visualización
+
+El descuento SE muestra solo cuando `previousPrice > price`. Si `previousPrice` está vacío o es menor que `price`, no se muestra nada (no hay oferta).
+
+---
+
+## 32. Responsive Mobile - Fixes
+
+### 32.1. GLAMOURS Hero cortado
+
+**Problema**: El texto "GLAMOURS" en `text-6xl` desbordaba el contenedor con `overflow-hidden` en mobile, cortando el texto.
+
+**Solución**: Cambiado `text-6xl md:text-8xl` → `text-5xl sm:text-6xl md:text-8xl` en `Decorative3D.tsx`.
+
+### 32.2. ProductDetailModal imagen cortada en mobile
+
+**Problemas y soluciones** (en orden):
+
+1. **Aspect ratio horizontal**: `aspect-[4/3]` (paisaje) cortaba la imagen vertical. Cambiado a `aspect-[3/4]` (retrato).
+
+2. **Max-height fijo**: `max-sm:max-h-64` (256px) era muy bajo y no permitía que el aspect ratio se cumpliera. Cambiado a `max-sm:max-h-[55vh]` → luego eliminado completamente.
+
+3. **Modal anclado al fondo**: `max-sm:items-end` causaba que el contenido se saliera por arriba del viewport. Cambiado a `max-sm:items-start`.
+
+4. **Flex shrink**: El contenedor de la imagen se encogía en el flex layout. Agregado `max-sm:flex-shrink-0`.
+
+5. **Object-position**: `object-cover` centraba la imagen por defecto, cortando arriba y abajo. Cambiado a `object-cover object-top` para anclar al borde superior.
+
+**Clases finales del contenedor de imagen en mobile**:
+```tsx
+<div className="sm:col-span-2 relative bg-muted rounded-t-2xl 
+  sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden 
+  max-sm:aspect-[3/4] max-sm:flex-shrink-0 sm:aspect-auto sm:min-h-[420px]">
+  <img className="w-full h-full object-cover object-top" />
+</div>
+```
+
+**Clases finales del modal en mobile**:
+```tsx
+<div className="absolute max-sm:inset-0 sm:inset-2 flex 
+  max-sm:items-start sm:items-center justify-center pointer-events-none">
+  <div className="relative w-full max-w-3xl max-sm:max-h-full 
+    max-sm:min-h-full sm:rounded-2xl glass-deep border border-border 
+    shadow-2xl animate-fade-up pointer-events-auto 
+    max-sm:flex max-sm:flex-col max-sm:overflow-hidden">
+```
+
+---
+
+## 33. Tests Actualizados
+
+### 33.1. Cambios por eliminación de `cost`
+
+| Archivo | Cambio |
+|---------|--------|
+| `src/test/calculations.test.ts` | Eliminados imports de `calculateGrossMargin` y `calculateNetMargin`. Eliminados tests de margen. `mockSale.cost` eliminado |
+| `src/test/cartStore.test.ts` | `mockProduct.cost` → `previousPrice` |
+| `src/test/projections.test.ts` | `mockSales.cost` eliminado. Test de `grossMargin`/`netMargin` actualizado |
+| `src/test/utils.test.ts` | `mockProduct.cost` → `previousPrice` |
+
+---
+
+## 34. Alertas Eliminadas
+
+- Eliminada la regla `negative_margin` del hook `useAlerts` (ya no hay cálculo de margen)
+- El tipo `Alert.type` aún conserva `"negative_margin"` en la unión de tipos por compatibilidad, pero nunca se genera
