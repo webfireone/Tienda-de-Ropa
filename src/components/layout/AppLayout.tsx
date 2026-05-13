@@ -44,9 +44,9 @@ export function AppLayout() {
           <div
             className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
               waHovered ? "w-32 opacity-100" : "w-0 opacity-0"
-            }`}
+            } max-sm:w-auto max-sm:opacity-100`}
           >
-            <div className="whitespace-nowrap bg-foreground text-background px-4 py-2.5 rounded-l-full text-xs font-semibold tracking-wide shadow-lg">
+            <div className="whitespace-nowrap bg-foreground text-background px-3 sm:px-4 py-2 sm:py-2.5 rounded-l-full text-[11px] sm:text-xs font-semibold tracking-wide shadow-lg">
               Escribinos
             </div>
           </div>

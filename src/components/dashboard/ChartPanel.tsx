@@ -53,7 +53,7 @@ export function KpiSummary({ title }: ChartPanelProps) {
 
         <div className="mb-6">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Proyecciones</h4>
-          <div className="rounded-xl border border-primary/5 overflow-hidden">
+          <div className="rounded-xl border border-primary/5 overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-primary/5 bg-muted/50">

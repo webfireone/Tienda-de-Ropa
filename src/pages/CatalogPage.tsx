@@ -68,16 +68,16 @@ export function CatalogPage() {
 
   const getGridClass = (size: CardSize): string => {
     switch (size) {
-      case "hero": return "col-span-2 row-span-2"
-      case "tall": return "col-span-1 row-span-2"
+      case "hero": return "col-span-2 row-span-2 max-sm:row-span-1"
+      case "tall": return "col-span-1 row-span-2 max-sm:row-span-1"
       default: return "col-span-1 row-span-1"
     }
   }
 
   const getSkeletonClass = (size: CardSize): string => {
     switch (size) {
-      case "hero": return "col-span-2 row-span-2"
-      case "tall": return "col-span-1 row-span-2"
+      case "hero": return "col-span-2 row-span-2 max-sm:row-span-1"
+      case "tall": return "col-span-1 row-span-2 max-sm:row-span-1"
       default: return "col-span-1 row-span-1"
     }
   }
@@ -86,7 +86,7 @@ export function CatalogPage() {
     return (
       <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-6 pt-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[320px]">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-sm:auto-rows-auto auto-rows-[320px]">
             {Array.from({ length: 16 }).map((_, i) => (
               <div
                 key={i}
@@ -231,7 +231,7 @@ export function CatalogPage() {
           </div>
         ) : viewMode === "grid" ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 auto-rows-[280px]">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-sm:auto-rows-auto auto-rows-[280px]">
               {visible.map((product, i) => {
                 const size = getCardSize(i)
                 return (

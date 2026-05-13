@@ -23,7 +23,7 @@ export function HeroSection() {
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden rounded-3xl border border-white/5 min-h-[600px]"
+      className="relative overflow-hidden rounded-3xl border border-white/5 min-h-[400px] sm:min-h-[600px]"
       style={{ background: "var(--color-background)" }}
     >
       <div className="hero-grid absolute inset-0 opacity-[0.03]" />
@@ -47,7 +47,7 @@ export function HeroSection() {
       <HeroParticles scrollYProgress={scrollYProgress} />
 
       <motion.div
-        className="relative z-10 flex flex-col justify-center min-h-[600px] max-w-2xl px-12 md:px-16"
+        className="relative z-10 flex flex-col justify-center min-h-[400px] sm:min-h-[600px] max-w-2xl px-6 sm:px-12 md:px-16"
         style={{ y: textY }}
       >
         <motion.div

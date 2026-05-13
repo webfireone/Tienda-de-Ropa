@@ -70,9 +70,9 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           >
             <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
           </button>
-          <div className="max-sm:flex max-sm:flex-1 max-sm:flex-row max-sm:overflow-hidden grid grid-cols-1 sm:grid-cols-5">
-            {/* Image — left (40% mobile, 2/5 desktop) */}
-            <div className="max-sm:w-[40%] sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px]">
+          <div className="max-sm:flex max-sm:flex-1 max-sm:flex-col max-sm:overflow-hidden grid grid-cols-1 sm:grid-cols-5">
+            {/* Image — top on mobile, left on desktop */}
+            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px] max-sm:max-h-64">
               <img
                 src={product.imageUrl}
                 alt={product.name}

@@ -86,9 +86,7 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
   }
 
   const imageAspect = size === "hero"
-    ? "aspect-[3/5]"
-    : size === "tall"
-    ? "aspect-[3/4]"
+    ? "max-sm:aspect-[2/3] aspect-[3/5]"
     : "aspect-[3/4]"
 
   const glowIntensity = size === "hero" ? 0.25 : size === "tall" ? 0.2 : 0.15
@@ -103,7 +101,7 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
       onMouseLeave={handleMouseLeave}
     >
       <div
-        className={cn("relative rounded-2xl overflow-hidden transition-all duration-500 h-full", imageAspect)}
+        className={cn("relative rounded-2xl overflow-hidden transition-all duration-500 max-sm:h-auto h-full", imageAspect)}
         style={{
           transform: `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
           transition: tilt.x === 0 && tilt.y === 0 ? "transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)" : "transform 0.1s ease-out",

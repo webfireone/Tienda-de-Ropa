@@ -122,7 +122,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               <Input value={form.material} onChange={e => update({ material: e.target.value })} placeholder="Ej: Algodón 100%" />
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Precio *</label>
               <Input type="number" value={form.price || ""} onChange={e => update({ price: parseInt(e.target.value) || 0 })} placeholder="25000" />
