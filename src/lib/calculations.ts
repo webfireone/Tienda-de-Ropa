@@ -11,22 +11,6 @@ export function calculateFinalPrice(
   return Math.round(withTax)
 }
 
-export function calculateGrossMargin(sale: Sale): number {
-  return (sale.unitPrice - sale.cost) * sale.quantity
-}
-
-export function calculateNetMargin(
-  sale: Sale,
-  params: GlobalParams,
-  scenario: ScenarioConfig
-): number {
-  const gross = calculateGrossMargin(sale)
-  const tax = sale.unitPrice * sale.quantity * (params.financial.generalTax / 100)
-  const shipping = params.shipping.fixedCost
-  const inflationCost = sale.cost * sale.quantity * ((params.financial.monthlyInflation / 100) * scenario.inflationMultiplier)
-  return gross - tax - shipping - inflationCost
-}
-
 export function calculateKpis(
   sales: Sale[],
   products: Product[],
@@ -35,20 +19,6 @@ export function calculateKpis(
 ): KpiData {
   const monthlySales = sales.reduce((acc, s) => acc + s.unitPrice * s.quantity, 0)
   const annualSales = monthlySales * 12
-
-  const grossMargin = sales.reduce((acc, s) => acc + calculateGrossMargin(s), 0)
-  const netMargin = sales.reduce((acc, s) => acc + calculateNetMargin(s, params, scenario), 0)
-
-  const productMargins: Record<string, number> = {}
-  sales.forEach(s => {
-    const margin = calculateGrossMargin(s)
-    productMargins[s.productName] = (productMargins[s.productName] || 0) + margin
-  })
-
-  const topProducts = Object.entries(productMargins)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 3)
-    .map(([name, margin]) => ({ name, margin }))
 
   const totalStock = products.reduce((acc, p) => {
     return acc + getTotalStock(p)
@@ -61,9 +31,9 @@ export function calculateKpis(
   return {
     monthlySales,
     annualSales,
-    grossMargin,
-    netMargin,
-    topProducts,
+    grossMargin: 0,
+    netMargin: 0,
+    topProducts: [],
     inventoryTurnover,
   }
 }

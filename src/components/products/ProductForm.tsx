@@ -21,7 +21,7 @@ const emptyProduct = {
   category: "Remeras" as const,
   gender: "unisex" as const,
   price: 0,
-  cost: 0,
+  previousPrice: 0,
   description: "",
   imageUrl: "",
   colors: [] as { name: string; sizes: Record<string, number> }[],
@@ -128,8 +128,8 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               <Input type="number" value={form.price || ""} onChange={e => update({ price: parseInt(e.target.value) || 0 })} placeholder="25000" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Costo</label>
-              <Input type="number" value={form.cost || ""} onChange={e => update({ cost: parseInt(e.target.value) || 0 })} placeholder="12000" />
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Precio anterior</label>
+              <Input type="number" value={form.previousPrice || ""} onChange={e => update({ previousPrice: parseInt(e.target.value) || 0 })} placeholder="12000" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sección</label>
@@ -279,7 +279,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
                 <p className="text-sm text-muted-foreground mt-1">{form.description}</p>
                 <div className="flex items-center gap-4 mt-3">
                   <span className="font-display text-lg font-bold gradient-text">${form.price.toLocaleString("es-AR")}</span>
-                  {form.cost > 0 && <span className="text-xs text-muted-foreground">Costo: ${form.cost.toLocaleString("es-AR")}</span>}
+                  {form.previousPrice > 0 && <span className="text-xs text-muted-foreground line-through">${form.previousPrice.toLocaleString("es-AR")}</span>}
                 </div>
               </div>
             </div>

@@ -20,10 +20,8 @@ export function DashboardGrid() {
         <ScenarioSelector />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <KpiCard title="Ventas Mensuales" value={formatMoney(kpis.monthlySales)} subtitle="Ingresos totales" trend="up" />
-        <KpiCard title="Margen Bruto" value={formatMoney(kpis.grossMargin)} subtitle="Antes de impuestos" trend="up" />
-        <KpiCard title="Margen Neto" value={formatMoney(kpis.netMargin)} subtitle="Después de impuestos" />
         <KpiCard title="Rotación Inventario" value={kpis.inventoryTurnover.toFixed(2)} subtitle="Ventas / Stock promedio" />
       </div>
 

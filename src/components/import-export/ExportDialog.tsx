@@ -21,16 +21,7 @@ export function ExportDialog() {
     doc.text("Reporte Tienda de Ropa", 14, 22)
     doc.setFontSize(11)
     doc.text(`Ventas Mensuales: $${kpis.monthlySales.toLocaleString("es-AR")}`, 14, 40)
-    doc.text(`Margen Bruto: $${kpis.grossMargin.toLocaleString("es-AR")}`, 14, 48)
-    doc.text(`Margen Neto: $${kpis.netMargin.toLocaleString("es-AR")}`, 14, 56)
-    doc.text(`Rotación: ${kpis.inventoryTurnover.toFixed(2)}`, 14, 64)
-
-    const topProducts = kpis.topProducts.map((p, i) => [`${i + 1}. ${p.name}`, `$${p.margin.toLocaleString("es-AR")}`])
-    autoTable(doc, {
-      startY: 76,
-      head: [["Top 3 Prendas", "Margen"]],
-      body: topProducts,
-    })
+    doc.text(`Rotación: ${kpis.inventoryTurnover.toFixed(2)}`, 14, 48)
     doc.save("reporte-tienda-ropa.pdf")
   }
 
@@ -39,7 +30,6 @@ export function ExportDialog() {
       Producto: s.productName,
       Cantidad: s.quantity,
       "Precio Unitario": s.unitPrice,
-      Costo: s.cost,
       Fecha: s.date,
     })))
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
@@ -52,7 +42,7 @@ export function ExportDialog() {
   const exportExcel = () => {
     const ws = XLSX.utils.json_to_sheet(sales.map(s => ({
       Producto: s.productName, Cantidad: s.quantity,
-      "Precio Unitario": s.unitPrice, Costo: s.cost, Fecha: s.date,
+      "Precio Unitario": s.unitPrice, Fecha: s.date,
     })))
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Ventas")

@@ -22,7 +22,7 @@ export interface Product {
   category: string
   gender: Gender
   price: number
-  cost: number
+  previousPrice: number
   description: string
   imageUrl: string
   colors: ProductColor[]
@@ -41,7 +41,6 @@ export interface Sale {
   brand: string
   quantity: number
   unitPrice: number
-  cost: number
   date: string
   size: string
 }

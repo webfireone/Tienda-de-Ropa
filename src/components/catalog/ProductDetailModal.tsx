@@ -94,10 +94,15 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                 <span className="font-display text-2xl font-bold gradient-text">
                   ${product.price.toLocaleString("es-AR")}
                 </span>
-                {product.cost > 0 && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    ${(product.cost).toLocaleString("es-AR")}
-                  </span>
+                {product.previousPrice > product.price && (
+                  <>
+                    <span className="text-xs text-muted-foreground line-through">
+                      ${product.previousPrice.toLocaleString("es-AR")}
+                    </span>
+                    <span className="text-xs font-bold text-rose-400">
+                      -{Math.round((1 - product.price / product.previousPrice) * 100)}%
+                    </span>
+                  </>
                 )}
               </div>
 

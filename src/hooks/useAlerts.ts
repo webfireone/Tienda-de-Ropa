@@ -7,7 +7,6 @@ export function useAlerts(products: Product[]) {
   const [rules, setRules] = useState<AlertRule[]>([
     { id: "r1", type: "low_stock", threshold: 5, enabled: true },
     { id: "r2", type: "price_variation", threshold: 15, enabled: true },
-    { id: "r3", type: "negative_margin", threshold: 0, enabled: true },
   ])
 
   const alerts = useMemo(() => {

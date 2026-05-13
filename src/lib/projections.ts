@@ -6,8 +6,6 @@ export type ProjectionPeriod = "monthly" | "quarterly" | "annual"
 export interface Projection {
   period: string
   sales: number
-  grossMargin: number
-  netMargin: number
 }
 
 export function generateProjections(
@@ -28,8 +26,6 @@ export function generateProjections(
     projections.push({
       period: getPeriodLabel(i, period),
       sales: Math.round(currentKpi.monthlySales * salesGrowth * monthMultiplier),
-      grossMargin: Math.round(currentKpi.grossMargin * salesGrowth * monthMultiplier),
-      netMargin: Math.round(currentKpi.netMargin * salesGrowth * monthMultiplier),
     })
   }
 

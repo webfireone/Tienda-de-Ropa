@@ -59,7 +59,7 @@ export function GlobalParamsForm() {
       <SectionCard icon={ShoppingCart} title="Carrito" description="Configuración del carrito de compras y precios">
         <Field
           label="Carga base"
-          help="Porcentaje de ganancia que se suma al costo de cada producto para definir su precio de venta. Ej: 0.15 = 15% de margen."
+          help="Porcentaje de ganancia que se suma al precio de cada producto. Ej: 0.15 = 15% de margen."
         >
           <Input
             type="number"

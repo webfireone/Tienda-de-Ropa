@@ -14,7 +14,7 @@ interface ScrapedProduct {
   category: string
   gender: Product["gender"]
   price: number
-  cost: number
+  previousPrice: number
   description: string
   imageUrl: string
   material: string
@@ -130,7 +130,7 @@ export function WebImportDialog() {
       if (!s.brand) missing.push("brand")
       if (!s.category) missing.push("category")
       if (!s.price) missing.push("price")
-      if (!s.cost) missing.push("cost")
+      if (!s.previousPrice) missing.push("previousPrice")
       if (!s.imageUrl) missing.push("imageUrl")
 
       if (missing.length > 0) {
@@ -146,7 +146,7 @@ export function WebImportDialog() {
           category: s.category,
           gender: (s.gender as Product["gender"]) || "unisex",
           price: s.price,
-          cost: s.cost,
+          previousPrice: s.previousPrice,
           description: s.description || "",
           imageUrl: s.imageUrl,
           colors: s.colors.length > 0 ? s.colors : [{ name: "Unico", sizes: { U: 0 } }],
@@ -486,7 +486,7 @@ function parseTiendanube(html: string, max: number): ScrapedProduct[] {
       category: guessCategory(name),
       gender: "unisex" as const,
       price: sellingPrice,
-      cost: Math.round(sellingPrice * 0.5),
+      previousPrice: Math.round(sellingPrice * 0.5),
       description: (ld.description || "").replace(/^Comprá online /, "").replace(/\. Hacé tu pedido y pagalo online\.?$/, ""),
       imageUrl: (ld.image || "").replace(/^\/\//, "https://"),
       material: "",
@@ -618,7 +618,7 @@ function parseShopify(html: string, max: number): ScrapedProduct[] {
         category: item.product_type || (item.tags?.[0] || "General"),
         gender: "unisex" as const,
         price: Math.round(price),
-        cost: Math.round(price * 0.5),
+        previousPrice: Math.round(price * 0.5),
         description: (item.body_html || "").replace(/<[^>]*>/g, ""),
         imageUrl: imageUrl.startsWith("//") ? "https:" + imageUrl : imageUrl,
         material: "",
@@ -652,7 +652,7 @@ function parseGeneric(html: string, max: number): ScrapedProduct[] {
         category: parsed.category || guessCategory(name),
         gender: "unisex" as const,
         price,
-        cost: Math.round(price * 0.5),
+        previousPrice: Math.round(price * 0.5),
         description: (parsed.description || "").replace(/^Comprá online /, ""),
         imageUrl: (parsed.image || "").replace(/^\/\//, "https://"),
         material: "",

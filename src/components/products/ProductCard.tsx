@@ -77,6 +77,11 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
         </div>
         <div className="text-right shrink-0">
           <p className="font-semibold text-primary text-lg">${product.price.toLocaleString("es-AR")}</p>
+          {product.previousPrice > product.price && (
+            <p className="text-[9px] font-bold text-rose-400 tracking-wider">
+              -{Math.round((1 - product.price / product.previousPrice) * 100)}%
+            </p>
+          )}
           <p className={cn("text-xs", totalStock < 10 ? "text-destructive" : "text-muted-foreground")}>
             Stock: {totalStock}
           </p>
@@ -218,15 +223,19 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
               </p>
             </div>
             <div className="text-right shrink-0 ml-3">
-              <p className={cn(
-                "font-display font-bold text-white",
-                size === "hero" ? "text-xl" : "text-lg"
-              )}>
-                ${product.price.toLocaleString("es-AR")}
-              </p>
-              {product.seccion === "outlet" && (
-                <p className="text-[9px] font-bold text-rose-300 tracking-wider">DESCUENTO</p>
-              )}
+              <div className="text-right">
+                <p className={cn(
+                  "font-display font-bold text-white",
+                  size === "hero" ? "text-xl" : "text-lg"
+                )}>
+                  ${product.price.toLocaleString("es-AR")}
+                </p>
+                {product.previousPrice > product.price && (
+                  <p className="text-[9px] font-bold text-rose-400 tracking-wider">
+                    -{Math.round((1 - product.price / product.previousPrice) * 100)}%
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

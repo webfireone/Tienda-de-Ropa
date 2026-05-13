@@ -11,12 +11,19 @@ function migrateProduct(data: Record<string, unknown>): Product {
   const hasOldSizes = "sizes" in data && data.sizes && typeof data.sizes === "object"
   const hasOldColors = "colors" in data && Array.isArray(data.colors) && data.colors.length > 0 && typeof data.colors[0] === "string"
 
+  const migrated = { ...data } as Record<string, unknown>
+
+  if ("cost" in migrated && !("previousPrice" in migrated)) {
+    migrated.previousPrice = migrated.cost
+    delete migrated.cost
+  }
+
   if (hasOldSizes && hasOldColors) {
-    const oldSizes = data.sizes as Record<string, number>
-    const oldColors = data.colors as string[]
+    const oldSizes = migrated.sizes as Record<string, number>
+    const oldColors = migrated.colors as string[]
     return {
-      ...data as unknown as Product,
-      gender: (data.gender as Product["gender"]) || "unisex",
+      ...migrated as unknown as Product,
+      gender: (migrated.gender as Product["gender"]) || "unisex",
       colors: oldColors.map(name => ({
         name,
         sizes: { ...oldSizes },
@@ -24,8 +31,8 @@ function migrateProduct(data: Record<string, unknown>): Product {
     }
   }
   return {
-    ...data as unknown as Product,
-    gender: (data.gender as Product["gender"]) || "unisex",
+    ...migrated as unknown as Product,
+    gender: (migrated.gender as Product["gender"]) || "unisex",
   }
 }
 

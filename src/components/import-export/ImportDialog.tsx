@@ -46,7 +46,7 @@ export function ImportDialog() {
         if (!row.brand) missing.push("brand")
         if (!row.category) missing.push("category")
         if (!row.price) missing.push("price")
-        if (!row.cost) missing.push("cost")
+        if (!row.previousPrice) missing.push("previousPrice")
         if (!row.imageUrl) missing.push("imageUrl")
 
         if (missing.length > 0) {
@@ -76,7 +76,7 @@ export function ImportDialog() {
             category: row.category,
             gender: (row.gender as Product["gender"]) || "unisex",
             price: parseFloat(row.price),
-            cost: parseFloat(row.cost),
+            previousPrice: parseFloat(row.previousPrice) || 0,
             description: row.description || "",
             imageUrl: row.imageUrl,
             colors,
@@ -114,7 +114,7 @@ export function ImportDialog() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Formatos: CSV, XLSX. Campos requeridos: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">name</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">brand</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">category</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">price</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">cost</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">imageUrl</code>
+              Formatos: CSV, XLSX. Campos requeridos: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">name</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">brand</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">category</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">price</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">imageUrl</code>. Opcional: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">previousPrice</code>
             </p>
             <div className="relative">
               <input

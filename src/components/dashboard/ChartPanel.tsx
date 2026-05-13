@@ -37,11 +37,9 @@ export function KpiSummary({ title }: ChartPanelProps) {
         />
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {[
             { label: "Ventas Mensuales", value: formatMoney(kpis.monthlySales) },
-            { label: "Margen Bruto", value: formatMoney(kpis.grossMargin), color: "text-emerald-600" },
-            { label: "Margen Neto", value: formatMoney(kpis.netMargin) },
             { label: "Rotación Inventario", value: kpis.inventoryTurnover.toFixed(2) },
           ].map((item, i) => (
             <div key={i} className="p-4 rounded-xl bg-muted/50 border border-primary/5">
@@ -57,7 +55,7 @@ export function KpiSummary({ title }: ChartPanelProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-primary/5 bg-muted/50">
-                  {["Período", "Ventas", "Margen Bruto", "Margen Neto"].map(h => (
+                  {["Período", "Ventas"].map(h => (
                     <th key={h} className="text-left py-3 px-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold">{h}</th>
                   ))}
                 </tr>
@@ -67,8 +65,6 @@ export function KpiSummary({ title }: ChartPanelProps) {
                   <tr key={i} className="border-b border-primary/5 last:border-0">
                     <td className="py-3 px-4 font-medium">{p.period}</td>
                     <td className="py-3 px-4">{formatMoney(p.sales)}</td>
-                    <td className="py-3 px-4 text-emerald-600">{formatMoney(p.grossMargin)}</td>
-                    <td className="py-3 px-4">{formatMoney(p.netMargin)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -76,18 +72,7 @@ export function KpiSummary({ title }: ChartPanelProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl bg-muted/50 border border-primary/5">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Top 3 Prendas</h4>
-            <ol className="list-decimal list-inside text-sm space-y-2">
-              {kpis.topProducts.map((p, i) => (
-                <li key={i} className="text-muted-foreground">
-                  {p.name}
-                  <span className="font-semibold text-foreground ml-2">{formatMoney(p.margin)}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+        <div className="grid grid-cols-1 gap-4">
           <div className="p-4 rounded-xl bg-muted/50 border border-primary/5">
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Rotación por Marca</h4>
             <div className="space-y-2 text-sm">

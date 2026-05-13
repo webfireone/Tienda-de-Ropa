@@ -50,7 +50,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Remeras",
     gender: "unisex",
     price: 25000,
-    cost: 12000,
+    previousPrice: 12000,
     description: "Remera de algodón moderno, corte unisex. Ideal para el día a día.",
     imageUrl: "https://placehold.co/600x800/7c5cfc/ffffff?text=Remera+UF",
     colors: [
@@ -72,7 +72,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Camperas",
     gender: "unisex",
     price: 32000,
-    cost: 15000,
+    previousPrice: 15000,
     description: "Campera sostenible con materiales reciclados. Corte moderno y cálido.",
     imageUrl: "https://placehold.co/600x800/ec4899/ffffff?text=Campera+EW",
     colors: [
@@ -94,7 +94,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Shorts",
     gender: "hombre",
     price: 28000,
-    cost: 11000,
+    previousPrice: 11000,
     description: "Short deportivo de alto rendimiento. Transpirable y liviano.",
     imageUrl: "https://placehold.co/600x800/10b981/ffffff?text=Short+SP",
     colors: [
@@ -116,7 +116,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Pantalones",
     gender: "hombre",
     price: 22000,
-    cost: 10000,
+    previousPrice: 10000,
     description: "Pantalón casual de corte recto. Cómodo y versátil para cualquier ocasión.",
     imageUrl: "https://placehold.co/600x800/f59e0b/ffffff?text=Pantalon+CC",
     colors: [
@@ -138,7 +138,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Remeras",
     gender: "hombre",
     price: 18000,
-    cost: 8000,
+    previousPrice: 8000,
     description: "Musculosa deportiva con tecnología anti-humedad.",
     imageUrl: "https://placehold.co/600x800/7c5cfc/ffffff?text=Musculosa+SP",
     colors: [
@@ -161,7 +161,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Accesorios",
     gender: "unisex",
     price: 55000,
-    cost: 25000,
+    previousPrice: 25000,
     description: "Zapatillas de running con amortiguación avanzada.",
     imageUrl: "https://placehold.co/600x800/ec4899/ffffff?text=Zapatillas+SP",
     colors: [
@@ -183,7 +183,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Sweaters",
     gender: "unisex",
     price: 35000,
-    cost: 16000,
+    previousPrice: 16000,
     description: "Sweater de lana reciclada. Suave, abrigado y sostenible.",
     imageUrl: "https://placehold.co/600x800/f59e0b/ffffff?text=Sweater+EW",
     colors: [
@@ -205,7 +205,7 @@ export const MOCK_PRODUCTS: Product[] = [
     category: "Jeans",
     gender: "hombre",
     price: 45000,
-    cost: 20000,
+    previousPrice: 20000,
     description: "Jean de corte recto con elástico. Cómodo y con estilo.",
     imageUrl: "https://placehold.co/600x800/10b981/ffffff?text=Jean+315",
     colors: [
@@ -223,18 +223,18 @@ export const MOCK_PRODUCTS: Product[] = [
 ]
 
 export const MOCK_SALES: Sale[] = [
-  { id: "s1", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 50, unitPrice: 25000, cost: 12000, date: "2026-01-15", size: "M" },
-  { id: "s2", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 30, unitPrice: 25000, cost: 12000, date: "2026-02-10", size: "L" },
-  { id: "s3", productId: "p2", productName: "Campera EcoWear", brand: "EcoWear", quantity: 20, unitPrice: 32000, cost: 15000, date: "2026-01-20", size: "M" },
-  { id: "s4", productId: "p2", productName: "Campera EcoWear", brand: "EcoWear", quantity: 15, unitPrice: 32000, cost: 15000, date: "2026-03-05", size: "S" },
-  { id: "s5", productId: "p3", productName: "Short SportPlus", brand: "SportPlus", quantity: 40, unitPrice: 28000, cost: 11000, date: "2026-02-28", size: "L" },
-  { id: "s6", productId: "p5", productName: "Musculosa SportPlus", brand: "SportPlus", quantity: 35, unitPrice: 18000, cost: 8000, date: "2026-03-15", size: "M" },
-  { id: "s7", productId: "p4", productName: "Pantalón Casual Club", brand: "Casual Club", quantity: 25, unitPrice: 22000, cost: 10000, date: "2026-01-25", size: "L" },
-  { id: "s8", productId: "p4", productName: "Pantalón Casual Club", brand: "Casual Club", quantity: 20, unitPrice: 22000, cost: 10000, date: "2026-03-20", size: "M" },
-  { id: "s9", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 45, unitPrice: 25000, cost: 12000, date: "2026-03-25", size: "S" },
-  { id: "s10", productId: "p6", productName: "Zapatillas SportPlus", brand: "SportPlus", quantity: 10, unitPrice: 55000, cost: 25000, date: "2026-02-05", size: "L" },
-  { id: "s11", productId: "p7", productName: "Sweater EcoWear", brand: "EcoWear", quantity: 12, unitPrice: 35000, cost: 16000, date: "2026-04-01", size: "M" },
-  { id: "s12", productId: "p8", productName: "Jean Recto 315", brand: "Casual Club", quantity: 60, unitPrice: 45000, cost: 20000, date: "2026-04-10", size: "XS" },
+  { id: "s1", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 50, unitPrice: 25000, date: "2026-01-15", size: "M" },
+  { id: "s2", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 30, unitPrice: 25000, date: "2026-02-10", size: "L" },
+  { id: "s3", productId: "p2", productName: "Campera EcoWear", brand: "EcoWear", quantity: 20, unitPrice: 32000, date: "2026-01-20", size: "M" },
+  { id: "s4", productId: "p2", productName: "Campera EcoWear", brand: "EcoWear", quantity: 15, unitPrice: 32000, date: "2026-03-05", size: "S" },
+  { id: "s5", productId: "p3", productName: "Short SportPlus", brand: "SportPlus", quantity: 40, unitPrice: 28000, date: "2026-02-28", size: "L" },
+  { id: "s6", productId: "p5", productName: "Musculosa SportPlus", brand: "SportPlus", quantity: 35, unitPrice: 18000, date: "2026-03-15", size: "M" },
+  { id: "s7", productId: "p4", productName: "Pantalón Casual Club", brand: "Casual Club", quantity: 25, unitPrice: 22000, date: "2026-01-25", size: "L" },
+  { id: "s8", productId: "p4", productName: "Pantalón Casual Club", brand: "Casual Club", quantity: 20, unitPrice: 22000, date: "2026-03-20", size: "M" },
+  { id: "s9", productId: "p1", productName: "Remera Urban Fit", brand: "Urban Fit", quantity: 45, unitPrice: 25000, date: "2026-03-25", size: "S" },
+  { id: "s10", productId: "p6", productName: "Zapatillas SportPlus", brand: "SportPlus", quantity: 10, unitPrice: 55000, date: "2026-02-05", size: "L" },
+  { id: "s11", productId: "p7", productName: "Sweater EcoWear", brand: "EcoWear", quantity: 12, unitPrice: 35000, date: "2026-04-01", size: "M" },
+  { id: "s12", productId: "p8", productName: "Jean Recto 315", brand: "Casual Club", quantity: 60, unitPrice: 45000, date: "2026-04-10", size: "XS" },
 ]
 
 export const HOLIDAYS = [
