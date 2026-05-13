@@ -16,13 +16,17 @@ function migrateProduct(data: Record<string, unknown>): Product {
     const oldColors = data.colors as string[]
     return {
       ...data as unknown as Product,
+      gender: (data.gender as Product["gender"]) || "unisex",
       colors: oldColors.map(name => ({
         name,
         sizes: { ...oldSizes },
       })),
     }
   }
-  return data as unknown as Product
+  return {
+    ...data as unknown as Product,
+    gender: (data.gender as Product["gender"]) || "unisex",
+  }
 }
 
 async function fetchCollection<T>(path: string, fallback: T[]): Promise<T[]> {

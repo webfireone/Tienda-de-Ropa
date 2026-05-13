@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProductForm } from "./ProductForm"
 import { getTotalStock } from "@/lib/utils"
-import { Edit3, Trash2, Search, Plus, Package, X, AlertTriangle } from "lucide-react"
+import { Edit3, Trash2, Search, Plus, Package, X, AlertTriangle, RefreshCw } from "lucide-react"
+import { db } from "@/lib/firebase"
+import { collection, getDocs, writeBatch, doc } from "firebase/firestore"
 
 export function ProductManager() {
   const { data: products = [], isLoading } = useProducts()
@@ -15,6 +17,30 @@ export function ProductManager() {
   const [editing, setEditing] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [migrating, setMigrating] = useState(false)
+  const [migrateMsg, setMigrateMsg] = useState("")
+
+  const runMigration = async () => {
+    setMigrating(true)
+    setMigrateMsg("Migrando productos...")
+    try {
+      const snapshot = await getDocs(collection(db, "products"))
+      const batch = writeBatch(db)
+      let count = 0
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data()
+        if (!("gender" in data) || !data.gender) {
+          batch.update(doc(db, "products", docSnap.id), { gender: "unisex" })
+          count++
+        }
+      })
+      await batch.commit()
+      setMigrateMsg(`${count} productos actualizados con género "unisex"`)
+    } catch {
+      setMigrateMsg("Error en la migración")
+    }
+    setMigrating(false)
+  }
 
   const filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -62,9 +88,22 @@ export function ProductManager() {
             <Package className="h-4 w-4 text-primary" />
             <CardTitle>Gestión de Productos ({products.length})</CardTitle>
           </div>
-          <Button size="sm" onClick={() => setCreating(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> Nuevo
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={runMigration}
+              disabled={migrating}
+              className="gap-1.5 text-xs"
+              title="Agregar campo género a productos existentes"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${migrating ? "animate-spin" : ""}`} />
+              Migrar género
+            </Button>
+            <Button size="sm" onClick={() => setCreating(true)} className="gap-2">
+              <Plus className="h-4 w-4" /> Nuevo
+            </Button>
+          </div>
         </div>
         <div className="relative mt-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -75,6 +114,11 @@ export function ProductManager() {
             className="pl-10"
           />
         </div>
+        {migrateMsg && (
+          <p className={`text-xs mt-2 ${migrateMsg.includes("Error") ? "text-rose-400" : "text-green-400"}`}>
+            {migrateMsg}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
