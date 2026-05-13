@@ -78,6 +78,11 @@ C:\AI\Antigravity\Tienda de Ropa
 | ESLint | Linting |
 | PostCSS | Procesamiento CSS |
 | Autoprefixer | Prefijos CSS |
+| Vitest | Test runner |
+| @testing-library/react | Renderizado de componentes en tests |
+| @testing-library/jest-dom | Matchers DOM (toBeInTheDocument, etc.) |
+| @testing-library/user-event | Simulación de eventos de usuario |
+| jsdom | Entorno DOM para tests |
 
 ---
 
@@ -362,7 +367,10 @@ Tienda de Ropa/
 │   │   ├── useOrders.ts          # Pedidos
 │   │   ├── useAlerts.ts          # Alertas automáticas
 │   │   ├── usePromotions.ts      # Promociones y suscriptores
-│   │   └── useSiteTheme.ts       # Tema global realtime (Firestore)
+│   │   ├── useSiteTheme.ts       # Tema global realtime (Firestore)
+│   │   ├── useScrollReveal.tsx   # Animaciones scroll reveal
+│   │   ├── useMagneticHover.ts   # Efecto magnético hover
+│   │   └── useViewTransitionNavigate.ts  # View Transitions API
 │   ├── context/
 │   │   ├── AuthContext.tsx        # Autenticación
 │   │   ├── CartContext.tsx       # Carrito (NO USADO - ver store)
@@ -380,6 +388,13 @@ Tienda de Ropa/
 │   │   ├── projections.ts       # Proyecciones
 │   │   ├── orderAlerts.ts        # Alertas de pedidos
 │   │   └── migrateOrders.ts      # Migración pedidos a Firestore
+│   ├── test/                      # Tests (Vitest)
+│   │   ├── setup.ts              # Config global tests
+│   │   ├── utils.test.ts         # Tests de utilidades
+│   │   ├── calculations.test.ts  # Tests financieros
+│   │   ├── cartStore.test.ts     # Tests del carrito
+│   │   ├── projections.test.ts   # Tests de proyecciones
+│   │   └── orderAlerts.test.ts   # Tests de alertas
 │   ├── types/
 │   │   └── index.ts              # TypeScript interfaces
 │   ├── index.css                 # Tailwind + custom styles
@@ -421,6 +436,7 @@ Tienda de Ropa/
 | `/import-export` | ImportExportPage | Import/Export | Sí (admin) |
 | `/config` | ConfigPage | Configuración | Sí (admin) |
 | `/marketing` | MarketingPage | Marketing | Sí (admin) |
+| `/belleza` | BellezaPage | Personalización visual (temas) | Sí (admin) |
 | `*` | NotFoundPage | 404 | No |
 
 ### Routing
@@ -705,7 +721,13 @@ Re-export de useProducts para mantener compatibilidad.
 | CheckoutModal | Modal checkout con forma de pedido |
 
 ### UI Components (shadcn/ui)
-button, input, card, badge, select, switch, tabs, table
+button, input, card, badge, select, switch, tabs, table, CursorGlow
+
+### Other Components
+| Componente | Descripción |
+|-------------|-------------|
+| BackgroundMusic | Reproductor de música de fondo con 2 tracks MP3 |
+| HeroParticles | Partículas animadas decorativas |
 
 ---
 
@@ -802,6 +824,8 @@ npm run preview
 | `npm run build` | Build producción |
 | `npm run preview` | Servir build local |
 | `npm run lint` | ESLint |
+| `npm run test` | Ejecutar tests (Vitest run) |
+| `npm run test:watch` | Tests en modo watch |
 
 ---
 
@@ -902,6 +926,36 @@ Stock para una talla específica
   - Z-index elevado (z-[99999]) para estar siempre por encima del header
   - Build 0 errores
 
+### Fecha: 13/05/2026
+- **Cambio**: Fix imágenes cortadas en catálogo mobile
+  - Grid del catálogo: `max-sm:auto-rows-auto` para que las filas se adapten al contenido en mobile
+  - Cards con row-span-2 ahora son `max-sm:row-span-1` para evitar solapamiento
+  - ProductCard: `max-sm:h-auto` para que el alto lo determine el aspect ratio natural
+  - Hero cards en mobile: `max-sm:aspect-[2/3]` (menos vertical que aspect-[3/5])
+  - Desktop sin cambios: `auto-rows-[280px]`, `h-full`, `aspect-[3/5]` se mantienen
+  - Build 0 errores, commit `b516c79`
+
+- **Cambio**: Fix responsive adicionales varios componentes
+  - ProductForm: grid de 4 columnas → `grid-cols-2 sm:grid-cols-4` para mobile
+  - ProductDetailModal: `flex-row` → `flex-col` en mobile, imagen con `max-sm:max-h-64`
+  - AppLayout WhatsApp: label visible siempre en mobile (`max-sm:w-auto max-sm:opacity-100`)
+  - Decorative3D: `min-h-[600px]` → `min-h-[400px] sm:min-h-[600px]` para mobile
+  - ChartPanel tabla: `overflow-hidden` → `overflow-x-auto` para scroll horizontal
+
+- **Cambio**: Setup completo de tests (Vitest + RTL)
+  - Nuevas dependencias: vitest ^4.1.6, @testing-library/react ^16.3.2, @testing-library/jest-dom ^6.9.1, @testing-library/user-event ^14.6.1, jsdom ^29.1.1
+  - Config en vite.config.ts: globals: true, environment: jsdom, setupFiles
+  - Scripts npm: `npm run test` (vitest run), `npm run test:watch` (vitest)
+  - Archivo setup: `src/test/setup.ts` - importa jest-dom matchers + mockea Firebase
+  - 5 test files, 30 tests:
+    - `src/test/utils.test.ts` (7 tests): cn(), getTotalStock, getStockForSize, getAllSizes
+    - `src/test/calculations.test.ts` (5 tests): calculateFinalPrice, gross/net margin, KPIs
+    - `src/test/cartStore.test.ts` (6 tests): addItem, removeItem, clearCart, stock validation
+    - `src/test/projections.test.ts` (4 tests): proyecciones monthly/quarterly/annual
+    - `src/test/orderAlerts.test.ts` (6 tests): add, read, mark, limit 50 alerts
+  - TypeScript: `vitest/globals` agregado a types en tsconfig.app.json
+  - Build 0 errores, push a GitHub + deploy automático a Render
+
 ---
 
 # Notas para Futuras AI
@@ -919,6 +973,10 @@ Stock para una talla específica
 6. **Rutas**: El router está en `App.tsx`. Las rutas de admin requieren `isAdmin = true`.
 
 7. **Build**: Siempre ejecutar `npm run build` antes de deploy. Output en `dist/`.
+
+8. **Tests**: Usar `npm run test` para ejecutar tests (Vitest). Los tests están en `src/test/`. El setup mockea Firebase automáticamente. Siempre ejecutar tests después de cambios en lógica de negocio (utils, cálculos, stores).
+
+9. **Responsive**: Todos los cambios visuales mobile deben usar prefijos `max-sm:` para no afectar desktop. El grid del catálogo usa `auto-rows-[280px]` en desktop y `auto-rows-auto` en mobile.
 
 ---
 
@@ -1505,6 +1563,7 @@ function miFuncion() {
 ### 25.1. vite.config.ts
 
 ```typescript
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -1517,10 +1576,24 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 300,
+    rolldownOptions: {
+      output: {
+        codeSplitting: true,
+      },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    css: true,
+  },
 })
 ```
 
-**Propósito**: Configura el path alias `@/` que mapea a `src/`. Esto permite imports más limpios.
+**Propósito**: Configura el path alias `@/` que mapea a `src/`. Esto permite imports más limpios. También incluye configuración de Vitest para tests.
 
 ### 25.2. tsconfig.json (references)
 
