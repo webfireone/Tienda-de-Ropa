@@ -74,6 +74,7 @@ export function ImportDialog() {
             name: row.name,
             brand: row.brand,
             category: row.category,
+            gender: (row.gender as Product["gender"]) || "unisex",
             price: parseFloat(row.price),
             cost: parseFloat(row.cost),
             description: row.description || "",

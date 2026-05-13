@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { Search, Grid3X3, List, ArrowLeft, SlidersHorizontal } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
-import type { Product } from "@/types"
+import { GENDERS, type Product } from "@/types"
 
 const CATEGORIES = ["Todos", "Remeras", "Pantalones", "Buzos", "Camisas", "Accesorios", "Calzado", "Bolsos", "Gorras", "Carteras"]
 
@@ -39,6 +39,7 @@ export function CatalogPage() {
 
   const brands = [...new Set(products.map(p => p.brand).filter(Boolean))].sort()
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [selectedGender, setSelectedGender] = useState<string>("Todos")
 
   const categories = CATEGORIES.filter(cat => {
     if (cat === "Todos") return true
@@ -51,7 +52,8 @@ export function CatalogPage() {
       p.brand.toLowerCase().includes(search.toLowerCase())
     const matchesCategory = selectedCategory === "Todos" || p.category.toLowerCase().includes(selectedCategory.toLowerCase())
     const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand)
-    return matchesSearch && matchesCategory && matchesBrand
+    const matchesGender = selectedGender === "Todos" || p.gender === selectedGender
+    return matchesSearch && matchesCategory && matchesBrand && matchesGender
   })
 
   const visible = filtered.slice(0, visibleCount)
@@ -59,7 +61,7 @@ export function CatalogPage() {
 
   useEffect(() => {
     setVisibleCount(24)
-  }, [selectedCategory, search, selectedBrands])
+  }, [selectedCategory, search, selectedBrands, selectedGender])
 
   const toggleBrand = (brand: string) => {
     setSelectedBrands(prev => prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand])
@@ -146,33 +148,52 @@ export function CatalogPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-3 pb-3">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex items-center gap-2 pb-3">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none">
+              {["Todos", ...GENDERS].map(g => (
+                <button
+                  key={g}
+                  onClick={() => setSelectedGender(g)}
+                  className={`shrink-0 px-3 py-1 text-[11px] font-medium tracking-wide rounded-full border transition-all duration-300 whitespace-nowrap ${
+                    selectedGender === g
+                      ? "bg-foreground text-background border-foreground shadow-sm"
+                      : "text-muted-foreground border-border/50 hover:text-foreground hover:border-border"
+                  }`}
+                >
+                  {g === "Todos" ? g : g.charAt(0).toUpperCase() + g.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <div className="w-px h-5 bg-border/30 shrink-0 mx-1" />
+
+            <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Buscar piezas..."
+                placeholder="Buscar..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-9 text-xs border-border/50 bg-muted/30 focus:bg-muted transition-colors rounded-full"
+                className="pl-9 h-8 text-xs border-border/50 bg-muted/30 focus:bg-muted transition-colors rounded-full"
               />
             </div>
+
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-1.5 h-9 px-3.5 text-xs font-medium rounded-full border transition-all ${
+              className={`shrink-0 flex items-center gap-1.5 h-8 px-3 text-[11px] font-medium rounded-full border transition-all ${
                 showFilters || selectedBrands.length > 0
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Filtros</span>
               {selectedBrands.length > 0 && (
                 <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold">
                   {selectedBrands.length}
                 </span>
               )}
             </button>
-            <div className="flex items-center border border-border/50 rounded-full overflow-hidden">
+
+            <div className="flex items-center border border-border/50 rounded-full overflow-hidden shrink-0">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`p-2 transition-colors ${viewMode === "grid" ? "bg-foreground text-background" : "hover:bg-muted text-muted-foreground"}`}

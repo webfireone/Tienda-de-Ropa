@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSaveProduct } from "@/hooks/useProducts"
-import { SIZES, CATEGORIES, SECCIONES, type Product } from "@/types"
+import { SIZES, CATEGORIES, SECCIONES, GENDERS, type Product } from "@/types"
 import { getTotalStock } from "@/lib/utils"
 import { ChevronLeft, ChevronRight, Save, Sparkles } from "lucide-react"
 
@@ -19,6 +19,7 @@ const emptyProduct = {
   name: "",
   brand: "",
   category: "Remeras" as const,
+  gender: "unisex" as const,
   price: 0,
   cost: 0,
   description: "",
@@ -95,7 +96,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               <Input value={form.brand} onChange={e => update({ brand: e.target.value })} placeholder="Ej: Urban Fit" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categoría</label>
               <select
@@ -104,6 +105,16 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
                 className="flex h-11 w-full rounded-xl border border-input bg-card px-4 py-2 text-sm"
               >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Género</label>
+              <select
+                value={form.gender}
+                onChange={e => update({ gender: e.target.value as Product["gender"] })}
+                className="flex h-11 w-full rounded-xl border border-input bg-card px-4 py-2 text-sm"
+              >
+                {GENDERS.map(g => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
               </select>
             </div>
             <div className="space-y-2">

@@ -1,3 +1,6 @@
+export const GENDERS = ["hombre", "mujer", "niños", "bebes", "unisex"] as const
+export type Gender = typeof GENDERS[number]
+
 export type Role = "admin" | "viewer"
 
 export interface User {
@@ -16,6 +19,7 @@ export interface Product {
   name: string
   brand: string
   category: string
+  gender: Gender
   price: number
   cost: number
   description: string

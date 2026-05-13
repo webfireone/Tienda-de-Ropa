@@ -12,6 +12,7 @@ interface ScrapedProduct {
   name: string
   brand: string
   category: string
+  gender: Product["gender"]
   price: number
   cost: number
   description: string
@@ -143,6 +144,7 @@ export function WebImportDialog() {
           name: s.name,
           brand: s.brand,
           category: s.category,
+          gender: (s.gender as Product["gender"]) || "unisex",
           price: s.price,
           cost: s.cost,
           description: s.description || "",
@@ -482,6 +484,7 @@ function parseTiendanube(html: string, max: number): ScrapedProduct[] {
       name,
       brand: ld.offers?.seller?.name || "Tienda",
       category: guessCategory(name),
+      gender: "unisex" as const,
       price: sellingPrice,
       cost: Math.round(sellingPrice * 0.5),
       description: (ld.description || "").replace(/^Comprá online /, "").replace(/\. Hacé tu pedido y pagalo online\.?$/, ""),
@@ -613,6 +616,7 @@ function parseShopify(html: string, max: number): ScrapedProduct[] {
         name,
         brand: item.vendor || "Shopify",
         category: item.product_type || (item.tags?.[0] || "General"),
+        gender: "unisex" as const,
         price: Math.round(price),
         cost: Math.round(price * 0.5),
         description: (item.body_html || "").replace(/<[^>]*>/g, ""),
@@ -646,6 +650,7 @@ function parseGeneric(html: string, max: number): ScrapedProduct[] {
         name,
         brand: parsed.offers?.seller?.name || parsed.brand?.name || "Tienda",
         category: parsed.category || guessCategory(name),
+        gender: "unisex" as const,
         price,
         cost: Math.round(price * 0.5),
         description: (parsed.description || "").replace(/^Comprá online /, ""),
