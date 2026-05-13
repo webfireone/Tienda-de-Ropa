@@ -112,28 +112,27 @@ export function BackgroundMusic() {
       {/* Mini reproductor */}
       {started && (
         <div
-          className="fixed bottom-5 right-48 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl glass-card border border-white/10 backdrop-blur-xl animate-fade-up"
-          style={{ minWidth: 180 }}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-1 py-1 pr-3 rounded-full backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-up"
+          style={{
+            background: "linear-gradient(135deg, rgba(124,92,252,0.15), rgba(236,72,153,0.1))",
+            boxShadow: "0 8px 32px rgba(124,92,252,0.2)",
+          }}
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 shrink-0 shadow-lg shadow-violet-500/30">
-            <Music className="h-3.5 w-3.5 text-white" />
-          </div>
+          <button
+            onClick={togglePlay}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 hover:opacity-90 transition-all shrink-0 shadow-lg shadow-violet-500/30"
+          >
+            {playing ? (
+              <Pause className="h-4 w-4 text-white" />
+            ) : (
+              <Play className="h-4 w-4 text-white ml-0.5" />
+            )}
+          </button>
 
-          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <button
-              onClick={togglePlay}
-              className="flex items-center justify-center w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 transition-all shrink-0"
-            >
-              {playing ? (
-                <Pause className="h-3 w-3 text-white" />
-              ) : (
-                <Play className="h-3 w-3 text-white ml-0.5" />
-              )}
-            </button>
-
-            <div className="h-1 flex-1 rounded-full bg-white/10 overflow-hidden">
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-1 rounded-full bg-white/10 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400 transition-all duration-500"
                 style={{ width: playing ? "100%" : "0%" }}
               />
             </div>

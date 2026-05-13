@@ -37,20 +37,9 @@ export function AppLayout() {
           rel="noopener noreferrer"
           onMouseEnter={() => setWaHovered(true)}
           onMouseLeave={() => setWaHovered(false)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-0 group"
+          className="fixed bottom-6 left-6 z-50 flex items-center gap-0 group"
           aria-label="Contactar por WhatsApp"
         >
-          {/* Label */}
-          <div
-            className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
-              waHovered ? "w-32 opacity-100" : "w-0 opacity-0"
-            } max-sm:w-auto max-sm:opacity-100`}
-          >
-            <div className="whitespace-nowrap bg-foreground text-background px-3 sm:px-4 py-2 sm:py-2.5 rounded-l-full text-[11px] sm:text-xs font-semibold tracking-wide shadow-lg">
-              Escribinos
-            </div>
-          </div>
-
           {/* Button */}
           <div
             className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
@@ -66,6 +55,17 @@ export function AppLayout() {
             {/* Pulse rings */}
             <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: "linear-gradient(135deg, #7c5cfc, #ec4899)" }} />
             <WhatsAppIcon className="h-7 w-7 text-white relative z-10" />
+          </div>
+
+          {/* Label */}
+          <div
+            className={`overflow-hidden transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+              waHovered ? "w-32 opacity-100" : "w-0 opacity-0"
+            } max-sm:w-auto max-sm:opacity-100`}
+          >
+            <div className="whitespace-nowrap bg-zinc-900 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-r-full text-[11px] sm:text-xs font-semibold tracking-wide shadow-lg border border-white/10">
+              Escribinos
+            </div>
           </div>
         </a>
       </div>

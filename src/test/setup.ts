@@ -3,7 +3,6 @@ import "@testing-library/jest-dom/vitest"
 vi.mock("@/lib/firebase", () => ({
   db: {},
   auth: {},
-  analytics: null,
   app: {},
   default: {},
 }))

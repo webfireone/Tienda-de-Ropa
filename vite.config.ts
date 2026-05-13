@@ -11,6 +11,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    watch: {
+      usePolling: false,
+      interval: 100,
+    },
+    hmr: {
+      overlay: false,
+    },
+  },
   build: {
     chunkSizeWarningLimit: 300,
     rolldownOptions: {
@@ -18,6 +27,10 @@ export default defineConfig({
         codeSplitting: true,
       },
     },
+  },
+  optimizeDeps: {
+    exclude: ['firebase', 'firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
+    include: ['react', 'react-dom', 'react-router-dom'],
   },
   test: {
     globals: true,

@@ -3,6 +3,7 @@ import type { Product, GlobalParams, ScenarioConfig, User, Sale } from "@/types"
 export const MOCK_USER: User = {
   uid: "admin-001",
   email: "admin@tiendaropa.com",
+  name: "Admin",
   role: "admin",
 }
 

@@ -3,9 +3,12 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword as fbSignIn,
+  createUserWithEmailAndPassword as fbCreateUser,
   signInWithPopup,
   GoogleAuthProvider,
   signOut as fbSignOut,
+  fetchSignInMethodsForEmail,
+  sendPasswordResetEmail,
 } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore"
 import { auth, db } from "@/lib/firebase"
@@ -20,9 +23,12 @@ interface AuthContextType {
   isAdmin: boolean
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
+  signUp: (name: string, email: string, password: string) => Promise<void>
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   setMockRole: (role: Role) => void
+  checkEmailExists: (email: string) => Promise<boolean>
+  resetPassword: (email: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,9 +37,12 @@ const AuthContext = createContext<AuthContextType>({
   isAdmin: USE_MOCK,
   loading: false,
   signIn: async () => {},
+  signUp: async () => {},
   signInWithGoogle: async () => {},
   signOut: async () => {},
   setMockRole: () => {},
+  checkEmailExists: async () => false,
+  resetPassword: async () => {},
 })
 
 const ADMIN_EMAILS = ["admin@tiendaropa.com", "tiendaderopa@admin.com"]
@@ -66,9 +75,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         const role = await getUserRole(fbUser.uid, fbUser.email || undefined)
+        const userDoc = await getDoc(doc(db, "users", fbUser.uid))
+        const nameFromDoc = userDoc.exists() ? userDoc.data().name || "" : ""
         setUserData({
           uid: fbUser.uid,
           email: fbUser.email || "",
+          name: nameFromDoc,
           role,
         })
       } else {
@@ -82,29 +94,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (USE_MOCK) {
-      setUserData({ uid: "mock-uid", email, role: "viewer" })
+      setUserData({ uid: "mock-uid", email, name: "", role: "viewer" })
       return
     }
     const cred = await fbSignIn(auth, email, password)
     const role = await getUserRole(cred.user.uid, cred.user.email || undefined)
+    const userDoc = await getDoc(doc(db, "users", cred.user.uid))
+    const nameFromDoc = userDoc.exists() ? userDoc.data().name || "" : ""
     setUserData({
       uid: cred.user.uid,
       email: cred.user.email || "",
+      name: nameFromDoc,
       role,
+    })
+  }
+
+  const signUp = async (name: string, email: string, password: string) => {
+    if (USE_MOCK) {
+      setUserData({ uid: "mock-uid", email, name, role: "viewer" })
+      return
+    }
+    const cred = await fbCreateUser(auth, email, password)
+    await setDoc(doc(db, "users", cred.user.uid), { name, role: "viewer" })
+    setUserData({
+      uid: cred.user.uid,
+      email: cred.user.email || "",
+      name,
+      role: "viewer",
     })
   }
 
   const signInWithGoogle = async () => {
     if (USE_MOCK) {
-      setUserData({ uid: "mock-uid", email: "cliente@mock.com", role: "viewer" })
+      setUserData({ uid: "mock-uid", email: "cliente@mock.com", name: "", role: "viewer" })
       return
     }
     const provider = new GoogleAuthProvider()
     const cred = await signInWithPopup(auth, provider)
     const role = await getUserRole(cred.user.uid, cred.user.email || undefined)
+    const userDoc = await getDoc(doc(db, "users", cred.user.uid))
+    const nameFromDoc = userDoc.exists() ? userDoc.data().name || "" : cred.user.displayName || ""
     setUserData({
       uid: cred.user.uid,
       email: cred.user.email || "",
+      name: nameFromDoc,
       role,
     })
   }
@@ -123,6 +156,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserData(prev => prev ? { ...prev, role } : null)
   }
 
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    if (USE_MOCK) return false
+    const methods = await fetchSignInMethodsForEmail(auth, email)
+    return methods.length > 0
+  }
+
+  const resetPassword = async (email: string): Promise<void> => {
+    if (USE_MOCK) return
+    await sendPasswordResetEmail(auth, email)
+  }
+
   const resolvedRole = resolvedUser?.role ?? "viewer"
   const resolvedIsAdmin = resolvedRole === "admin"
 
@@ -132,9 +176,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAdmin: resolvedIsAdmin,
     loading: USE_MOCK ? false : loading,
     signIn,
+    signUp,
     signInWithGoogle,
     signOut,
     setMockRole,
+    checkEmailExists,
+    resetPassword,
   }
 
   return (
