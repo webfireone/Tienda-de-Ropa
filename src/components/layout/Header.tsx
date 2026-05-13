@@ -109,7 +109,7 @@ export function Header() {
             opacity: scrolled ? 0.8 : 0.4,
           }}
         />
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-4 relative z-0">
+        <div className="max-w-7xl mx-auto px-6 max-sm:h-12 sm:h-14 flex items-center justify-between gap-2 relative z-0">
           {/* Logo (solo para no-admin) */}
           {!isAdmin && (
             <div
@@ -212,7 +212,7 @@ export function Header() {
 
         {/* Mobile nav + cart + auth */}
         <div className="md:hidden flex flex-col">
-          <div className="flex overflow-x-auto px-4 pb-2 gap-2">
+          <div className="flex overflow-x-auto px-3 pb-1 gap-1 no-scrollbar">
             {allLinks.map(link => {
               const isActive = !link.external && location.pathname === link.to
               return (
@@ -220,76 +220,75 @@ export function Header() {
                   key={link.to}
                   onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl whitespace-nowrap transition-all duration-300",
+                    "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
                     isActive
                       ? "bg-secondary text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <link.icon className="h-3 w-3" />
+                  <link.icon className="h-2.5 w-2.5" />
                   {link.label}
                 </button>
               )
             })}
           </div>
-          <div className="flex items-center justify-between px-4 pb-3 border-t border-primary/5 pt-2">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-3 pb-2 border-t border-primary/5 pt-1.5">
+            <div className="flex items-center gap-2">
               {isAdmin && (
                 <button
                   onClick={() => window.open("/manual-usuario.pdf", "_blank")}
-                  className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileText className="h-3.5 w-3.5" />
+                  <FileText className="h-3 w-3" />
                   <span>Manual</span>
                 </button>
               )}
               <button
                 onClick={() => navigate("/cart")}
-                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
               >
-                <ShoppingCart className="h-3.5 w-3.5" />
+                <ShoppingCart className="h-3 w-3" />
                 <span>Carrito</span>
-                <span className="w-4 h-4 rounded-full gradient-primary text-white text-[8px] flex items-center justify-center font-bold">
+                <span className="w-3.5 h-3.5 rounded-full gradient-primary text-white text-[7px] flex items-center justify-center font-bold">
                   {totalItems}
                 </span>
               </button>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {USE_MOCK ? (
                 <button
                   onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
                   className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium transition-all",
+                    "flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium transition-all",
                     isAdmin
                       ? "gradient-primary text-white shadow-sm"
                       : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
                   )}
                 >
-                  <User className="h-3 w-3" />
+                  <User className="h-2.5 w-2.5" />
                   {isAdmin ? "Admin" : "Cliente"}
                 </button>
               ) : user ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground hidden sm:inline">{user.email}</span>
+                <div className="flex items-center gap-1.5">
                   {isAdmin && (
-                    <span className="text-[9px] font-semibold uppercase tracking-wider gradient-primary text-white px-2 py-0.5 rounded-full">
+                    <span className="text-[8px] font-semibold uppercase tracking-wider gradient-primary text-white px-1.5 py-0.5 rounded-full">
                       Admin
                     </span>
                   )}
                   <button
                     onClick={() => signOut()}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
                   >
-                    <LogOut className="h-3 w-3" />
+                    <LogOut className="h-2.5 w-2.5" />
                     <span>Salir</span>
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
                 >
-                  <User className="h-3 w-3" />
+                  <User className="h-2.5 w-2.5" />
                   Ingresar
                 </button>
               )}

@@ -8,7 +8,7 @@ export function Logo() {
           loop
           muted
           playsInline
-          className="h-28 w-auto object-contain"
+          className="max-sm:h-9 sm:h-28 w-auto object-contain"
         />
       </div>
     </div>
