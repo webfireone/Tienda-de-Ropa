@@ -52,7 +52,7 @@ export function CatalogPage() {
       p.brand.toLowerCase().includes(search.toLowerCase())
     const matchesCategory = selectedCategory === "Todos" || p.category.toLowerCase().includes(selectedCategory.toLowerCase())
     const matchesBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand)
-    const matchesGender = selectedGender === "Todos" || p.gender === selectedGender
+    const matchesGender = selectedGender === "Todos" || !p.gender || p.gender === selectedGender
     return matchesSearch && matchesCategory && matchesBrand && matchesGender
   })
 
