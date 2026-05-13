@@ -21,23 +21,24 @@ const COLORS = {
 }
 
 const PARTICLE_CONFIG: Omit<Particle, "id" | "x" | "y">[] = [
-  { size: 3, duration: 8, delay: 0, opacity: 0.6, drift: 30, color: "violet" },
-  { size: 5, duration: 12, delay: 1, opacity: 0.4, drift: -20, color: "pink" },
-  { size: 2, duration: 6, delay: 0.5, opacity: 0.8, drift: 15, color: "white" },
-  { size: 4, duration: 10, delay: 2, opacity: 0.5, drift: -40, color: "blue" },
-  { size: 6, duration: 15, delay: 0.3, opacity: 0.3, drift: 25, color: "violet" },
-  { size: 2, duration: 7, delay: 1.5, opacity: 0.7, drift: -15, color: "pink" },
-  { size: 3, duration: 9, delay: 0.8, opacity: 0.6, drift: 35, color: "white" },
-  { size: 5, duration: 11, delay: 2.5, opacity: 0.4, drift: -30, color: "blue" },
-  { size: 4, duration: 8, delay: 1.2, opacity: 0.5, drift: 20, color: "violet" },
-  { size: 2, duration: 6, delay: 0.2, opacity: 0.8, drift: -25, color: "pink" },
-  { size: 3, duration: 13, delay: 3, opacity: 0.4, drift: 40, color: "white" },
-  { size: 6, duration: 9, delay: 0.7, opacity: 0.3, drift: -35, color: "blue" },
+  { size: 5, duration: 8, delay: 0, opacity: 0.7, drift: 40, color: "violet" },
+  { size: 8, duration: 12, delay: 1, opacity: 0.5, drift: -30, color: "pink" },
+  { size: 4, duration: 6, delay: 0.5, opacity: 0.8, drift: 20, color: "white" },
+  { size: 6, duration: 10, delay: 2, opacity: 0.6, drift: -50, color: "blue" },
+  { size: 10, duration: 15, delay: 0.3, opacity: 0.4, drift: 35, color: "violet" },
+  { size: 4, duration: 7, delay: 1.5, opacity: 0.7, drift: -20, color: "pink" },
+  { size: 5, duration: 9, delay: 0.8, opacity: 0.7, drift: 45, color: "white" },
+  { size: 7, duration: 11, delay: 2.5, opacity: 0.5, drift: -40, color: "blue" },
+  { size: 6, duration: 8, delay: 1.2, opacity: 0.6, drift: 25, color: "violet" },
+  { size: 4, duration: 6, delay: 0.2, opacity: 0.8, drift: -30, color: "pink" },
+  { size: 5, duration: 13, delay: 3, opacity: 0.5, drift: 50, color: "white" },
+  { size: 8, duration: 9, delay: 0.7, opacity: 0.4, drift: -45, color: "blue" },
+  { size: 6, duration: 10, delay: 1.8, opacity: 0.6, drift: 30, color: "violet" },
+  { size: 4, duration: 7, delay: 2.2, opacity: 0.7, drift: -35, color: "pink" },
 ]
 
 function ParticleOrb({ particle, scrollYProgress }: { particle: Particle; scrollYProgress: MotionValue<number> }) {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [particle.opacity, 0])
-  const y = useTransform(scrollYProgress, [0, 1], [0, -80])
   const drift = useTransform(scrollYProgress, [0, 1], [0, particle.drift * 0.3])
 
   return (
@@ -49,18 +50,16 @@ function ParticleOrb({ particle, scrollYProgress }: { particle: Particle; scroll
         width: particle.size,
         height: particle.size,
         opacity,
-        y,
         x: drift,
         background: `${COLORS[particle.color]}${particle.opacity})`,
         boxShadow: `
-          0 0 ${particle.size * 2}px ${COLORS[particle.color]}${particle.opacity * 0.5}),
-          0 0 ${particle.size * 4}px ${COLORS[particle.color]}${particle.opacity * 0.2})
+          0 0 ${particle.size * 2}px ${COLORS[particle.color]}${particle.opacity * 0.6}),
+          0 0 ${particle.size * 4}px ${COLORS[particle.color]}${particle.opacity * 0.3})
         `,
       }}
       animate={{
-        y: [particle.y, particle.y - 20 - Math.random() * 30, particle.y],
-        x: [particle.x, particle.x + particle.drift * 0.1, particle.x],
-        opacity: [particle.opacity * 0.6, particle.opacity, particle.opacity * 0.6],
+        y: ["0px", `${-20 - (particle.id % 4) * 8}px`, "0px"],
+        scale: [1, 1.2, 1],
       }}
       transition={{
         duration: particle.duration,
@@ -73,11 +72,11 @@ function ParticleOrb({ particle, scrollYProgress }: { particle: Particle; scroll
 }
 
 function FloatingRing({ delay, x, y, size, scrollYProgress }: { delay: number; x: number; y: number; size: number; scrollYProgress: MotionValue<number> }) {
-  const opacity = useTransform(scrollYProgress, [0, 0.4], [0.3, 0])
+  const opacity = useTransform(scrollYProgress, [0, 0.4], [0.4, 0])
 
   return (
     <motion.div
-      className="absolute rounded-full pointer-events-none border border-white/[0.04]"
+      className="absolute rounded-full pointer-events-none border border-white/[0.05]"
       style={{
         left: `${x}%`,
         top: `${y}%`,
@@ -86,8 +85,7 @@ function FloatingRing({ delay, x, y, size, scrollYProgress }: { delay: number; x
         opacity,
       }}
       animate={{
-        scale: [1, 1.1, 1],
-        opacity: [0.3, 0.6, 0.3],
+        scale: [1, 1.15, 1],
       }}
       transition={{
         duration: 6 + delay,
@@ -108,26 +106,26 @@ export function HeroParticles({ scrollYProgress }: HeroParticlesProps) {
     return PARTICLE_CONFIG.map((config, i) => ({
       ...config,
       id: i,
-      x: 5 + Math.random() * 55,
-      y: 10 + Math.random() * 70,
+      x: 55 + Math.random() * 40,
+      y: 5 + Math.random() * 85,
     }))
   }, [])
 
   const rings = useMemo(() => {
     return Array.from({ length: 4 }, (_, i) => ({
       id: i,
-      x: 10 + Math.random() * 60,
-      y: 20 + Math.random() * 50,
-      size: 40 + Math.random() * 120,
+      x: 50 + Math.random() * 45,
+      y: 10 + Math.random() * 70,
+      size: 60 + Math.random() * 160,
       delay: i * 1.5,
     }))
   }, [])
 
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.4], [0.5, 0])
-  const glowScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.8])
+  const glowOpacity = useTransform(scrollYProgress, [0, 0.4], [0.6, 0])
+  const glowScale = useTransform(scrollYProgress, [0, 0.4], [1, 0.7])
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-[1]">
+    <div className="absolute inset-0 pointer-events-none z-[1]">
       {particles.map(p => (
         <ParticleOrb key={p.id} particle={p} scrollYProgress={scrollYProgress} />
       ))}
@@ -137,16 +135,16 @@ export function HeroParticles({ scrollYProgress }: HeroParticlesProps) {
       ))}
 
       <motion.div
-        className="absolute w-96 h-96 rounded-full pointer-events-none"
+        className="absolute w-[500px] h-[500px] rounded-full pointer-events-none"
         style={{
-          left: "60%",
-          top: "20%",
+          left: "55%",
+          top: "0%",
           opacity: glowOpacity,
           scale: glowScale,
-          background: "radial-gradient(circle, rgba(124,92,252,0.08) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 65%)",
         }}
         animate={{
-          scale: [1, 1.2, 1],
+          scale: [1, 1.15, 1],
         }}
         transition={{
           duration: 8,
@@ -156,16 +154,16 @@ export function HeroParticles({ scrollYProgress }: HeroParticlesProps) {
       />
 
       <motion.div
-        className="absolute w-64 h-64 rounded-full pointer-events-none"
+        className="absolute w-[400px] h-[400px] rounded-full pointer-events-none"
         style={{
-          left: "70%",
-          bottom: "10%",
+          left: "65%",
+          bottom: "0%",
           opacity: glowOpacity,
           scale: glowScale,
-          background: "radial-gradient(circle, rgba(236,72,153,0.06) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(236,72,153,0.1) 0%, transparent 65%)",
         }}
         animate={{
-          scale: [1, 1.15, 1],
+          scale: [1, 1.2, 1],
         }}
         transition={{
           duration: 10,

@@ -42,8 +42,9 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-background)] via-[var(--color-background)]/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)]/60 via-transparent to-[var(--color-background)]/20" />
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5" />
-        <HeroParticles scrollYProgress={scrollYProgress} />
       </div>
+
+      <HeroParticles scrollYProgress={scrollYProgress} />
 
       <motion.div
         className="relative z-10 flex flex-col justify-center min-h-[600px] max-w-2xl px-12 md:px-16"
