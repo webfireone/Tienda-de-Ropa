@@ -103,7 +103,7 @@ export function CatalogPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Editorial Header */}
+      {/* Header con CATÁLOGO + Marcas 3D */}
       <div ref={headerRef} className="relative overflow-hidden border-b border-border/50">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
         <div className="relative max-w-7xl mx-auto px-6 pt-8 pb-6">
@@ -114,24 +114,46 @@ export function CatalogPage() {
             <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
             Inicio
           </button>
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-semibold mb-2">Colección</p>
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-                Catálogo
-              </h1>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-primary font-semibold mb-2">Colección</p>
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
+                  Catálogo
+                </h1>
+              </div>
+              <p className="text-sm text-muted-foreground hidden sm:block pb-1">
+                {filtered.length} {filtered.length === 1 ? "pieza" : "piezas"}
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground hidden sm:block pb-1">
-              {filtered.length} {filtered.length === 1 ? "pieza" : "piezas"}
-            </p>
+
+            {/* Marcas 3D */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scrollbar-none pb-1">
+              {brands.map(brand => {
+                const isActive = selectedBrands.includes(brand)
+                return (
+                  <button
+                    key={brand}
+                    onClick={() => toggleBrand(brand)}
+                    className={`shrink-0 px-5 py-2.5 rounded-xl text-[11px] font-bold tracking-wider uppercase select-none transition-all duration-200 whitespace-nowrap ${
+                      isActive
+                        ? "engraved-pill-active"
+                        : "engraved-pill"
+                    }`}
+                  >
+                    {brand}
+                  </button>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Sticky Controls */}
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6 space-y-2 py-3">
-          {/* Fila 1: Categorías */}
+      {/* Sticky Filters: Tipo + Género + Buscar */}
+      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-6 py-3 space-y-2">
+          {/* Tipo */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none">
             <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Tipo</span>
             {categories.map(cat => (
@@ -141,7 +163,7 @@ export function CatalogPage() {
                 className={`shrink-0 px-3 py-1 text-xs font-medium tracking-wide rounded-full transition-all duration-300 whitespace-nowrap ${
                   selectedCategory === cat
                     ? "bg-foreground text-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
               >
                 {cat}
@@ -149,7 +171,7 @@ export function CatalogPage() {
             ))}
           </div>
 
-          {/* Fila 2: Género */}
+          {/* Género */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none">
             <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Género</span>
             {["Todos", ...GENDERS].map(g => (
@@ -165,35 +187,17 @@ export function CatalogPage() {
                 {g === "Todos" ? g : g.charAt(0).toUpperCase() + g.slice(1)}
               </button>
             ))}
-          </div>
 
-          {/* Fila 3: Marcas + Buscar + Vista */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none flex-1">
-              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Marca</span>
-              {brands.map(brand => (
-                <button
-                  key={brand}
-                  onClick={() => toggleBrand(brand)}
-                  className={`shrink-0 px-3 py-1 text-xs font-medium tracking-wide rounded-full border transition-all duration-300 whitespace-nowrap ${
-                    selectedBrands.includes(brand)
-                      ? "bg-foreground text-background border-foreground shadow-sm"
-                      : "text-muted-foreground border-border/50 hover:text-foreground hover:border-border"
-                  }`}
-                >
-                  {brand}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative w-40 shrink-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Buscar..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-8 text-xs border-border/50 bg-muted/30 rounded-full"
-              />
+            <div className="ml-auto shrink-0">
+              <div className="relative w-36">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 h-8 text-xs border-border/50 bg-muted/30 rounded-full"
+                />
+              </div>
             </div>
 
             <div className="flex items-center border border-border/50 rounded-full overflow-hidden shrink-0">
