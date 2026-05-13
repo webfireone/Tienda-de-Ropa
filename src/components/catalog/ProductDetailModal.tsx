@@ -60,9 +60,9 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     <div className="fixed inset-0 z-[99999]">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="absolute max-sm:inset-0 sm:inset-2 flex max-sm:items-end sm:items-center justify-center pointer-events-none">
+      <div className="absolute max-sm:inset-0 sm:inset-2 flex max-sm:items-start sm:items-center justify-center pointer-events-none">
         <div
-          className="relative w-full max-w-3xl max-sm:max-h-[92vh] max-sm:rounded-t-2xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:overflow-hidden sm:overflow-y-auto sm:overscroll-contain max-sm:flex max-sm:flex-col"
+          className="relative w-full max-w-3xl max-sm:max-h-full max-sm:min-h-full sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:flex max-sm:flex-col max-sm:overflow-hidden"
         >
           <button
             onClick={onClose}
@@ -72,7 +72,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           </button>
           <div className="max-sm:flex max-sm:flex-1 max-sm:flex-col max-sm:overflow-hidden grid grid-cols-1 sm:grid-cols-5">
             {/* Image — top on mobile, left on desktop */}
-            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden max-sm:aspect-[3/4] sm:aspect-auto sm:min-h-[420px] max-sm:max-h-[55vh]">
+            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden max-sm:aspect-[3/4] sm:aspect-auto sm:min-h-[420px]">
               <img
                 src={product.imageUrl}
                 alt={product.name}
