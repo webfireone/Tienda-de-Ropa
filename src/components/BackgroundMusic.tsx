@@ -1,15 +1,21 @@
 import { useRef, useState, useEffect } from "react"
-import { Music, Play, Pause, Volume2, VolumeX } from "lucide-react"
+import { Music, Play, Pause, Volume2, VolumeX, X } from "lucide-react"
 
 export function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [started, setStarted] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
+  const [showMini, setShowMini] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    const wasShown = sessionStorage.getItem("musicPromptShown")
+    if (wasShown) {
+      setShowMini(true)
+    }
   }, [])
 
   useEffect(() => {
@@ -19,11 +25,18 @@ export function BackgroundMusic() {
     audio.muted = false
     audio.play().catch(() => {})
     setPlaying(true)
+    setShowMini(true)
+    sessionStorage.setItem("musicPromptShown", "1")
   }, [started])
 
   const startMusic = () => {
-    if (started) return
     setStarted(true)
+  }
+
+  const dismiss = () => {
+    setDismissed(true)
+    setShowMini(true)
+    sessionStorage.setItem("musicPromptShown", "1")
   }
 
   const togglePlay = () => {
@@ -44,7 +57,7 @@ export function BackgroundMusic() {
     setMuted(newMuted)
   }
 
-  if (!mounted) return null
+  if (!mounted || dismissed) return null
 
   return (
     <>
@@ -55,20 +68,52 @@ export function BackgroundMusic() {
         preload="metadata"
       />
 
-      {!started ? (
-        <button
-          onClick={startMusic}
-          className="fixed bottom-5 right-48 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl glass-card border border-white/10 backdrop-blur-xl cursor-pointer hover:border-violet-500/30 transition-all duration-300"
-          style={{ minWidth: 180 }}
-        >
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 shrink-0 shadow-lg shadow-violet-500/30 animate-pulse">
-            <Music className="h-3.5 w-3.5 text-white" />
+      {/* Modal de música */}
+      {!started && !showMini && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={dismiss} />
+
+          <div className="relative bg-[#161627] border border-white/10 rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl shadow-violet-500/10">
+            <button
+              onClick={dismiss}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white/70 transition-all"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-violet-500/30">
+              <Music className="h-10 w-10 text-white" />
+            </div>
+
+            <h3 className="font-display text-2xl font-bold text-white/90 mb-2">
+             Música de fondo
+            </h3>
+            <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
+              Esta experiencia musical fue pensada para vos.<br />
+              Activá la música para disfrutarla completa.
+            </p>
+
+            <button
+              onClick={startMusic}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/25"
+            >
+              Reproducir música
+            </button>
+
+            <button
+              onClick={dismiss}
+              className="mt-3 text-xs text-muted-foreground hover:text-white/60 transition-colors"
+            >
+              No, gracias
+            </button>
           </div>
-          <span className="text-xs text-white/80 font-medium">Activá la música</span>
-        </button>
-      ) : (
+        </div>
+      )}
+
+      {/* Mini reproductor */}
+      {showMini && started && (
         <div
-          className="fixed bottom-5 right-48 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl glass-card border border-white/10 backdrop-blur-xl"
+          className="fixed bottom-5 right-48 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl glass-card border border-white/10 backdrop-blur-xl animate-fade-up"
           style={{ minWidth: 180 }}
         >
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 shrink-0 shadow-lg shadow-violet-500/30">
