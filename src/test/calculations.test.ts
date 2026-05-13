@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { calculateFinalPrice, calculateGrossMargin, calculateNetMargin, calculateKpis } from "@/lib/calculations"
+import { calculateFinalPrice, calculateKpis } from "@/lib/calculations"
 import type { Sale, GlobalParams, ScenarioConfig } from "@/types"
 
 const defaultParams: GlobalParams = {
@@ -35,7 +35,6 @@ const mockSale: Sale = {
   brand: "Test",
   quantity: 10,
   unitPrice: 25000,
-  cost: 12000,
   date: "2026-01-15",
   size: "M",
 }
@@ -51,20 +50,6 @@ describe("calculateFinalPrice", () => {
     const base = calculateFinalPrice(10000, defaultParams, baseScenario)
     const opt = calculateFinalPrice(10000, defaultParams, optimistic)
     expect(opt).toBeLessThan(base)
-  })
-})
-
-describe("calculateGrossMargin", () => {
-  it("calculates gross margin correctly", () => {
-    const margin = calculateGrossMargin(mockSale)
-    expect(margin).toBe((25000 - 12000) * 10)
-  })
-})
-
-describe("calculateNetMargin", () => {
-  it("calculates net margin accounting for tax, shipping, inflation", () => {
-    const margin = calculateNetMargin(mockSale, defaultParams, baseScenario)
-    expect(margin).toBeLessThan(calculateGrossMargin(mockSale))
   })
 })
 

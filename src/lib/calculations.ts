@@ -14,8 +14,8 @@ export function calculateFinalPrice(
 export function calculateKpis(
   sales: Sale[],
   products: Product[],
-  params: GlobalParams,
-  scenario: ScenarioConfig
+  _params: GlobalParams,
+  _scenario: ScenarioConfig
 ): KpiData {
   const monthlySales = sales.reduce((acc, s) => acc + s.unitPrice * s.quantity, 0)
   const annualSales = monthlySales * 12

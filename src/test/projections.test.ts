@@ -29,7 +29,7 @@ const baseScenario: ScenarioConfig = {
 }
 
 const mockSales: Sale[] = [
-  { id: "s1", productId: "p1", productName: "Test", brand: "Test", quantity: 10, unitPrice: 25000, cost: 12000, date: "2026-01-15", size: "M" },
+  { id: "s1", productId: "p1", productName: "Test", brand: "Test", quantity: 10, unitPrice: 25000, date: "2026-01-15", size: "M" },
 ]
 
 describe("generateProjections", () => {
@@ -48,13 +48,11 @@ describe("generateProjections", () => {
     expect(projs).toHaveLength(3)
   })
 
-  it("each projection has period, sales, grossMargin, netMargin", () => {
+  it("each projection has period and sales", () => {
     const projs = generateProjections(mockSales, defaultParams, baseScenario, "monthly")
     projs.forEach(p => {
       expect(p).toHaveProperty("period")
       expect(p).toHaveProperty("sales")
-      expect(p).toHaveProperty("grossMargin")
-      expect(p).toHaveProperty("netMargin")
     })
   })
 })

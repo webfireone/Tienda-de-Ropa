@@ -9,7 +9,7 @@ const mockProduct: Product = {
   category: "Remeras",
   gender: "unisex",
   price: 25000,
-  cost: 12000,
+  previousPrice: 12000,
   description: "Test",
   imageUrl: "https://example.com/img.jpg",
   colors: [

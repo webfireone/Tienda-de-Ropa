@@ -44,7 +44,7 @@ export function KpiSummary({ title }: ChartPanelProps) {
           ].map((item, i) => (
             <div key={i} className="p-4 rounded-xl bg-muted/50 border border-primary/5">
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{item.label}</p>
-              <p className={`text-xl font-display font-bold ${item.color || ""}`}>{item.value}</p>
+              <p className="text-xl font-display font-bold">{item.value}</p>
             </div>
           ))}
         </div>
