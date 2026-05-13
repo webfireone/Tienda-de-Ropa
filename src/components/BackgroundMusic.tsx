@@ -1,6 +1,13 @@
 import { useRef, useState, useEffect } from "react"
 import { Music, Play, Pause, Volume2, VolumeX, X } from "lucide-react"
 
+const TRACKS = ["/bg-music-1.mp3", "/bg-music-2.mp3", "/bg-music-3.mp3"]
+
+function getRandomTrack(exclude?: string): string {
+  const available = exclude ? TRACKS.filter(t => t !== exclude) : TRACKS
+  return available[Math.floor(Math.random() * available.length)]
+}
+
 export function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
@@ -9,6 +16,7 @@ export function BackgroundMusic() {
   const [dismissed, setDismissed] = useState(false)
   const [showMini, setShowMini] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [currentTrack, setCurrentTrack] = useState(() => getRandomTrack())
 
   useEffect(() => {
     setMounted(true)
@@ -28,6 +36,15 @@ export function BackgroundMusic() {
     setShowMini(true)
     sessionStorage.setItem("musicPromptShown", "1")
   }, [started])
+
+  const playNext = () => {
+    const next = getRandomTrack(currentTrack)
+    setCurrentTrack(next)
+    if (audioRef.current) {
+      audioRef.current.src = next
+      audioRef.current.play().catch(() => {})
+    }
+  }
 
   const startMusic = () => {
     setStarted(true)
@@ -63,9 +80,9 @@ export function BackgroundMusic() {
     <>
       <audio
         ref={audioRef}
-        src="/bg-music.mp3"
-        loop
+        src={currentTrack}
         preload="metadata"
+        onEnded={playNext}
       />
 
       {/* Modal de música */}
