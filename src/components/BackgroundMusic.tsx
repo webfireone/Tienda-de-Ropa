@@ -92,8 +92,10 @@ export function BackgroundMusic() {
             <h3 className="font-display text-2xl font-bold text-white/90 mb-2">
               Glamours MODA & MUSICA
             </h3>
+            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">
+              Esta experiencia musical que también es una Moda.
+            </p>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
-              Esta experiencia musical que también es una Moda.<br />
               Activá la música para disfrutarla completa.
             </p>
 
