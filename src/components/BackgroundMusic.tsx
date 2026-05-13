@@ -4,11 +4,16 @@ import { Music, Play, Pause, Volume2, VolumeX } from "lucide-react"
 export function BackgroundMusic() {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = useState(false)
-  const [muted, setMuted] = useState(true)
+  const [muted, setMuted] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    if (audioRef.current) {
+      audioRef.current.muted = false
+      audioRef.current.play().catch(() => {})
+      setPlaying(true)
+    }
   }, [])
 
   const togglePlay = () => {
@@ -17,12 +22,8 @@ export function BackgroundMusic() {
       audioRef.current.pause()
       setPlaying(false)
     } else {
-      audioRef.current.play().catch(() => {
-        setMuted(true)
-        audioRef.current?.play().catch(() => {})
-      })
+      audioRef.current.play().catch(() => {})
       setPlaying(true)
-      setMuted(false)
     }
   }
 
@@ -31,10 +32,6 @@ export function BackgroundMusic() {
     const newMuted = !muted
     audioRef.current.muted = newMuted
     setMuted(newMuted)
-    if (newMuted && playing) {
-      audioRef.current.pause()
-      setPlaying(false)
-    }
   }
 
   if (!mounted) return null
