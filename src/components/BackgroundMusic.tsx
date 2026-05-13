@@ -103,7 +103,7 @@ export function BackgroundMusic() {
             </div>
 
             <h3 className="font-display text-2xl font-bold text-white/90 mb-2">
-             Música de fondo
+              Glamours Música
             </h3>
             <p className="text-sm text-muted-foreground mb-8 leading-relaxed">
               Esta experiencia musical fue pensada para vos.<br />
@@ -114,7 +114,7 @@ export function BackgroundMusic() {
               onClick={startMusic}
               className="w-full py-3.5 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/25"
             >
-              Reproducir música
+              Activá la música
             </button>
 
             <button
