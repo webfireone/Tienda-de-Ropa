@@ -5,7 +5,7 @@ import { ProductCardSkeleton } from "@/components/products/ProductCardSkeleton"
 import { useAuth } from "@/context/AuthContext"
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, Grid3X3, List, ArrowLeft, SlidersHorizontal } from "lucide-react"
+import { Search, Grid3X3, List, ArrowLeft } from "lucide-react"
 import { ProductDetailModal } from "@/components/catalog/ProductDetailModal"
 import { GENDERS, type Product } from "@/types"
 
@@ -33,7 +33,6 @@ export function CatalogPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedCategory, setSelectedCategory] = useState("Todos")
-  const [showFilters, setShowFilters] = useState(false)
   const [visibleCount, setVisibleCount] = useState(24)
   const headerRef = useRef<HTMLDivElement>(null)
 
@@ -131,16 +130,18 @@ export function CatalogPage() {
 
       {/* Sticky Controls */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-3 scrollbar-none">
+        <div className="max-w-7xl mx-auto px-6 space-y-2 py-3">
+          {/* Fila 1: Categorías */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none">
+            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Tipo</span>
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`shrink-0 px-4 py-1.5 text-xs font-medium tracking-wide rounded-full transition-all duration-300 whitespace-nowrap ${
+                className={`shrink-0 px-3 py-1 text-xs font-medium tracking-wide rounded-full transition-all duration-300 whitespace-nowrap ${
                   selectedCategory === cat
                     ? "bg-foreground text-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent"
                 }`}
               >
                 {cat}
@@ -148,50 +149,52 @@ export function CatalogPage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 pb-3">
-            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scrollbar-none">
-              {["Todos", ...GENDERS].map(g => (
+          {/* Fila 2: Género */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none">
+            <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Género</span>
+            {["Todos", ...GENDERS].map(g => (
+              <button
+                key={g}
+                onClick={() => setSelectedGender(g)}
+                className={`shrink-0 px-3 py-1 text-xs font-medium tracking-wide rounded-full border transition-all duration-300 whitespace-nowrap ${
+                  selectedGender === g
+                    ? "bg-foreground text-background border-foreground shadow-sm"
+                    : "text-muted-foreground border-border/50 hover:text-foreground hover:border-border"
+                }`}
+              >
+                {g === "Todos" ? g : g.charAt(0).toUpperCase() + g.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Fila 3: Marcas + Buscar + Vista */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scrollbar-none flex-1">
+              <span className="shrink-0 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mr-1">Marca</span>
+              {brands.map(brand => (
                 <button
-                  key={g}
-                  onClick={() => setSelectedGender(g)}
-                  className={`shrink-0 px-3 py-1 text-[11px] font-medium tracking-wide rounded-full border transition-all duration-300 whitespace-nowrap ${
-                    selectedGender === g
+                  key={brand}
+                  onClick={() => toggleBrand(brand)}
+                  className={`shrink-0 px-3 py-1 text-xs font-medium tracking-wide rounded-full border transition-all duration-300 whitespace-nowrap ${
+                    selectedBrands.includes(brand)
                       ? "bg-foreground text-background border-foreground shadow-sm"
                       : "text-muted-foreground border-border/50 hover:text-foreground hover:border-border"
                   }`}
                 >
-                  {g === "Todos" ? g : g.charAt(0).toUpperCase() + g.slice(1)}
+                  {brand}
                 </button>
               ))}
             </div>
 
-            <div className="w-px h-5 bg-border/30 shrink-0 mx-1" />
-
-            <div className="relative flex-1 max-w-xs">
+            <div className="relative w-40 shrink-0">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 placeholder="Buscar..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-8 text-xs border-border/50 bg-muted/30 focus:bg-muted transition-colors rounded-full"
+                className="pl-9 h-8 text-xs border-border/50 bg-muted/30 rounded-full"
               />
             </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`shrink-0 flex items-center gap-1.5 h-8 px-3 text-[11px] font-medium rounded-full border transition-all ${
-                showFilters || selectedBrands.length > 0
-                  ? "border-primary bg-primary/10 text-primary"
-                  : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              {selectedBrands.length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold">
-                  {selectedBrands.length}
-                </span>
-              )}
-            </button>
 
             <div className="flex items-center border border-border/50 rounded-full overflow-hidden shrink-0">
               <button
@@ -208,27 +211,6 @@ export function CatalogPage() {
               </button>
             </div>
           </div>
-
-          {showFilters && (
-            <div className="pb-3 border-t border-border/30 pt-3">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2 font-semibold">Marcas</p>
-              <div className="flex flex-wrap gap-1.5">
-                {brands.map(brand => (
-                  <button
-                    key={brand}
-                    onClick={() => toggleBrand(brand)}
-                    className={`px-3 py-1 text-[11px] rounded-full border transition-all ${
-                      selectedBrands.includes(brand)
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
-                    }`}
-                  >
-                    {brand}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
