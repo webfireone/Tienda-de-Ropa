@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom"
 import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
 import { migrateOrdersToFirestore } from "@/lib/migrateOrders"
+import { BackgroundMusic } from "@/components/BackgroundMusic"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -26,6 +27,8 @@ export function AppLayout() {
         <main className="relative z-10">
           <Outlet />
         </main>
+
+        <BackgroundMusic />
 
         {/* Floating WhatsApp */}
         <a
