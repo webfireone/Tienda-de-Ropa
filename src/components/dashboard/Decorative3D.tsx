@@ -1,6 +1,7 @@
 import { useState, useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 import { useNavigate } from "react-router-dom"
+import { HeroParticles } from "@/components/HeroParticles"
 
 const HERO_IMAGES = Array.from({ length: 25 }, (_, i) => `/inicio/inicio-${i + 1}.jpg`)
 
@@ -41,6 +42,7 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-background)] via-[var(--color-background)]/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-background)]/60 via-transparent to-[var(--color-background)]/20" />
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-fuchsia-500/5" />
+        <HeroParticles scrollYProgress={scrollYProgress} />
       </div>
 
       <motion.div
