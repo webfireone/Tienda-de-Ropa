@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react"
 import { Music, Play, Pause, Volume2, VolumeX, X } from "lucide-react"
 
-const TRACKS = ["/bg-music-1.mp3", "/bg-music-2.mp3", "/bg-music-3.mp3"]
+const TRACKS = ["/bg-music-1.mp3", "/bg-music-2.mp3"]
 
 function getRandomTrack(exclude?: string): string {
   const available = exclude ? TRACKS.filter(t => t !== exclude) : TRACKS
@@ -13,17 +13,11 @@ export function BackgroundMusic() {
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [started, setStarted] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
-  const [showMini, setShowMini] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [currentTrack, setCurrentTrack] = useState(() => getRandomTrack())
 
   useEffect(() => {
     setMounted(true)
-    const wasShown = sessionStorage.getItem("musicPromptShown")
-    if (wasShown) {
-      setShowMini(true)
-    }
   }, [])
 
   useEffect(() => {
@@ -33,7 +27,6 @@ export function BackgroundMusic() {
     audio.muted = false
     audio.play().catch(() => {})
     setPlaying(true)
-    setShowMini(true)
     sessionStorage.setItem("musicPromptShown", "1")
   }, [started])
 
@@ -48,12 +41,6 @@ export function BackgroundMusic() {
 
   const startMusic = () => {
     setStarted(true)
-  }
-
-  const dismiss = () => {
-    setDismissed(true)
-    setShowMini(true)
-    sessionStorage.setItem("musicPromptShown", "1")
   }
 
   const togglePlay = () => {
@@ -74,7 +61,7 @@ export function BackgroundMusic() {
     setMuted(newMuted)
   }
 
-  if (!mounted || dismissed) return null
+  if (!mounted) return null
 
   return (
     <>
@@ -86,14 +73,14 @@ export function BackgroundMusic() {
       />
 
       {/* Modal de música */}
-      {!started && !showMini && (
+      {!started && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={dismiss} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
 
           <div className="relative bg-[#161627] border border-white/10 rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl shadow-violet-500/10">
             <button
-              onClick={dismiss}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/40 hover:text-white/70 transition-all"
+              onClick={() => {}}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 cursor-default"
             >
               <X className="h-4 w-4" />
             </button>
@@ -116,19 +103,12 @@ export function BackgroundMusic() {
             >
               Activá la música
             </button>
-
-            <button
-              onClick={dismiss}
-              className="mt-3 text-xs text-muted-foreground hover:text-white/60 transition-colors"
-            >
-              No, gracias
-            </button>
           </div>
         </div>
       )}
 
       {/* Mini reproductor */}
-      {showMini && started && (
+      {started && (
         <div
           className="fixed bottom-5 right-48 z-50 flex items-center gap-2 px-3 py-2.5 rounded-2xl glass-card border border-white/10 backdrop-blur-xl animate-fade-up"
           style={{ minWidth: 180 }}
