@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { useCartStore } from "@/store/cartStore"
 import { SIZES } from "@/types"
@@ -16,8 +16,6 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "")
   const [selectedSize, setSelectedSize] = useState("")
   const [quantity, setQuantity] = useState(1)
-  const scrollRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
@@ -26,18 +24,6 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       document.body.style.overflow = prev
       if ((window as any).lenis) (window as any).lenis.start()
     }
-  }, [])
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    const handler = (e: WheelEvent) => {
-      const { scrollTop, scrollHeight, clientHeight } = el
-      if (scrollTop <= 0 && e.deltaY < 0) { e.preventDefault(); el.scrollTop = 0 }
-      else if (scrollTop + clientHeight >= scrollHeight - 1 && e.deltaY > 0) { e.preventDefault(); el.scrollTop = scrollHeight }
-    }
-    el.addEventListener("wheel", handler, { passive: false })
-    return () => el.removeEventListener("wheel", handler)
   }, [])
 
   const currentColor = product.colors.find(c => c.name === selectedColor)
@@ -74,17 +60,19 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     <div className="fixed inset-0 z-[99999]">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="absolute inset-2 flex items-center justify-center pointer-events-none">
-        <div ref={scrollRef} className="relative w-full max-w-3xl rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto overflow-y-auto overscroll-contain">
+      <div className="absolute max-sm:inset-0 sm:inset-2 flex max-sm:items-end sm:items-center justify-center pointer-events-none">
+        <div
+          className="relative w-full max-w-3xl max-sm:max-h-[92vh] max-sm:rounded-t-2xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:overflow-hidden sm:overflow-y-auto sm:overscroll-contain max-sm:flex max-sm:flex-col"
+        >
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 backdrop-blur-sm transition-colors flex items-center justify-center text-white/80 hover:text-white shadow-md"
+            className="absolute top-3 right-3 z-20 w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
           </button>
-          <div className="grid grid-cols-1 sm:grid-cols-5">
-            {/* Image — left half (2/5) */}
-            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px]">
+          <div className="max-sm:flex max-sm:flex-1 max-sm:flex-row max-sm:overflow-hidden grid grid-cols-1 sm:grid-cols-5">
+            {/* Image — left (40% mobile, 2/5 desktop) */}
+            <div className="max-sm:w-[40%] sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden aspect-[4/3] sm:aspect-auto sm:min-h-[420px]">
               <img
                 src={product.imageUrl}
                 alt={product.name}
@@ -92,8 +80,8 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
               />
             </div>
 
-            {/* Details — right half (3/5) */}
-            <div className="sm:col-span-3 p-6 sm:p-7 flex flex-col gap-4">
+            {/* Details — right (60% mobile, 3/5 desktop) */}
+            <div className="max-sm:flex-1 sm:col-span-3 p-6 sm:p-7 flex flex-col gap-4 max-sm:overflow-y-auto">
               {/* Brand & Title */}
               <div>
                 <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary mb-1">{product.brand}</p>

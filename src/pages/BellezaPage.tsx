@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import { useAuth } from "@/context/AuthContext"
 import { useNavigate } from "react-router-dom"
-import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
+import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, getDisplayGeneric, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
 import { useSiteTheme } from "@/hooks/useSiteTheme"
-import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye } from "lucide-react"
+import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye, Type } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const GRADIENT_PRESETS = [
@@ -19,6 +19,42 @@ const GRADIENT_PRESETS = [
   { name: "Magenta", from: "#d946ef", to: "#f43f5e", angle: "135deg" },
   { name: "Verde azulado", from: "#14b8a6", to: "#22d3ee", angle: "135deg" },
   { name: "Amarillo", from: "#eab308", to: "#facc15", angle: "135deg" },
+]
+
+const AVAILABLE_DISPLAY_FONTS = [
+  { name: "Playfair Display", family: "Playfair Display", style: "Serif elegante" },
+  { name: "Cormorant Garamond", family: "Cormorant Garamond", style: "Serif clásico" },
+  { name: "Dancing Script", family: "Dancing Script", style: "Script decorativo" },
+  { name: "Montserrat", family: "Montserrat", style: "Sans geométrica" },
+  { name: "Space Grotesk", family: "Space Grotesk", style: "Sans moderna" },
+  { name: "Bebas Neue", family: "Bebas Neue", style: "Display bold" },
+  { name: "Oswald", family: "Oswald", style: "Condensada bold" },
+  { name: "Abril Fatface", family: "Abril Fatface", style: "Didone" },
+  { name: "Alfa Slab One", family: "Alfa Slab One", style: "Slab serif" },
+  { name: "Bitter", family: "Bitter", style: "Slab serif" },
+  { name: "Josefin Sans", family: "Josefin Sans", style: "Sans geométrica" },
+  { name: "DM Serif Display", family: "DM Serif Display", style: "Serif moderno" },
+  { name: "Fraunces", family: "Fraunces", style: "Soft serif" },
+  { name: "Sora", family: "Sora", style: "Sans tech" },
+  { name: "Syne", family: "Syne", style: "Display" },
+  { name: "Unbounded", family: "Unbounded", style: "Display" },
+  { name: "Raleway", family: "Raleway", style: "Sans elegante" },
+  { name: "Cinzel", family: "Cinzel", style: "Roman imperial" },
+]
+
+const AVAILABLE_BODY_FONTS = [
+  { name: "Inter", family: "Inter", style: "Sans legible" },
+  { name: "Poppins", family: "Poppins", style: "Sans geométrica" },
+  { name: "Lato", family: "Lato", style: "Sans neutral" },
+  { name: "Nunito", family: "Nunito", style: "Sans amigable" },
+  { name: "Outfit", family: "Outfit", style: "Sans moderna" },
+  { name: "Plus Jakarta Sans", family: "Plus Jakarta Sans", style: "Sans versátil" },
+  { name: "Manrope", family: "Manrope", style: "Sans tech" },
+  { name: "Sora", family: "Sora", style: "Sans tech" },
+  { name: "DM Sans", family: "DM Sans", style: "Sans minimal" },
+  { name: "Lexend", family: "Lexend", style: "Sans legible" },
+  { name: "Karla", family: "Karla", style: "Sans geométrica" },
+  { name: "Jost", family: "Jost", style: "Sans geométrica" },
 ]
 
 const PASTEL_BACKGROUNDS = [
@@ -59,19 +95,19 @@ function MiniPreview({ config }: { config: FullThemeConfig }) {
             <span key={l} className={cn("text-[9px] px-2 py-1 rounded-md", i === 0 ? "" : "opacity-60")} style={i === 0 ? { background: c.primary, color: c.primaryForeground } : { color: c.mutedForeground }}>{l}</span>
           ))}
         </div>
-        <div className="h-16 rounded-lg mb-3 flex items-center justify-center text-xs font-bold" style={{ background: `linear-gradient(135deg, ${c.primary}22, ${c.highlight}22)`, color: c.foreground, fontFamily: `'${config.typography.fontDisplay}', serif` }}>
-          Descubrí tu estilo
-        </div>
+         <div className="h-16 rounded-lg mb-3 flex items-center justify-center text-xs font-bold" style={{ background: `linear-gradient(135deg, ${c.primary}22, ${c.highlight}22)`, color: c.foreground, fontFamily: `'${config.typography.fontDisplay}', ${getDisplayGeneric(config.typography.fontDisplay)}` }}>
+           Descubrí tu estilo
+         </div>
         <div className="grid grid-cols-3 gap-2 mb-3">
           {[c.primary, c.highlight, c.accent].map((color, i) => (
             <div key={i} className="h-12 rounded-lg" style={{ background: color }} />
           ))}
         </div>
         <div className="space-y-2 mb-3">
-          <div className="p-3 rounded-xl" style={{ background: c.card, color: c.cardForeground }}>
-            <p className="text-[10px] font-semibold mb-1" style={{ fontFamily: `'${config.typography.fontDisplay}', serif` }}>Título de Card</p>
-            <p className="text-[9px]" style={{ color: c.mutedForeground }}>Texto descriptivo de ejemplo.</p>
-          </div>
+           <div className="p-3 rounded-xl" style={{ background: c.card, color: c.cardForeground }}>
+             <p className="text-[10px] font-semibold mb-1" style={{ fontFamily: `'${config.typography.fontDisplay}', ${getDisplayGeneric(config.typography.fontDisplay)}` }}>Título de Card</p>
+             <p className="text-[9px]" style={{ color: c.mutedForeground }}>Texto descriptivo de ejemplo.</p>
+           </div>
         </div>
         <div className="flex gap-2 mb-3">
           <button className="flex-1 py-2 rounded-xl text-[10px] font-semibold" style={{ background: c.primary, color: c.primaryForeground }}>
@@ -123,6 +159,7 @@ export function BellezaPage() {
   const {
     config, savedLooks,
     saveLook, deleteLook, resetToDefault, randomize, applyFullConfig,
+    setTypography,
   } = useBellezaStore()
   const { saveSiteTheme, isFirestoreAvailable } = useSiteTheme()
   const saveSiteThemeRef = useRef(saveSiteTheme)
@@ -139,7 +176,7 @@ export function BellezaPage() {
   }
 
   const [savedName, setSavedName] = useState("")
-  const [activeTab, setActiveTab] = useState<"paletas" | "fondos" | "guardados">("paletas")
+  const [activeTab, setActiveTab] = useState<"paletas" | "fondos" | "tipografia" | "guardados">("paletas")
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const [customFrom, setCustomFrom] = useState("#7c3aed")
   const [customTo, setCustomTo] = useState("#ec4899")
@@ -368,11 +405,12 @@ export function BellezaPage() {
       </div>
 
       <div className="flex gap-1 mb-6 p-1 rounded-xl bg-muted/50 w-fit">
-        {[
-          { key: "paletas", label: "Paletas", icon: Palette },
-          { key: "fondos", label: "Fondos", icon: Layers },
-          { key: "guardados", label: `Guardados (${savedLooks.length})`, icon: Save },
-        ].map(({ key, label, icon: Icon }) => (
+          {[
+            { key: "paletas", label: "Paletas", icon: Palette },
+            { key: "fondos", label: "Fondos", icon: Layers },
+            { key: "tipografia", label: "Tipografía", icon: Type },
+            { key: "guardados", label: `Guardados (${savedLooks.length})`, icon: Save },
+          ].map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setActiveTab(key as any)}
             className={cn("flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all", activeTab === key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>
             <Icon className="h-4 w-4" />
@@ -569,6 +607,135 @@ export function BellezaPage() {
                   </button>
                 </div>
                 <div className="mt-3 w-full h-12 rounded-xl border border-border" style={{ background: `linear-gradient(135deg, ${customFrom}, ${customTo})` }} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === "tipografia" && (
+            <div className="space-y-6">
+              <div className="glass-card p-4">
+                <h3 className="text-sm font-semibold mb-1">Fuente de Títulos</h3>
+                <p className="text-xs text-muted-foreground mb-3">Elegí la fuente que se usa en títulos y headings.</p>
+                <div className="grid grid-cols-1 gap-2">
+                 {AVAILABLE_DISPLAY_FONTS.map((font) => {
+                     const isActive = config.typography.fontDisplay === font.family
+                     const fallback = getDisplayGeneric(font.family)
+                     return (
+                       <button key={font.family} onClick={() => {
+                         setTypography({ fontDisplay: font.family })
+                         applyTheme({ ...config, typography: { ...config.typography, fontDisplay: font.family } }, `Display: ${font.name}`)
+                       }}
+                         className={cn("w-full p-3 rounded-xl border-2 transition-all text-left relative overflow-hidden", isActive ? "border-primary" : "border-border hover:border-primary/50")}>
+                         <div className="flex items-center justify-between">
+                           <div>
+                             <p className="text-base font-semibold" style={{ fontFamily: `'${font.family}', ${fallback}` }}>{font.name}</p>
+                             <p className="text-[10px] text-muted-foreground">{font.style}</p>
+                           </div>
+                           <div className="text-right">
+                             <p className="text-2xl font-black" style={{ fontFamily: `'${font.family}', ${fallback}` }}>GLAMOURS</p>
+                             <p className="text-xs" style={{ fontFamily: `'${font.family}', ${fallback}` }}>La elegancia es atemporal</p>
+                           </div>
+                         </div>
+                         {isActive && <span className="absolute top-2 right-2"><Check className="h-4 w-4 text-primary" /></span>}
+                       </button>
+                     )
+                   })}
+                </div>
+              </div>
+
+              <div className="glass-card p-4">
+                <h3 className="text-sm font-semibold mb-1">Fuente de Cuerpo</h3>
+                <p className="text-xs text-muted-foreground mb-3">Elegí la fuente para texto legible y párrafos.</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {AVAILABLE_BODY_FONTS.map((font) => {
+                    const isActive = config.typography.fontBody === font.family
+                    return (
+                      <button key={font.family} onClick={() => {
+                        setTypography({ fontBody: font.family })
+                        applyTheme({ ...config, typography: { ...config.typography, fontBody: font.family } }, `Body: ${font.name}`)
+                      }}
+                        className={cn("w-full p-3 rounded-xl border-2 transition-all text-left relative", isActive ? "border-primary" : "border-border hover:border-primary/50")}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-base font-semibold" style={{ fontFamily: `'${font.family}', sans-serif` }}>{font.name}</p>
+                            <p className="text-[10px] text-muted-foreground">{font.style}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold" style={{ fontFamily: `'${font.family}', sans-serif` }}>La moda nunca pasa</p>
+                            <p className="text-sm" style={{ fontFamily: `'${font.family}', sans-serif` }}>Descubre las últimas tendencias en ropa y accesorios.</p>
+                          </div>
+                        </div>
+                        {isActive && <span className="absolute top-2 right-2"><Check className="h-4 w-4 text-primary" /></span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="glass-card p-4">
+                <h3 className="text-sm font-semibold mb-3">Estilo de Títulos</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-2">Peso del heading</label>
+                    <div className="flex gap-2">
+                      {[
+                        { label: "Fino", value: "100" },
+                        { label: "Light", value: "300" },
+                        { label: "Normal", value: "400" },
+                        { label: "Medium", value: "500" },
+                        { label: "Semi", value: "600" },
+                        { label: "Bold", value: "700" },
+                        { label: "Black", value: "900" },
+                      ].map((w) => (
+                        <button key={w.value} onClick={() => {
+                          setTypography({ headingWeight: w.value })
+                          applyTheme({ ...config, typography: { ...config.typography, headingWeight: w.value } }, `Peso: ${w.label}`)
+                        }}
+                          className={cn("flex-1 py-2 px-1 rounded-lg text-xs font-medium border transition-all", config.typography.headingWeight === w.value ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-muted-foreground")}>
+                          {w.label}<br /><span className="font-bold">{w.value}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-2">Sombra del texto</label>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                      {[
+                        { label: "Ninguna", value: "none" },
+                        { label: "Sutil", value: "0 1px 2px rgba(0,0,0,0.1)" },
+                        { label: "Media", value: "0 2px 4px rgba(0,0,0,0.15)" },
+                        { label: "Fuerte", value: "0 4px 8px rgba(0,0,0,0.2)" },
+                        { label: "Neón", value: "0 0 10px rgba(124,58,237,0.6)" },
+                        { label: "Glow", value: "0 0 20px rgba(236,72,153,0.5)" },
+                      ].map((s) => (
+                        <button key={s.value} onClick={() => {
+                          setTypography({ textShadow: s.value })
+                          applyTheme({ ...config, typography: { ...config.typography, textShadow: s.value } }, `Sombra: ${s.label}`)
+                        }}
+                          className={cn("py-2 px-1 rounded-lg text-[10px] font-medium border transition-all", config.typography.textShadow === s.value ? "border-primary bg-primary/10 text-primary" : "border-border hover:border-primary/50 text-muted-foreground")}>
+                          <span style={{ textShadow: s.value === "none" ? undefined : s.value }} className="font-bold">{s.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-muted-foreground block mb-2">Preview en vivo</label>
+                    <div className="p-4 rounded-xl bg-card border border-border">
+                      <p className="text-3xl font-black" style={{
+                        fontFamily: `'${config.typography.fontDisplay}', serif`,
+                        fontWeight: parseInt(config.typography.headingWeight) as any,
+                        textShadow: config.typography.textShadow === "none" ? undefined : config.typography.textShadow,
+                      }}>
+                        GLAMOURS
+                      </p>
+                      <p className="text-sm mt-2" style={{ fontFamily: `'${config.typography.fontBody}', sans-serif` }}>
+                        La elegancia es atemporal. Descubrí tu estilo con nuestra colección exclusiva.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
