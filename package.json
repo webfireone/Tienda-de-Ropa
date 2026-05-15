@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "migrate:ofertas": "tsx scripts/migrate-ofertas.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",
@@ -55,6 +56,7 @@
     "jsdom": "^29.1.1",
     "postcss": "^8.5.14",
     "tailwindcss": "^4.3.0",
+    "tsx": "^4.22.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^8.0.10",

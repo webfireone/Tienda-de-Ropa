@@ -976,6 +976,17 @@ Stock para una talla específica
   - **Solución 2**: En `src/store/bellezaStore.ts`, modificar `forceFontUpdate()` para que saltee elementos con clase `font-menu` (evita inline `style="font-family: inherit !important"`)
   - Build 0 errores
 
+### Fecha: 15/05/2026
+- **Cambio**: Renombrar sección "Outlet" → "Ofertas" en toda la app
+  - Ruta: `/outlet` → `/ofertas`
+  - Display labels: "Outlet" → "Ofertas" en Header, Sidebar, LandingPage, ProductForm, BellezaPage, ProductCard badge ("OUTLET" → "OFERTA")
+  - Valor de BD: `seccion: "outlet"` → `"ofertas"` en types, mock data, filtros
+  - Archivo: `OutletPage.tsx` → `OfertasPage.tsx` (contenido actualizado)
+  - Script de migración: `scripts/migrate-ofertas.ts` — actualiza productos existentes en Firestore de `"outlet"` a `"ofertas"`
+  - Uso: `npm run migrate:ofertas`
+  - Migrados 9 productos en Firestore
+  - Build 0 errores
+
 ---
 
 # Notas para Futuras AI
