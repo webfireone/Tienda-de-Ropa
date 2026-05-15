@@ -61,7 +61,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
       <div className="relative z-10 h-full overflow-y-auto">
-        <div className="flex items-start justify-center min-h-full p-2 sm:p-4">
+        <div className="flex max-sm:items-start sm:items-center justify-center min-h-full p-2 sm:p-4">
           <div
             className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up"
             onClick={e => e.stopPropagation()}
