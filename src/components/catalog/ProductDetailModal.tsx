@@ -62,7 +62,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
       <div className="absolute max-sm:inset-0 sm:inset-2 flex max-sm:items-start sm:items-center justify-center pointer-events-none">
         <div
-          className="relative w-full max-w-3xl max-sm:max-h-full max-sm:min-h-full sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:flex max-sm:flex-col max-sm:overflow-hidden"
+          className="relative w-full max-w-3xl max-sm:h-full sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:overflow-y-auto"
         >
           <button
             onClick={onClose}
@@ -70,18 +70,18 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           >
             <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
           </button>
-          <div className="max-sm:flex max-sm:flex-1 max-sm:flex-col max-sm:overflow-hidden grid grid-cols-1 sm:grid-cols-5">
-            {/* Image — top on mobile, left on desktop */}
-            <div className="sm:col-span-2 relative bg-muted rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl overflow-hidden max-sm:aspect-[3/4] max-sm:flex-shrink-0 sm:aspect-auto sm:min-h-[420px]">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full h-full object-cover object-top"
-              />
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-5">
+              {/* Image — top on mobile, left on desktop */}
+              <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:aspect-square sm:aspect-auto sm:min-h-[420px]">
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
 
-            {/* Details — right (60% mobile, 3/5 desktop) */}
-            <div className="max-sm:flex-1 sm:col-span-3 p-6 sm:p-7 flex flex-col gap-4 max-sm:overflow-y-auto">
+              {/* Details — right (60% mobile, 3/5 desktop) */}
+              <div className="sm:col-span-3 p-5 sm:p-7 flex flex-col gap-3 sm:gap-4">
               {/* Brand & Title */}
               <div>
                 <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary mb-1">{product.brand}</p>
