@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import { useBellezaStore, PREDEFINED_PALETTES, PRESET_BACKGROUNDS, CURATED_LOOKS, CURATED_CATEGORIES, applyThemeConfig, getDisplayGeneric, type SavedLook, type FullThemeConfig, type CuratedLook } from "@/store/bellezaStore"
 import { useSiteTheme } from "@/hooks/useSiteTheme"
 import { Sparkles, RotateCcw, Save, Wand2, Palette, Layers, Upload, Trash2, Check, ChevronRight, ChevronLeft, Eye, Type } from "lucide-react"
+import { Select } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 const GRADIENT_PRESETS = [
@@ -52,6 +53,27 @@ const AVAILABLE_BODY_FONTS = [
   { name: "Manrope", family: "Manrope", style: "Sans tech" },
   { name: "Sora", family: "Sora", style: "Sans tech" },
   { name: "DM Sans", family: "DM Sans", style: "Sans minimal" },
+  { name: "Lexend", family: "Lexend", style: "Sans legible" },
+  { name: "Karla", family: "Karla", style: "Sans geométrica" },
+  { name: "Jost", family: "Jost", style: "Sans geométrica" },
+]
+
+const AVAILABLE_MENU_FONTS = [
+  { name: "Armata", family: "Armata", style: "Sans legible (local)" },
+  { name: "Inter", family: "Inter", style: "Sans legible" },
+  { name: "Montserrat", family: "Montserrat", style: "Sans geométrica" },
+  { name: "Poppins", family: "Poppins", style: "Sans geométrica" },
+  { name: "Space Grotesk", family: "Space Grotesk", style: "Sans moderna" },
+  { name: "Outfit", family: "Outfit", style: "Sans moderna" },
+  { name: "Raleway", family: "Raleway", style: "Sans elegante" },
+  { name: "Sora", family: "Sora", style: "Sans tech" },
+  { name: "DM Sans", family: "DM Sans", style: "Sans minimal" },
+  { name: "Josefin Sans", family: "Josefin Sans", style: "Sans geométrica" },
+  { name: "Bebas Neue", family: "Bebas Neue", style: "Display bold" },
+  { name: "Oswald", family: "Oswald", style: "Condensada bold" },
+  { name: "Manrope", family: "Manrope", style: "Sans tech" },
+  { name: "Nunito", family: "Nunito", style: "Sans amigable" },
+  { name: "Plus Jakarta Sans", family: "Plus Jakarta Sans", style: "Sans versátil" },
   { name: "Lexend", family: "Lexend", style: "Sans legible" },
   { name: "Karla", family: "Karla", style: "Sans geométrica" },
   { name: "Jost", family: "Jost", style: "Sans geométrica" },
@@ -616,59 +638,63 @@ export function BellezaPage() {
               <div className="glass-card p-4">
                 <h3 className="text-sm font-semibold mb-1">Fuente de Títulos</h3>
                 <p className="text-xs text-muted-foreground mb-3">Elegí la fuente que se usa en títulos y headings.</p>
-                <div className="grid grid-cols-1 gap-2">
-                 {AVAILABLE_DISPLAY_FONTS.map((font) => {
-                     const isActive = config.typography.fontDisplay === font.family
-                     const fallback = getDisplayGeneric(font.family)
-                     return (
-                       <button key={font.family} onClick={() => {
-                         setTypography({ fontDisplay: font.family })
-                         applyTheme({ ...config, typography: { ...config.typography, fontDisplay: font.family } }, `Display: ${font.name}`)
-                       }}
-                         className={cn("w-full p-3 rounded-xl border-2 transition-all text-left relative overflow-hidden", isActive ? "border-primary" : "border-border hover:border-primary/50")}>
-                         <div className="flex items-center justify-between">
-                           <div>
-                             <p className="text-base font-semibold" style={{ fontFamily: `'${font.family}', ${fallback}` }}>{font.name}</p>
-                             <p className="text-[10px] text-muted-foreground">{font.style}</p>
-                           </div>
-                           <div className="text-right">
-                             <p className="text-2xl font-black" style={{ fontFamily: `'${font.family}', ${fallback}` }}>GLAMOURS</p>
-                             <p className="text-xs" style={{ fontFamily: `'${font.family}', ${fallback}` }}>La elegancia es atemporal</p>
-                           </div>
-                         </div>
-                         {isActive && <span className="absolute top-2 right-2"><Check className="h-4 w-4 text-primary" /></span>}
-                       </button>
-                     )
-                   })}
+                <Select
+                  options={AVAILABLE_DISPLAY_FONTS.map(f => ({ value: f.family, label: f.name }))}
+                  value={config.typography.fontDisplay}
+                  onChange={(e) => {
+                    setTypography({ fontDisplay: e.target.value })
+                    applyTheme({ ...config, typography: { ...config.typography, fontDisplay: e.target.value } }, `Display: ${e.target.value}`)
+                  }}
+                />
+                <div className="mt-3 p-4 rounded-xl bg-card border border-border">
+                  <p className="text-2xl font-black" style={{ fontFamily: `'${config.typography.fontDisplay}', ${getDisplayGeneric(config.typography.fontDisplay)}` }}>
+                    GLAMOURS
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {AVAILABLE_DISPLAY_FONTS.find(f => f.family === config.typography.fontDisplay)?.style}
+                  </p>
                 </div>
               </div>
 
               <div className="glass-card p-4">
                 <h3 className="text-sm font-semibold mb-1">Fuente de Cuerpo</h3>
                 <p className="text-xs text-muted-foreground mb-3">Elegí la fuente para texto legible y párrafos.</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {AVAILABLE_BODY_FONTS.map((font) => {
-                    const isActive = config.typography.fontBody === font.family
-                    return (
-                      <button key={font.family} onClick={() => {
-                        setTypography({ fontBody: font.family })
-                        applyTheme({ ...config, typography: { ...config.typography, fontBody: font.family } }, `Body: ${font.name}`)
-                      }}
-                        className={cn("w-full p-3 rounded-xl border-2 transition-all text-left relative", isActive ? "border-primary" : "border-border hover:border-primary/50")}>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-base font-semibold" style={{ fontFamily: `'${font.family}', sans-serif` }}>{font.name}</p>
-                            <p className="text-[10px] text-muted-foreground">{font.style}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-2xl font-bold" style={{ fontFamily: `'${font.family}', sans-serif` }}>La moda nunca pasa</p>
-                            <p className="text-sm" style={{ fontFamily: `'${font.family}', sans-serif` }}>Descubre las últimas tendencias en ropa y accesorios.</p>
-                          </div>
-                        </div>
-                        {isActive && <span className="absolute top-2 right-2"><Check className="h-4 w-4 text-primary" /></span>}
-                      </button>
-                    )
-                  })}
+                <Select
+                  options={AVAILABLE_BODY_FONTS.map(f => ({ value: f.family, label: f.name }))}
+                  value={config.typography.fontBody}
+                  onChange={(e) => {
+                    setTypography({ fontBody: e.target.value })
+                    applyTheme({ ...config, typography: { ...config.typography, fontBody: e.target.value } }, `Body: ${e.target.value}`)
+                  }}
+                />
+                <div className="mt-3 p-4 rounded-xl bg-card border border-border">
+                  <p className="text-lg font-semibold" style={{ fontFamily: `'${config.typography.fontBody}', sans-serif` }}>
+                    La elegancia es atemporal. Descubrí tu estilo con nuestra colección exclusiva de moda y accesorios.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {AVAILABLE_BODY_FONTS.find(f => f.family === config.typography.fontBody)?.style}
+                  </p>
+                </div>
+              </div>
+
+              <div className="glass-card p-4">
+                <h3 className="text-sm font-semibold mb-1">Fuente de Menú</h3>
+                <p className="text-xs text-muted-foreground mb-3">Elegí la fuente para los links de navegación.</p>
+                <Select
+                  options={AVAILABLE_MENU_FONTS.map(f => ({ value: f.family, label: f.name }))}
+                  value={config.typography.fontMenu}
+                  onChange={(e) => {
+                    setTypography({ fontMenu: e.target.value })
+                    applyTheme({ ...config, typography: { ...config.typography, fontMenu: e.target.value } }, `Menu: ${e.target.value}`)
+                  }}
+                />
+                <div className="mt-3 p-4 rounded-xl bg-card border border-border">
+                  <p className="text-lg font-bold tracking-wide" style={{ fontFamily: `'${config.typography.fontMenu}', sans-serif` }}>
+                    Inicio · Catálogo · Ofertas · Nueva Colección
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {AVAILABLE_MENU_FONTS.find(f => f.family === config.typography.fontMenu)?.style}
+                  </p>
                 </div>
               </div>
 
@@ -796,6 +822,30 @@ export function BellezaPage() {
               <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Preview</h3>
             </div>
             <MiniPreview config={config} />
+          </div>
+
+          <div className="glass-card p-4">
+            <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-3">Fuentes actuales</h3>
+            <div className="space-y-3">
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Display: {config.typography.fontDisplay}</p>
+                <p className="text-lg font-bold truncate" style={{ fontFamily: `'${config.typography.fontDisplay}', ${getDisplayGeneric(config.typography.fontDisplay)}` }}>
+                  GLAMOURS
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Body: {config.typography.fontBody}</p>
+                <p className="text-sm truncate" style={{ fontFamily: `'${config.typography.fontBody}', sans-serif` }}>
+                  La elegancia es atemporal.
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Menú: {config.typography.fontMenu}</p>
+                <p className="text-sm font-medium tracking-wide truncate" style={{ fontFamily: `'${config.typography.fontMenu}', sans-serif` }}>
+                  Inicio · Catálogo · Ofertas
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="glass-card p-4">

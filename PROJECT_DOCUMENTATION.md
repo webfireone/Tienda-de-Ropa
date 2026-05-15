@@ -987,6 +987,20 @@ Stock para una talla específica
   - Migrados 9 productos en Firestore
   - Build 0 errores
 
+### Fecha: 15/05/2026
+- **Cambio**: fontMenu en admin Belleza editor + corregidos todos los CURATED_LOOKS
+  - Agregado `fontMenu` a `FullThemeConfig.typography` en `bellezaStore.ts` (tipo, default `"Armata"`)
+  - `applyThemeConfig` ahora setea `--font-menu` e inyecta `.font-menu.font-menu.font-menu` rule
+  - `AVAILABLE_MENU_FONTS` (17 fuentes) + sección "Fuente de Menú" en `BellezaPage.tsx`
+  - Agregado `fontMenu: "Armata"` a los 45 typography objects en `CURATED_LOOKS` y al generador `generateRandomSafeConfig`
+  - Build 0 errores
+
+### Fecha: 15/05/2026
+- **Fix**: fontDisplay, headingWeight, textShadow y otros cambios no se aplicaban al seleccionarlos en Belleza
+  - **Causa raíz**: `forceFontUpdate()` en `bellezaStore.ts` setea `font-family: inherit !important` inline en CADA elemento del DOM. Al tener `!important`, el inline vence a las reglas del `<style>` inyectado (`.font-display.font-display.font-display { … !important }`) porque inline `!important` siempre tiene más prioridad que stylesheet `!important`, sin importar especificidad.
+  - **Fix**: Se eliminó el loop de `forceFontUpdate()` que ponía inline `font-family: inherit !important`. El `<style>` inyectado con selectores de triple-clase ya maneja correctamente la cascada de fuentes. `forceFontUpdate()` ahora solo actualiza las variables CSS en `:root`.
+  - Build 0 errores
+
 ---
 
 # Notas para Futuras AI
