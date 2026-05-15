@@ -4,7 +4,7 @@ import { useParamsStore } from "@/store/paramsStore"
 import { useLocation } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard, Music } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
 import { type ComponentType } from "react"
@@ -18,6 +18,7 @@ const navLinks: NavLink[] = [
   { to: "/catalog", label: "Catálogo", icon: Store },
   { to: "/ofertas", label: "Ofertas", icon: Tag },
   { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
+  { to: "/music", label: "Glamour's MUSIC", icon: Music },
 ]
 
 const adminLinks: NavLink[] = [
@@ -30,6 +31,7 @@ const adminLinks: NavLink[] = [
   { to: "/belleza", label: "Belleza", icon: Sparkles },
   { to: "/config", label: "Config", icon: Settings },
   { to: "/marketing", label: "Marketing", icon: BarChart3 },
+  { to: "/admin/music", label: "Glamour's MUSIC", icon: Music },
 ]
 
 export function Header() {

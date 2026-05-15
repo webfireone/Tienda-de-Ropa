@@ -29,6 +29,8 @@ const OrdersPage = lazyPage(() => import("@/pages/OrdersPage"), "OrdersPage")
 const AdminHomePage = lazyPage(() => import("@/pages/AdminHomePage"), "AdminHomePage")
 const NotFoundPage = lazyPage(() => import("@/pages/NotFoundPage"), "NotFoundPage")
 const BellezaPage = lazyPage(() => import("@/pages/BellezaPage"), "BellezaPage")
+const MusicPage = lazyPage(() => import("@/pages/MusicPage"), "MusicPage")
+const AdminMusicPage = lazyPage(() => import("@/pages/AdminMusicPage"), "AdminMusicPage")
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +104,8 @@ function AppRoutes() {
                 <Route path="/marketing" element={<MarketingPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/belleza" element={<BellezaPage />} />
+                <Route path="/music" element={<MusicPage />} />
+                <Route path="/admin/music" element={<AdminMusicPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
