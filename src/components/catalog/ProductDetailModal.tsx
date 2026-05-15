@@ -57,12 +57,12 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
   const modal = (
-    <div className="fixed inset-0 z-[99999]">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+    <div className="fixed inset-0 z-[99999] max-sm:overflow-y-auto">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="absolute max-sm:inset-0 sm:inset-2 flex max-sm:items-start sm:items-center justify-center pointer-events-none">
+      <div className="relative z-10 min-h-full flex max-sm:items-start sm:items-center justify-center sm:p-2 pointer-events-none">
         <div
-          className="relative w-full max-w-3xl max-sm:h-full sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto max-sm:overflow-y-auto"
+          className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto"
         >
           <button
             onClick={onClose}
