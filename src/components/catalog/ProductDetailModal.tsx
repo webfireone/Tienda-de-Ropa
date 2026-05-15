@@ -57,13 +57,15 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
   const modal = (
-    <div className="fixed inset-0 z-[99999] max-sm:overflow-y-auto">
+    <div className="fixed inset-0 z-[99999]">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="relative z-10 min-h-full flex max-sm:items-start sm:items-center justify-center sm:p-2 pointer-events-none">
-        <div
-          className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up pointer-events-auto"
-        >
+      <div className="relative z-10 h-full overflow-y-auto">
+        <div className="flex items-start justify-center min-h-full p-2 sm:p-4">
+          <div
+            className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up"
+            onClick={e => e.stopPropagation()}
+          >
           <button
             onClick={onClose}
             className="absolute top-3 right-3 z-20 w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
@@ -237,6 +239,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           </div>
         </div>
       </div>
+    </div>
     </div>
   )
 
