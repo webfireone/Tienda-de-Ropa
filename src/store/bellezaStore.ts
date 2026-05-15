@@ -1234,6 +1234,7 @@ export function applyThemeConfig(config: FullThemeConfig) {
     const allElements = document.querySelectorAll('*')
     allElements.forEach(el => {
       const htmlEl = el as HTMLElement
+      if (htmlEl.classList && (htmlEl.classList.contains('font-menu') || htmlEl.closest('.font-menu'))) return
       const computed = window.getComputedStyle(htmlEl)
       if (computed.fontFamily) {
         htmlEl.style.setProperty("font-family", "inherit", "important")

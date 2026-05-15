@@ -852,6 +852,14 @@ npm run preview
 - Verificar que hay productos en Firestore (colección `products`)
 - En modo mock: verificar que MOCK_PRODUCTS está definido
 
+### Font personalizada (ej. Armata) no se aplica en el menú
+- Síntoma: la fuente del menú muestra Inter u otra fuente, no Armata
+- Causa: `src/store/bellezaStore.ts` inyecta un `<style>` global con `* * *, *::before, *::after { font-family: inherit !important; }` y ejecuta `forceFontUpdate()` que pone inline `style="font-family: inherit !important"` en cada elemento del DOM. Ambas cosas tienen `!important` y vencen a la clase `.font-menu` generada por Tailwind.
+- Solución:
+  1. En `src/index.css` agregar `.font-menu { font-family: var(--font-menu) !important; }` (stylesheet con `!important` + clase vence a `* * *` con `!important` porque tiene mayor especificidad)
+  2. En `src/store/bellezaStore.ts`, en `forceFontUpdate()`, agregar un `if` que saltee elementos con clase `font-menu` para que no les meta inline `style="font-family: inherit !important"` (inline `!important` vence a cualquier stylesheet)
+- Verificar que el `.woff2` aparece en la pestaña Network del DevTools
+
 ---
 
 ## 17. Constantes y Datos Mock
@@ -956,6 +964,18 @@ Stock para una talla específica
   - TypeScript: `vitest/globals` agregado a types en tsconfig.app.json
   - Build 0 errores, push a GitHub + deploy automático a Render
 
+### Fecha: 15/05/2026
+- **Cambio**: Font Armata en menú de navegación (local, sin Google Fonts CDN)
+  - Descargados `.woff2` de Armata (latin + latin-ext) desde Google Fonts
+  - Fonts ubicadas en `public/fonts/armata/` (servidas por Vite) y `fuentes/armata/` (copia compartida)
+  - `@font-face` con URLs locales en `src/index.css` (reemplaza Google CDN)
+  - `--font-menu: 'Armata', sans-serif` agregado en `@theme` de `src/index.css`
+  - `font-medium` → `font-menu` en `Header.tsx` (desktop + mobile)
+  - **Problema**: La fuente no se aplicaba porque `bellezaStore.ts` inyecta un `<style>` global con `* * *, *::before, *::after { font-family: inherit !important; }` que pisaba cualquier `font-family` en stylesheet
+  - **Solución 1**: En `src/index.css`, agregar `.font-menu { font-family: var(--font-menu) !important; }` (defiende contra el `<style>` inyectado)
+  - **Solución 2**: En `src/store/bellezaStore.ts`, modificar `forceFontUpdate()` para que saltee elementos con clase `font-menu` (evita inline `style="font-family: inherit !important"`)
+  - Build 0 errores
+
 ---
 
 # Notas para Futuras AI
@@ -977,6 +997,11 @@ Stock para una talla específica
 8. **Tests**: Usar `npm run test` para ejecutar tests (Vitest). Los tests están en `src/test/`. El setup mockea Firebase automáticamente. Siempre ejecutar tests después de cambios en lógica de negocio (utils, cálculos, stores).
 
 9. **Responsive**: Todos los cambios visuales mobile deben usar prefijos `max-sm:` para no afectar desktop. El grid del catálogo usa `auto-rows-[280px]` en desktop y `auto-rows-auto` en mobile.
+
+10. **Font-family override de bellezaStore**: `src/store/bellezaStore.ts` inyecta un `<style>` global y ejecuta `forceFontUpdate()` que fuerza `font-family: inherit !important` en TODOS los elementos. Si agregás una fuente personalizada via `font-menu` o similar, necesitás:
+    - Agregar una regla CSS con `!important` en `src/index.css` para esa clase
+    - Modificar `forceFontUpdate()` para que saltee los elementos con esa clase (usando `.classList.contains()` y `.closest()`)
+    - Ver en DevTools que no haya inline `style="font-family: inherit !important"` en los elementos objetivo
 
 ---
 

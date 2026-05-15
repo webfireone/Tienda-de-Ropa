@@ -134,7 +134,7 @@ export function Header() {
                   key={link.to}
                   onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
                   className={cn(
-                    "flex items-center gap-1 px-1.5 py-1.5 text-[11px] font-medium rounded-lg transition-all duration-300 whitespace-nowrap shrink-0",
+                    "flex items-center gap-1 px-1.5 py-1.5 text-[11px] font-menu rounded-lg transition-all duration-300 whitespace-nowrap shrink-0",
                     isActive
                       ? "bg-secondary text-primary shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -220,7 +220,7 @@ export function Header() {
                   key={link.to}
                   onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
                   className={cn(
-                    "flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
+                    "flex items-center gap-1 px-2 py-1 text-[10px] font-menu rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
                     isActive
                       ? "bg-secondary text-primary"
                       : "text-muted-foreground hover:text-foreground"
