@@ -91,7 +91,7 @@ function MiniPreview({ config }: { config: FullThemeConfig }) {
           </div>
         </div>
         <div className="flex gap-1 mb-3">
-          {["Inicio", "Catálogo", "Outlet"].map((l, i) => (
+          {["Inicio", "Catálogo", "Ofertas"].map((l, i) => (
             <span key={l} className={cn("text-[9px] px-2 py-1 rounded-md", i === 0 ? "" : "opacity-60")} style={i === 0 ? { background: c.primary, color: c.primaryForeground } : { color: c.mutedForeground }}>{l}</span>
           ))}
         </div>

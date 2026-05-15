@@ -16,7 +16,7 @@ interface NavLink { to: string; label: string; icon: ComponentType<{ className?:
 const navLinks: NavLink[] = [
   { to: "/", label: "Inicio", icon: Sparkles },
   { to: "/catalog", label: "Catálogo", icon: Store },
-  { to: "/outlet", label: "Outlet", icon: Tag },
+  { to: "/ofertas", label: "Ofertas", icon: Tag },
   { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
 ]
 

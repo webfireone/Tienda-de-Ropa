@@ -28,7 +28,7 @@ export interface Product {
   colors: ProductColor[]
   material: string
   tags: string[]
-  seccion: "general" | "outlet" | "nueva-coleccion"
+  seccion: "general" | "ofertas" | "nueva-coleccion"
   status: "active" | "draft" | "archived"
   createdAt: string
   updatedAt: string
@@ -159,7 +159,7 @@ export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"] as const
 
 export const PRODUCT_STATUS = ["active", "draft", "archived"] as const
 
-export const SECCIONES = ["general", "outlet", "nueva-coleccion"] as const
+export const SECCIONES = ["general", "ofertas", "nueva-coleccion"] as const
 
 export interface Promotion {
   id: string

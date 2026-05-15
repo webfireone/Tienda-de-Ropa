@@ -18,7 +18,7 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [imageLoaded, setImageLoaded] = useState(false)
   const totalStock = getTotalStock(product)
-  const sectionBadge = product.seccion === "outlet"
+  const sectionBadge = product.seccion === "ofertas"
     ? { label: "OUTLET", className: "gradient-warm" }
     : product.seccion === "nueva-coleccion"
     ? { label: "NUEVO", className: "gradient-cool" }

@@ -198,7 +198,7 @@ export function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
             { title: "Catálogo", image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=600&fit=crop", count: "Todos los productos", path: "/catalog" },
-            { title: "Outlet", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=600&fit=crop", count: "Precios especiales", path: "/outlet" },
+            { title: "Ofertas", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&h=600&fit=crop", count: "Precios especiales", path: "/ofertas" },
             { title: "Nueva Colección", image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&h=600&fit=crop", count: "Lo último", path: "/nueva-coleccion" },
           ].map((cat, i) => (
             <Reveal
@@ -462,7 +462,7 @@ export function LandingPage() {
               <div className="space-y-1">
                 {[
                   { label: "Catálogo", path: "/catalog" },
-                  { label: "Outlet", path: "/outlet" },
+                  { label: "Ofertas", path: "/ofertas" },
                   { label: "Nueva Colección", path: "/nueva-coleccion" },
                   { label: "Carrito", path: "/cart" },
                 ].map((link) => (

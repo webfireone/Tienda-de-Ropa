@@ -140,7 +140,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               >
                 {SECCIONES.map(s => (
                   <option key={s} value={s}>
-                    {s === "general" ? "General" : s === "outlet" ? "Outlet" : "Nueva Colección"}
+                    {s === "general" ? "General" : s === "ofertas" ? "Ofertas" : "Nueva Colección"}
                   </option>
                 ))}
               </select>
@@ -255,7 +255,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
               >
                 {SECCIONES.map(s => (
                   <option key={s} value={s}>
-                    {s === "general" ? "General" : s === "outlet" ? "Outlet" : "Nueva Colección"}
+                    {s === "general" ? "General" : s === "ofertas" ? "Ofertas" : "Nueva Colección"}
                   </option>
                 ))}
               </select>

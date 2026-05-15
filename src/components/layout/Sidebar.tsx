@@ -20,7 +20,7 @@ export function Sidebar() {
   const clientLinks = [
     { to: "/", label: "Inicio", icon: Shirt },
     { to: "/catalog", label: "Catálogo", icon: Store },
-    { to: "/outlet", label: "Outlet", icon: Tag },
+    { to: "/ofertas", label: "Ofertas", icon: Tag },
     { to: "/nueva-coleccion", label: "Nueva Colección", icon: Layers },
     { to: "/cart", label: "Carrito de Compra", icon: ShoppingCart },
   ]

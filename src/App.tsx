@@ -22,7 +22,7 @@ const ImportExportPage = lazyPage(() => import("@/pages/ImportExportPage"), "Imp
 const ProductsPage = lazyPage(() => import("@/pages/ProductsPage"), "ProductsPage")
 const LoginPage = lazyPage(() => import("@/pages/LoginPage"), "LoginPage")
 const ConfigPage = lazyPage(() => import("@/pages/ConfigPage"), "ConfigPage")
-const OutletPage = lazyPage(() => import("@/pages/OutletPage"), "OutletPage")
+const OfertasPage = lazyPage(() => import("@/pages/OfertasPage"), "OfertasPage")
 const NuevaColeccionPage = lazyPage(() => import("@/pages/NuevaColeccionPage"), "NuevaColeccionPage")
 const MarketingPage = lazyPage(() => import("@/pages/MarketingPage"), "MarketingPage")
 const OrdersPage = lazyPage(() => import("@/pages/OrdersPage"), "OrdersPage")
@@ -97,7 +97,7 @@ function AppRoutes() {
                 <Route path="/alerts" element={<AlertsPage />} />
                 <Route path="/import-export" element={<ImportExportPage />} />
                 <Route path="/config" element={<ConfigPage />} />
-                <Route path="/outlet" element={<OutletPage />} />
+                <Route path="/ofertas" element={<OfertasPage />} />
                 <Route path="/nueva-coleccion" element={<NuevaColeccionPage />} />
                 <Route path="/marketing" element={<MarketingPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
