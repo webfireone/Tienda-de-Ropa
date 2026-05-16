@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore"
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, updateDoc } from "firebase/firestore"
 import type { Cancion, Reproduccion, LikeCancion, MonthlyRankingEntry } from "@/types/music"
 import { MOCK_SONGS } from "@/types/music"
 import { useAuth } from "@/context/AuthContext"
@@ -100,11 +100,16 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
     if (path === "music_songs") {
       const active = (firestoreDocs as unknown as Cancion[]).filter(s => !(s as any).deleted)
       if (active.length === 0) {
-        for (const s of MOCK_SONGS) {
-          await setDoc(doc(db, "music_songs", s.id), s)
+        const seeded = await getDoc(doc(db, "_meta", "music_seeded"))
+        if (!seeded.exists()) {
+          await setDoc(doc(db, "_meta", "music_seeded"), { seeded: true, seededAt: new Date().toISOString() })
+          for (const s of MOCK_SONGS) {
+            await setDoc(doc(db, "music_songs", s.id), s)
+          }
+          const seededSnapshot = await getDocs(collection(db, path))
+          return seededSnapshot.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
         }
-        const seeded = await getDocs(collection(db, path))
-        return seeded.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
+        return [] as unknown as T[]
       }
       return active as unknown as T[]
     }
@@ -177,7 +182,15 @@ export function useDeleteCancion() {
         try { await deleteAudioFile(id) } catch { /* ignore */ }
         return id
       }
-      await setDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
+      try {
+        await updateDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
+      } catch (err) {
+        if ((err as any)?.code === "not-found") {
+          await setDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
+        } else {
+          throw err
+        }
+      }
       try { await deleteAudio(id) } catch { /* ignore */ }
       return id
     },
@@ -185,7 +198,30 @@ export function useDeleteCancion() {
       queryClient.invalidateQueries({ queryKey: ["music", "canciones"] })
     },
     onError: (err) => {
-      console.error("[useDeleteCancion] Error:", err)
+      console.error("[useDeleteCancion] Error details:", err)
+    },
+  })
+}
+
+export function useResetMusicCollection() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      if (USE_MOCK) return 0
+      const snapshot = await getDocs(collection(db, "music_songs"))
+      const docs = snapshot.docs
+      for (const d of docs) {
+        await deleteDoc(doc(db, "music_songs", d.id))
+        try { await deleteAudio(d.id) } catch { /* ignore */ }
+      }
+      await setDoc(doc(db, "_meta", "music_seeded"), { seeded: true, resetAt: new Date().toISOString() })
+      return docs.length
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["music", "canciones"] })
+    },
+    onError: (err) => {
+      console.error("[useResetMusicCollection] Error:", err)
     },
   })
 }

@@ -2,76 +2,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Sitio: tema global (sitioConfig/theme)
-    // Todos pueden leer, solo admins pueden escribir
-    match /siteConfig/{doc=**} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-    }
-
-    // Productos: anyone read, only admin write
-    match /products/{productId} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-    }
-
-    // Pedidos: solo usuarios autenticados pueden leer sus propios pedidos
-    match /orders/{orderId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null;
-    }
-
-    // Usuarios: solo el propio usuario puede leer/escribir
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Promociones y suscriptores
-    match /promotions/{promoId} {
-      allow read: if true;
-      allow write: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-    }
-
-    match /subscribers/{subId} {
-      allow read: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-      allow create: if true;
-    }
-
-    // Glamours Music - solo admins pueden escribir, todos pueden leer
     match /music_songs/{songId} {
       allow read: if true;
       allow write: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
+        && (request.auth.token.email in ['admin@tiendaropa.com', 'tiendaderopa@admin.com']
+            || request.auth.uid == 'admin-001'
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
 
     match /music_plays/{playId} {
-      allow read: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-      allow create: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     match /music_likes/{likeId} {
-      allow read: if request.auth != null
-        && (request.auth.token.email == 'admin@tiendaropa.com'
-            || request.auth.token.email == 'tiendaderopa@admin.com'
-            || request.auth.uid == 'admin-001');
-      allow create, delete: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /_meta/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && (request.auth.token.email in ['admin@tiendaropa.com', 'tiendaderopa@admin.com']
+            || request.auth.uid == 'admin-001'
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

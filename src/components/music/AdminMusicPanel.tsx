@@ -1,9 +1,9 @@
 import { useState, useRef } from "react"
-import { useCanciones, useSaveCancion, useDeleteCancion } from "@/hooks/useMusic"
+import { useCanciones, useSaveCancion, useDeleteCancion, useResetMusicCollection } from "@/hooks/useMusic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2 } from "lucide-react"
+import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 import { saveAudioFile } from "@/lib/mockStorage"
@@ -21,6 +21,7 @@ export function AdminMusicPanel() {
   const { data: canciones = [], isLoading } = useCanciones()
   const saveCancion = useSaveCancion()
   const deleteCancion = useDeleteCancion()
+  const resetMusic = useResetMusicCollection()
 
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -268,6 +269,19 @@ export function AdminMusicPanel() {
               <Button type="button" size="sm" variant="outline" onClick={() => folderInputRef.current?.click()}>
                 <FolderOpen className="w-4 h-4" />
                 Importar Múltiples
+              </Button>
+              <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={async () => {
+                if (!window.confirm("¿Eliminar TODAS las canciones de Firebase? La biblioteca quedará vacía para que subas tus propios temas.")) return
+                setError("")
+                try {
+                  const count = await resetMusic.mutateAsync()
+                  setError(`Reset completado: ${count} canciones eliminadas. La biblioteca está vacía, ya puedes subir tus temas desde cero.`)
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Error al resetear")
+                }
+              }} disabled={resetMusic.isPending}>
+                {resetMusic.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                Reset
               </Button>
               <input
                 ref={folderInputRef}
