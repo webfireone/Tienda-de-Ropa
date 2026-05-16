@@ -4,22 +4,23 @@ import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "firebase/fi
 import type { Cancion, Reproduccion, LikeCancion, MonthlyRankingEntry } from "@/types/music"
 import { MOCK_SONGS } from "@/types/music"
 import { useAuth } from "@/context/AuthContext"
+import { loadAudioBlob, deleteAudioFile } from "@/lib/mockStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 // Almacén mutable para modo mock (permite editar/eliminar/agregar)
 // Persiste en localStorage (solo metadatos, sin archivo blob URL que expira)
+// Los archivos MP3 se guardan en IndexedDB via mockStorage.ts
 const MOCK_STORAGE_KEY = "glamours_mock_canciones"
 function loadMockCanciones(): Cancion[] {
   try {
     const saved = localStorage.getItem(MOCK_STORAGE_KEY)
     if (saved) return JSON.parse(saved)
   } catch { /* ignore */ }
-  return [...MOCK_SONGS]
+  return MOCK_SONGS.map(c => ({ ...c }))
 }
 function saveMockCanciones(canciones: Cancion[]) {
   try {
-    // Guardar solo metadatos, nunca blob URLs (expiran al recargar)
     const sanitized = canciones.map(c => ({
       ...c,
       archivoUrl: c.archivoUrl.startsWith("blob:")
@@ -29,7 +30,42 @@ function saveMockCanciones(canciones: Cancion[]) {
     localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(sanitized))
   } catch { /* ignore */ }
 }
-let mockCanciones: Cancion[] = loadMockCanciones().filter(c => c.archivoUrl || MOCK_SONGS.some(m => m.id === c.id))
+
+let mockCanciones: Cancion[] | null = null
+let mockInitPromise: Promise<void> | null = null
+
+async function ensureMockInit(): Promise<void> {
+  if (mockCanciones !== null) return
+  if (mockInitPromise) return mockInitPromise
+
+  mockInitPromise = (async () => {
+    const raw = loadMockCanciones()
+    const result: Cancion[] = []
+
+    for (const c of raw) {
+      const original = MOCK_SONGS.find(m => m.id === c.id)
+      if (original) {
+        result.push({ ...original })
+        continue
+      }
+      if (c.archivoUrl && !c.archivoUrl.startsWith("blob:")) {
+        result.push(c)
+        continue
+      }
+      try {
+        const blob = await loadAudioBlob(c.id)
+        if (blob) {
+          result.push({ ...c, archivoUrl: URL.createObjectURL(blob) })
+          continue
+        }
+      } catch { /* ignore */ }
+    }
+
+    mockCanciones = result
+  })()
+
+  return mockInitPromise
+}
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -47,7 +83,10 @@ function isCurrentMonth(dateStr: string): boolean {
 
 async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]> {
   if (USE_MOCK) {
-    if (path === "music_songs") return mockCanciones as unknown as T[]
+    if (path === "music_songs") {
+      await ensureMockInit()
+      return (mockCanciones ?? []) as unknown as T[]
+    }
     return fallback
   }
   try {
@@ -76,13 +115,14 @@ export function useSaveCancion() {
   return useMutation({
     mutationFn: async (cancion: Cancion) => {
       if (USE_MOCK) {
-        const idx = mockCanciones.findIndex(c => c.id === cancion.id)
+        await ensureMockInit()
+        const idx = mockCanciones!.findIndex(c => c.id === cancion.id)
         if (idx >= 0) {
-          mockCanciones[idx] = cancion
+          mockCanciones![idx] = cancion
         } else {
-          mockCanciones.push(cancion)
+          mockCanciones!.push(cancion)
         }
-        saveMockCanciones(mockCanciones)
+        saveMockCanciones(mockCanciones!)
         return cancion
       }
       await setDoc(doc(db, "music_songs", cancion.id), cancion)
@@ -99,8 +139,10 @@ export function useDeleteCancion() {
   return useMutation({
     mutationFn: async (id: string) => {
       if (USE_MOCK) {
-        mockCanciones = mockCanciones.filter(c => c.id !== id)
+        await ensureMockInit()
+        mockCanciones = mockCanciones!.filter(c => c.id !== id)
         saveMockCanciones(mockCanciones)
+        try { await deleteAudioFile(id) } catch { /* ignore */ }
         return id
       }
       await deleteDoc(doc(db, "music_songs", id))

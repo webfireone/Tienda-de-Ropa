@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input"
 import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
+import { saveAudioFile } from "@/lib/mockStorage"
+
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 const COVER_COLORS = [
   "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
@@ -34,6 +37,7 @@ export function AdminMusicPanel() {
   const [importTotal, setImportTotal] = useState(0)
   const folderInputRef = useRef<HTMLInputElement>(null)
   const singleFolderRef = useRef<HTMLInputElement>(null)
+  const selectedFileRef = useRef<File | null>(null)
 
   const resetForm = () => {
     setTitulo("")
@@ -44,6 +48,7 @@ export function AdminMusicPanel() {
     setEditingId(null)
     setIsFormOpen(false)
     setError("")
+    selectedFileRef.current = null
   }
 
   const handleEdit = (cancion: Cancion) => {
@@ -87,6 +92,9 @@ export function AdminMusicPanel() {
     }
 
     try {
+      if (USE_MOCK && selectedFileRef.current && !editingId) {
+        await saveAudioFile(cancion.id, selectedFileRef.current)
+      }
       await saveCancion.mutateAsync(cancion)
       resetForm()
     } catch (err) {
@@ -101,6 +109,7 @@ export function AdminMusicPanel() {
         setError("El archivo MP3 no puede superar los 10MB")
         return
       }
+      selectedFileRef.current = file
       const url = URL.createObjectURL(file)
       setArchivoUrl(url)
     }
@@ -116,6 +125,7 @@ export function AdminMusicPanel() {
       setError("El archivo MP3 no puede superar los 10MB")
       return
     }
+    selectedFileRef.current = file
     setTitulo((file.webkitRelativePath.split("/").pop() || file.name).replace(/\.mp3$/i, "").trim())
     setArchivoUrl(URL.createObjectURL(file))
     setError("")
@@ -170,6 +180,9 @@ export function AdminMusicPanel() {
           portadaUrl: `https://placehold.co/400x400/${color}/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
           fechaSubida: new Date().toISOString().slice(0, 10),
           activo: true,
+        }
+        if (USE_MOCK) {
+          await saveAudioFile(cancion.id, entry.file)
         }
         await saveCancion.mutateAsync(cancion)
         imported++
