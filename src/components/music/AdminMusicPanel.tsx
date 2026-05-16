@@ -112,14 +112,16 @@ export function AdminMusicPanel() {
   }
 
   const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []).filter(f => f.type === "audio/mpeg" || f.name.endsWith(".mp3"))
+    const files = Array.from(e.target.files || []).filter(f =>
+      /\.mp3$/i.test(f.name)
+    )
     if (files.length === 0) {
       setError("No se encontraron archivos MP3 en la carpeta seleccionada")
       return
     }
     const entries = files.map(f => ({
       file: f,
-      titulo: f.name.replace(/\.mp3$/i, "").trim(),
+      titulo: (f.webkitRelativePath.split("/").pop() || f.name).replace(/\.mp3$/i, "").trim(),
       artista: "Glamour's",
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}-${Math.random().toString(36).slice(2, 5)}`,
     }))
