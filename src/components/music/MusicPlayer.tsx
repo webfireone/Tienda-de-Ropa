@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react"
+import { useEffect, useRef, useCallback } from "react"
 import { useMusicStore } from "@/store/musicStore"
 import { useRegistrarReproduccion } from "@/hooks/useMusic"
 import { Equalizer } from "./Equalizer"
@@ -7,81 +7,13 @@ import { cn } from "@/lib/utils"
 
 export function MusicPlayer() {
   const {
-    currentSong, isPlaying, progress, duration, volume,
-    setProgress, setDuration, setVolume, setIsPlaying,
-    togglePlay, seek,
+    currentSong, isPlaying, progress, duration, volume, audioError,
+    setVolume, togglePlay, seek,
   } = useMusicStore()
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const registrarReproduccion = useRegistrarReproduccion()
   const hasRegisteredPlay = useRef(false)
   const playTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Create audio element once
-  useEffect(() => {
-    const a = new Audio()
-    a.preload = "metadata"
-    audioRef.current = a
-
-    const onTime = () => setProgress(a.currentTime)
-    const onMeta = () => setDuration(a.duration)
-    const onEnd = () => { setIsPlaying(false); setProgress(0); hasRegisteredPlay.current = false }
-    const onPlay = () => setIsPlaying(true)
-    const onPause = () => setIsPlaying(false)
-    const onError = () => { console.warn("Audio error:", a.src); setIsPlaying(false) }
-
-    a.addEventListener("timeupdate", onTime)
-    a.addEventListener("loadedmetadata", onMeta)
-    a.addEventListener("ended", onEnd)
-    a.addEventListener("play", onPlay)
-    a.addEventListener("pause", onPause)
-    a.addEventListener("error", onError)
-
-    return () => {
-      a.removeEventListener("timeupdate", onTime)
-      a.removeEventListener("loadedmetadata", onMeta)
-      a.removeEventListener("ended", onEnd)
-      a.removeEventListener("play", onPlay)
-      a.removeEventListener("pause", onPause)
-      a.removeEventListener("error", onError)
-      a.pause()
-      a.src = ""
-      if (playTimer.current) clearTimeout(playTimer.current)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // When currentSong changes, load new source and play
-  useEffect(() => {
-    const a = audioRef.current
-    if (!a || !currentSong?.archivoUrl) return
-
-    hasRegisteredPlay.current = false
-    a.src = currentSong.archivoUrl
-    a.load()
-    a.play().catch((err) => {
-      console.warn("Play prevented:", err.message)
-      setIsPlaying(false)
-    })
-  }, [currentSong?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Sync isPlaying state to audio element
-  useEffect(() => {
-    const a = audioRef.current
-    if (!a || !a.src) return
-    if (isPlaying) {
-      a.play().catch((err) => {
-        console.warn("Resume prevented:", err.message)
-        setIsPlaying(false)
-      })
-    } else {
-      a.pause()
-    }
-  }, [isPlaying]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Sync volume
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume
-  }, [volume])
 
   // Track play > 10s for ranking
   useEffect(() => {
@@ -95,13 +27,15 @@ export function MusicPlayer() {
     return () => { if (playTimer.current) clearTimeout(playTimer.current) }
   }, [isPlaying, currentSong?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Reset registered flag when song changes
+  useEffect(() => {
+    hasRegisteredPlay.current = false
+  }, [currentSong?.id])
+
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const a = audioRef.current
-    if (!a) return
     const r = e.currentTarget.getBoundingClientRect()
     const pct = (e.clientX - r.left) / r.width
     const t = pct * (duration || 1)
-    a.currentTime = t
     seek(t)
   }, [duration, seek])
 
@@ -147,6 +81,9 @@ export function MusicPlayer() {
           <Equalizer active={isPlaying} className="justify-center mb-3" />
           <h3 className="font-display text-base font-bold text-white drop-shadow-lg">{currentSong.titulo}</h3>
           <p className="text-xs text-white/70 mt-0.5 drop-shadow">{currentSong.artista}</p>
+          {audioError && (
+            <p className="text-[10px] text-destructive mt-1">{audioError}</p>
+          )}
         </div>
 
         {/* Progress bar */}
