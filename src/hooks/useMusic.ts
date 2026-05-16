@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext"
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 // Almacén mutable para modo mock (permite editar/eliminar/agregar)
-// Persiste en localStorage para que sobreviva a recargas de página
+// Persiste en localStorage (solo metadatos, sin archivo blob URL que expira)
 const MOCK_STORAGE_KEY = "glamours_mock_canciones"
 function loadMockCanciones(): Cancion[] {
   try {
@@ -19,10 +19,17 @@ function loadMockCanciones(): Cancion[] {
 }
 function saveMockCanciones(canciones: Cancion[]) {
   try {
-    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(canciones))
+    // Guardar solo metadatos, nunca blob URLs (expiran al recargar)
+    const sanitized = canciones.map(c => ({
+      ...c,
+      archivoUrl: c.archivoUrl.startsWith("blob:")
+        ? ""
+        : c.archivoUrl,
+    }))
+    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(sanitized))
   } catch { /* ignore */ }
 }
-let mockCanciones: Cancion[] = loadMockCanciones()
+let mockCanciones: Cancion[] = loadMockCanciones().filter(c => c.archivoUrl || MOCK_SONGS.some(m => m.id === c.id))
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`

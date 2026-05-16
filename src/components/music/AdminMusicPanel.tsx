@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import { useCanciones, useSaveCancion, useDeleteCancion } from "@/hooks/useMusic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,7 +7,11 @@ import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, 
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 
-const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
+const COVER_COLORS = [
+  "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
+  "ef4444", "a855f7", "06b6d4", "f97316", "84cc16",
+  "6366f1", "d946ef", "14b8a6", "e11d48", "0ea5e9",
+]
 
 export function AdminMusicPanel() {
   const { data: canciones = [], isLoading } = useCanciones()
@@ -26,13 +30,10 @@ export function AdminMusicPanel() {
   const [isBulkOpen, setIsBulkOpen] = useState(false)
   const [bulkFiles, setBulkFiles] = useState<{ file: File; titulo: string; artista: string; id: string }[]>([])
   const [isImporting, setIsImporting] = useState(false)
+  const [importProgress, setImportProgress] = useState(0)
+  const [importTotal, setImportTotal] = useState(0)
   const folderInputRef = useRef<HTMLInputElement>(null)
-
-  const COVER_COLORS = [
-    "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
-    "ef4444", "a855f7", "06b6d4", "f97316", "84cc16",
-    "6366f1", "d946ef", "14b8a6", "e11d48", "0ea5e9",
-  ]
+  const singleFolderRef = useRef<HTMLInputElement>(null)
 
   const resetForm = () => {
     setTitulo("")
@@ -100,14 +101,25 @@ export function AdminMusicPanel() {
         setError("El archivo MP3 no puede superar los 10MB")
         return
       }
-      if (USE_MOCK) {
-        const url = URL.createObjectURL(file)
-        setArchivoUrl(url)
-      } else {
-        setArchivoUrl(URL.createObjectURL(file))
-      }
+      const url = URL.createObjectURL(file)
+      setArchivoUrl(url)
     }
   }
+
+  const handleSingleFolderSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = Array.from(e.target.files || []).find(f => /\.mp3$/i.test(f.name))
+    if (!file) {
+      setError("No se encontraron archivos MP3 en la carpeta seleccionada")
+      return
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("El archivo MP3 no puede superar los 10MB")
+      return
+    }
+    setTitulo((file.webkitRelativePath.split("/").pop() || file.name).replace(/\.mp3$/i, "").trim())
+    setArchivoUrl(URL.createObjectURL(file))
+    setError("")
+  }, [])
 
   const handlePortadaFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -136,43 +148,46 @@ export function AdminMusicPanel() {
     setError("")
   }
 
-  const readFileAsDataURL = (file: File): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(file)
-    })
-
   const handleBulkImport = async () => {
     if (bulkFiles.length === 0) return
     setIsImporting(true)
     setError("")
+    setImportProgress(0)
+    setImportTotal(bulkFiles.length)
     let imported = 0
+    let failed: string[] = []
+
     for (let i = 0; i < bulkFiles.length; i++) {
       const entry = bulkFiles[i]
       if (!entry.titulo.trim()) continue
       const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
-        const archivoUrl = await readFileAsDataURL(entry.file)
         const cancion: Cancion = {
           id: entry.id,
           titulo: entry.titulo.trim(),
           artista: entry.artista.trim() || "Glamour's",
-          archivoUrl,
+          archivoUrl: URL.createObjectURL(entry.file),
           portadaUrl: `https://placehold.co/400x400/${color}/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
           fechaSubida: new Date().toISOString().slice(0, 10),
           activo: true,
         }
         await saveCancion.mutateAsync(cancion)
         imported++
-      } catch { /* skip individual failures */ }
+      } catch {
+        failed.push(entry.titulo)
+      }
+      setImportProgress(i + 1)
     }
+
     setIsImporting(false)
     setIsBulkOpen(false)
     setBulkFiles([])
-    if (imported > 0) {
+    if (failed.length > 0) {
+      setError(`${imported} importadas, ${failed.length} fallaron: ${failed.join(", ")}`)
+    } else if (imported > 0) {
       setError(`${imported} canciones importadas exitosamente`)
+    } else {
+      setError("No se pudo importar ninguna canción")
     }
   }
 
@@ -247,7 +262,21 @@ export function AdminMusicPanel() {
                     <Music className="w-3 h-3 inline mr-1" />
                     Archivo MP3
                   </label>
-                  <Input type="file" accept=".mp3,audio/mpeg" onChange={handleArchivoFile} className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:gradient-primary file:text-white hover:file:opacity-90" />
+                  <div className="flex gap-2">
+                    <Input type="file" accept=".mp3,audio/mpeg" onChange={handleArchivoFile} className="flex-1 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:gradient-primary file:text-white hover:file:opacity-90" />
+                    <Button type="button" size="sm" variant="outline" onClick={() => singleFolderRef.current?.click()} title="Seleccionar desde carpeta">
+                      <FolderOpen className="w-3.5 h-3.5" />
+                    </Button>
+                    <input
+                      ref={singleFolderRef}
+                      type="file"
+                      multiple
+                      accept=".mp3,audio/mpeg"
+                      onChange={handleSingleFolderSelect}
+                      className="hidden"
+                      {...{ webkitdirectory: "", directory: "" }}
+                    />
+                  </div>
                   <p className="text-[10px] text-muted-foreground mt-1">Máx 10MB</p>
                 </div>
                 <div>
@@ -331,7 +360,7 @@ export function AdminMusicPanel() {
             ))}
           </CardContent>
           <div className="flex items-center justify-end gap-2 px-6 pb-4">
-            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }}>
+            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }} disabled={isImporting}>
               Cancelar
             </Button>
             <Button size="sm" onClick={handleBulkImport} disabled={isImporting}>
@@ -340,9 +369,21 @@ export function AdminMusicPanel() {
               ) : (
                 <Check className="w-4 h-4" />
               )}
-              Importar {bulkFiles.length} canción{bulkFiles.length !== 1 ? "es" : ""}
+              {isImporting
+                ? `Importando ${importProgress}/${importTotal}...`
+                : `Importar ${bulkFiles.length} canción${bulkFiles.length !== 1 ? "es" : ""}`
+              }
             </Button>
           </div>
+          {isImporting && (
+            <div className="px-6 pb-4">
+              <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-highlight rounded-full transition-all duration-300"
+                  style={{ width: `${(importProgress / importTotal) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
         </Card>
       )}
 
