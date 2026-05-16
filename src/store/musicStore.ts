@@ -31,6 +31,9 @@ function setupAudioEvents(a: HTMLAudioElement, store: {
       store.setIsPlaying(false)
     }
   })
+  a.addEventListener("canplay", () => {
+    store.setAudioError(null)
+  })
 }
 
 function initAudio(store: {
