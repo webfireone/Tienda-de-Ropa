@@ -28,6 +28,12 @@ export function AdminMusicPanel() {
   const [isImporting, setIsImporting] = useState(false)
   const folderInputRef = useRef<HTMLInputElement>(null)
 
+  const COVER_COLORS = [
+    "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
+    "ef4444", "a855f7", "06b6d4", "f97316", "84cc16",
+    "6366f1", "d946ef", "14b8a6", "e11d48", "0ea5e9",
+  ]
+
   const resetForm = () => {
     setTitulo("")
     setArtista("")
@@ -130,23 +136,34 @@ export function AdminMusicPanel() {
     setError("")
   }
 
+  const readFileAsDataURL = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
   const handleBulkImport = async () => {
     if (bulkFiles.length === 0) return
     setIsImporting(true)
     setError("")
     let imported = 0
-    for (const entry of bulkFiles) {
+    for (let i = 0; i < bulkFiles.length; i++) {
+      const entry = bulkFiles[i]
       if (!entry.titulo.trim()) continue
-      const cancion: Cancion = {
-        id: entry.id,
-        titulo: entry.titulo.trim(),
-        artista: entry.artista.trim() || "Glamour's",
-        archivoUrl: URL.createObjectURL(entry.file),
-        portadaUrl: `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
-        fechaSubida: new Date().toISOString().slice(0, 10),
-        activo: true,
-      }
+      const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
+        const archivoUrl = await readFileAsDataURL(entry.file)
+        const cancion: Cancion = {
+          id: entry.id,
+          titulo: entry.titulo.trim(),
+          artista: entry.artista.trim() || "Glamour's",
+          archivoUrl,
+          portadaUrl: `https://placehold.co/400x400/${color}/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
+          fechaSubida: new Date().toISOString().slice(0, 10),
+          activo: true,
+        }
         await saveCancion.mutateAsync(cancion)
         imported++
       } catch { /* skip individual failures */ }

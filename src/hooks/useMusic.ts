@@ -8,7 +8,21 @@ import { useAuth } from "@/context/AuthContext"
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 // Almacén mutable para modo mock (permite editar/eliminar/agregar)
-let mockCanciones: Cancion[] = [...MOCK_SONGS]
+// Persiste en localStorage para que sobreviva a recargas de página
+const MOCK_STORAGE_KEY = "glamours_mock_canciones"
+function loadMockCanciones(): Cancion[] {
+  try {
+    const saved = localStorage.getItem(MOCK_STORAGE_KEY)
+    if (saved) return JSON.parse(saved)
+  } catch { /* ignore */ }
+  return [...MOCK_SONGS]
+}
+function saveMockCanciones(canciones: Cancion[]) {
+  try {
+    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(canciones))
+  } catch { /* ignore */ }
+}
+let mockCanciones: Cancion[] = loadMockCanciones()
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
@@ -61,6 +75,7 @@ export function useSaveCancion() {
         } else {
           mockCanciones.push(cancion)
         }
+        saveMockCanciones(mockCanciones)
         return cancion
       }
       await setDoc(doc(db, "music_songs", cancion.id), cancion)
@@ -78,6 +93,7 @@ export function useDeleteCancion() {
     mutationFn: async (id: string) => {
       if (USE_MOCK) {
         mockCanciones = mockCanciones.filter(c => c.id !== id)
+        saveMockCanciones(mockCanciones)
         return id
       }
       await deleteDoc(doc(db, "music_songs", id))
