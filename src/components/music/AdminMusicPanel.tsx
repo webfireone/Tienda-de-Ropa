@@ -148,20 +148,16 @@ export function AdminMusicPanel() {
   }
 
   const handleBulkImport = async () => {
-    const selected = bulkFiles.filter(f => bulkSelected.has(f.id))
-    if (selected.length === 0) {
-      setError("Seleccioná al menos una canción para importar")
-      return
-    }
+    if (bulkFiles.length === 0) return
     setIsImporting(true)
     setError("")
     setImportProgress(0)
-    setImportTotal(selected.length)
+    setImportTotal(bulkFiles.length)
     let imported = 0
     let failed: string[] = []
 
-    for (let i = 0; i < selected.length; i++) {
-      const entry = selected[i]
+    for (let i = 0; i < bulkFiles.length; i++) {
+      const entry = bulkFiles[i]
       if (!entry.titulo.trim()) continue
       const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
@@ -395,10 +391,22 @@ export function AdminMusicPanel() {
               </div>
             ))}
           </CardContent>
-          <div className="flex items-center justify-end gap-2 px-6 pb-4">
-            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]); setBulkSelected(new Set()) }} disabled={isImporting}>
-              Cancelar
-            </Button>
+          <div className="flex items-center justify-between gap-2 px-6 pb-4">
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]); setBulkSelected(new Set()) }} disabled={isImporting}>
+                Cancelar
+              </Button>
+              {bulkSelected.size > 0 && (
+                <Button variant="destructive" size="sm" onClick={() => {
+                  const remaining = bulkFiles.filter(f => !bulkSelected.has(f.id))
+                  setBulkFiles(remaining)
+                  setBulkSelected(new Set())
+                }} disabled={isImporting}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Eliminar {bulkSelected.size} seleccionado{bulkSelected.size !== 1 ? "s" : ""}
+                </Button>
+              )}
+            </div>
             <Button size="sm" onClick={handleBulkImport} disabled={isImporting}>
               {isImporting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -407,7 +415,7 @@ export function AdminMusicPanel() {
               )}
               {isImporting
                 ? `Importando ${importProgress}/${importTotal}...`
-                : `Importar ${bulkSelected.size} canción${bulkSelected.size !== 1 ? "es" : ""}`
+                : `Importar ${bulkFiles.length} canción${bulkFiles.length !== 1 ? "es" : ""}`
               }
             </Button>
           </div>

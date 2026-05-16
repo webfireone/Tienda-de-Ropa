@@ -22,10 +22,15 @@ function initAudio(store: {
   })
   audioEl.addEventListener("ended", () => {
     store.setIsPlaying(false)
+    store.setAudioError(null)
   })
   audioEl.addEventListener("error", () => {
-    console.warn("Audio error:", audioEl?.src)
-    store.setAudioError("Error al cargar el audio")
+    const mediaErr = audioEl?.error
+    const msg = mediaErr
+      ? `Error ${mediaErr.code}: ${mediaErr.message}`
+      : "Error al cargar el audio"
+    console.warn("[audio] error event:", msg, "src:", audioEl?.src)
+    store.setAudioError(msg)
     store.setIsPlaying(false)
   })
   return audioEl
@@ -127,9 +132,13 @@ export const useMusicStore = create<MusicStore>((set, get) => {
         hasJustChanged: true,
       })
 
-      a.play().catch((err) => {
-        console.error("[musicStore] play failed:", err, "src:", a.src)
-        set({ isPlaying: false, audioError: "Error al reproducir el audio" })
+      a.play().then(() => {
+        console.log("[musicStore] play OK:", song.titulo)
+      }).catch((err: unknown) => {
+        const name = err instanceof Error ? err.name : typeof err
+        const message = err instanceof Error ? err.message : String(err)
+        console.error("[musicStore] play FAILED:", name, message, "src:", a.src)
+        set({ isPlaying: false, audioError: `Error al reproducir (${name})` })
       })
     },
   }

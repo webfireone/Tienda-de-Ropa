@@ -84,6 +84,7 @@ export function MusicPlayer() {
           {audioError && (
             <p className="text-[10px] text-destructive mt-1">{audioError}</p>
           )}
+          <p className="text-[9px] text-white/30 mt-1 truncate max-w-[200px] mx-auto" title={currentSong.archivoUrl}>{currentSong.archivoUrl.slice(0, 50)}</p>
         </div>
 
         {/* Progress bar */}
