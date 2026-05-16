@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useCanciones, useSaveCancion, useDeleteCancion } from "@/hooks/useMusic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon } from "lucide-react"
+import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 
@@ -22,6 +22,11 @@ export function AdminMusicPanel() {
   const [portadaUrl, setPortadaUrl] = useState("")
   const [activo, setActivo] = useState(true)
   const [error, setError] = useState("")
+
+  const [isBulkOpen, setIsBulkOpen] = useState(false)
+  const [bulkFiles, setBulkFiles] = useState<{ file: File; titulo: string; artista: string; id: string }[]>([])
+  const [isImporting, setIsImporting] = useState(false)
+  const folderInputRef = useRef<HTMLInputElement>(null)
 
   const resetForm = () => {
     setTitulo("")
@@ -46,8 +51,12 @@ export function AdminMusicPanel() {
   }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("¿Eliminar esta canción?")) {
+    if (!window.confirm("¿Eliminar esta canción?")) return
+    setError("")
+    try {
       await deleteCancion.mutateAsync(id)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al eliminar la canción")
     }
   }
 
@@ -70,8 +79,12 @@ export function AdminMusicPanel() {
       activo,
     }
 
-    await saveCancion.mutateAsync(cancion)
-    resetForm()
+    try {
+      await saveCancion.mutateAsync(cancion)
+      resetForm()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al guardar la canción")
+    }
   }
 
   const handleArchivoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +111,52 @@ export function AdminMusicPanel() {
     }
   }
 
+  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).filter(f => f.type === "audio/mpeg" || f.name.endsWith(".mp3"))
+    if (files.length === 0) {
+      setError("No se encontraron archivos MP3 en la carpeta seleccionada")
+      return
+    }
+    const entries = files.map(f => ({
+      file: f,
+      titulo: f.name.replace(/\.mp3$/i, "").trim(),
+      artista: "Glamour's",
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}-${Math.random().toString(36).slice(2, 5)}`,
+    }))
+    setBulkFiles(entries)
+    setIsBulkOpen(true)
+    setError("")
+  }
+
+  const handleBulkImport = async () => {
+    if (bulkFiles.length === 0) return
+    setIsImporting(true)
+    setError("")
+    let imported = 0
+    for (const entry of bulkFiles) {
+      if (!entry.titulo.trim()) continue
+      const cancion: Cancion = {
+        id: entry.id,
+        titulo: entry.titulo.trim(),
+        artista: entry.artista.trim() || "Glamour's",
+        archivoUrl: URL.createObjectURL(entry.file),
+        portadaUrl: `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
+        fechaSubida: new Date().toISOString().slice(0, 10),
+        activo: true,
+      }
+      try {
+        await saveCancion.mutateAsync(cancion)
+        imported++
+      } catch { /* skip individual failures */ }
+    }
+    setIsImporting(false)
+    setIsBulkOpen(false)
+    setBulkFiles([])
+    if (imported > 0) {
+      setError(`${imported} canciones importadas exitosamente`)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -105,11 +164,35 @@ export function AdminMusicPanel() {
           <h2 className="text-xl font-display font-semibold">Gestión de Música</h2>
           <p className="text-sm text-muted-foreground">Administra las canciones de Glamours Music</p>
         </div>
-        <Button onClick={() => { resetForm(); setIsFormOpen(true) }} size="sm">
-          <Plus className="w-4 h-4" />
-          Nueva Canción
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => { resetForm(); setIsFormOpen(true) }} size="sm">
+            <Plus className="w-4 h-4" />
+            Nueva Canción
+          </Button>
+          <Button type="button" size="sm" variant="outline" onClick={() => folderInputRef.current?.click()}>
+            <FolderOpen className="w-4 h-4" />
+            Importar Múltiples
+          </Button>
+          <input
+            ref={folderInputRef}
+            type="file"
+            multiple
+            accept=".mp3,audio/mpeg"
+            onChange={handleFolderSelect}
+            className="hidden"
+            {...{ webkitdirectory: "", directory: "" }}
+          />
+        </div>
       </div>
+
+      {error && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+          <span className="flex-1">{error}</span>
+          <button onClick={() => setError("")} className="text-destructive/60 hover:text-destructive transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Form */}
       {isFormOpen && (
@@ -181,6 +264,66 @@ export function AdminMusicPanel() {
               </div>
             </form>
           </CardContent>
+        </Card>
+      )}
+
+      {/* Bulk Import Dialog */}
+      {isBulkOpen && (
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Music className="w-4 h-4" />
+                Importar {bulkFiles.length} canción{bulkFiles.length !== 1 ? "es" : ""}
+              </CardTitle>
+              <button onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">Revisa los datos antes de importar. Los títulos se toman del nombre del archivo.</p>
+          </CardHeader>
+          <CardContent className="space-y-3 max-h-[400px] overflow-y-auto">
+            {bulkFiles.map((entry, i) => (
+              <div key={entry.id} className="flex items-center gap-3 p-2 rounded-lg border border-primary/5 bg-card/30">
+                <span className="text-xs text-muted-foreground w-5 shrink-0 text-right">{i + 1}</span>
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Input
+                    value={entry.titulo}
+                    onChange={e => {
+                      const copy = [...bulkFiles]
+                      copy[i] = { ...copy[i], titulo: e.target.value }
+                      setBulkFiles(copy)
+                    }}
+                    placeholder="Título"
+                    className="h-8 text-xs"
+                  />
+                  <Input
+                    value={entry.artista}
+                    onChange={e => {
+                      const copy = [...bulkFiles]
+                      copy[i] = { ...copy[i], artista: e.target.value }
+                      setBulkFiles(copy)
+                    }}
+                    placeholder="Artista"
+                    className="h-8 text-xs"
+                  />
+                </div>
+              </div>
+            ))}
+          </CardContent>
+          <div className="flex items-center justify-end gap-2 px-6 pb-4">
+            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }}>
+              Cancelar
+            </Button>
+            <Button size="sm" onClick={handleBulkImport} disabled={isImporting}>
+              {isImporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+              Importar {bulkFiles.length} canción{bulkFiles.length !== 1 ? "es" : ""}
+            </Button>
+          </div>
         </Card>
       )}
 

@@ -7,6 +7,9 @@ import { useAuth } from "@/context/AuthContext"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
+// Almacén mutable para modo mock (permite editar/eliminar/agregar)
+let mockCanciones: Cancion[] = [...MOCK_SONGS]
+
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
@@ -22,7 +25,10 @@ function isCurrentMonth(dateStr: string): boolean {
 }
 
 async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]> {
-  if (USE_MOCK) return fallback
+  if (USE_MOCK) {
+    if (path === "music/songs") return mockCanciones as unknown as T[]
+    return fallback
+  }
   try {
     const snapshot = await getDocs(collection(db, path))
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
@@ -48,7 +54,15 @@ export function useSaveCancion() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (cancion: Cancion) => {
-      if (USE_MOCK) return cancion
+      if (USE_MOCK) {
+        const idx = mockCanciones.findIndex(c => c.id === cancion.id)
+        if (idx >= 0) {
+          mockCanciones[idx] = cancion
+        } else {
+          mockCanciones.push(cancion)
+        }
+        return cancion
+      }
       await setDoc(doc(db, "music/songs", cancion.id), cancion)
       return cancion
     },
@@ -62,7 +76,10 @@ export function useDeleteCancion() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      if (USE_MOCK) return id
+      if (USE_MOCK) {
+        mockCanciones = mockCanciones.filter(c => c.id !== id)
+        return id
+      }
       await deleteDoc(doc(db, "music/songs", id))
       return id
     },

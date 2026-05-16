@@ -1001,6 +1001,19 @@ Stock para una talla específica
   - **Fix**: Se eliminó el loop de `forceFontUpdate()` que ponía inline `font-family: inherit !important`. El `<style>` inyectado con selectores de triple-clase ya maneja correctamente la cascada de fuentes. `forceFontUpdate()` ahora solo actualiza las variables CSS en `:root`.
   - Build 0 errores
 
+### Fecha: 15/05/2026
+- **Fix**: Editar y eliminar canciones no funcionaban en modo mock
+  - **Causa raíz**: `MOCK_SONGS` era un array constante. `useSaveCancion()` y `useDeleteCancion()` en modo mock no mutaban ningún estado, solo devolvían el dato. Al invalidar la query se volvía a leer la constante original.
+  - **Fix**: Se creó `mockCanciones` (array mutable a nivel de módulo en `useMusic.ts`) que inicia como copia de `MOCK_SONGS`. `fetchMusicCollection` retorna `mockCanciones` en mock. `useSaveCancion` muta el array (edita si existe, agrega si no). `useDeleteCancion` filtra el array.
+  - Build 0 errores, tests 28 pass
+
+- **Feature**: Importación masiva de canciones desde carpeta local
+  - Nuevo botón "Importar Múltiples" en `AdminMusicPanel.tsx` que abre un selector de carpeta (`webkitdirectory`)
+  - Filtra archivos MP3, extrae título del nombre del archivo (sin extensión)
+  - Diálogo de preview con campos editables (título, artista) antes de importar
+  - Importación secuencial con loader, muestra cantidad de canciones importadas
+  - Build 0 errores
+
 ---
 
 # Notas para Futuras AI
@@ -1024,9 +1037,11 @@ Stock para una talla específica
 9. **Responsive**: Todos los cambios visuales mobile deben usar prefijos `max-sm:` para no afectar desktop. El grid del catálogo usa `auto-rows-[280px]` en desktop y `auto-rows-auto` en mobile.
 
 10. **Font-family override de bellezaStore**: `src/store/bellezaStore.ts` inyecta un `<style>` global y ejecuta `forceFontUpdate()` que fuerza `font-family: inherit !important` en TODOS los elementos. Si agregás una fuente personalizada via `font-menu` o similar, necesitás:
-    - Agregar una regla CSS con `!important` en `src/index.css` para esa clase
-    - Modificar `forceFontUpdate()` para que saltee los elementos con esa clase (usando `.classList.contains()` y `.closest()`)
-    - Ver en DevTools que no haya inline `style="font-family: inherit !important"` en los elementos objetivo
+     - Agregar una regla CSS con `!important` en `src/index.css` para esa clase
+     - Modificar `forceFontUpdate()` para que saltee los elementos con esa clase (usando `.classList.contains()` y `.closest()`)
+     - Ver en DevTools que no haya inline `style="font-family: inherit !important"` en los elementos objetivo
+
+11. **Mock mutable en hooks**: Los hooks de datos que usan arrays mock (ej. `useMusic.ts`) deben usar un array mutable a nivel de módulo (`let mockCanciones = [...MOCK_SONGS]`) para que las mutaciones (CRUD) funcionen en modo mock. Las funciones de mutación deben modificar este array y luego invalidar queries.
 
 ---
 
