@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef } from "react"
 import { useCanciones, useSaveCancion, useDeleteCancion } from "@/hooks/useMusic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,11 +32,12 @@ export function AdminMusicPanel() {
 
   const [isBulkOpen, setIsBulkOpen] = useState(false)
   const [bulkFiles, setBulkFiles] = useState<{ file: File; titulo: string; artista: string; id: string }[]>([])
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set())
   const [isImporting, setIsImporting] = useState(false)
   const [importProgress, setImportProgress] = useState(0)
   const [importTotal, setImportTotal] = useState(0)
   const folderInputRef = useRef<HTMLInputElement>(null)
-  const singleFolderRef = useRef<HTMLInputElement>(null)
+  const singleFileRef = useRef<HTMLInputElement>(null)
   const selectedFileRef = useRef<File | null>(null)
 
   const resetForm = () => {
@@ -112,24 +113,12 @@ export function AdminMusicPanel() {
       selectedFileRef.current = file
       const url = URL.createObjectURL(file)
       setArchivoUrl(url)
+      if (!titulo) {
+        setTitulo(file.name.replace(/\.mp3$/i, "").trim())
+      }
+      setError("")
     }
   }
-
-  const handleSingleFolderSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = Array.from(e.target.files || []).find(f => /\.mp3$/i.test(f.name))
-    if (!file) {
-      setError("No se encontraron archivos MP3 en la carpeta seleccionada")
-      return
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("El archivo MP3 no puede superar los 10MB")
-      return
-    }
-    selectedFileRef.current = file
-    setTitulo((file.webkitRelativePath.split("/").pop() || file.name).replace(/\.mp3$/i, "").trim())
-    setArchivoUrl(URL.createObjectURL(file))
-    setError("")
-  }, [])
 
   const handlePortadaFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -159,16 +148,20 @@ export function AdminMusicPanel() {
   }
 
   const handleBulkImport = async () => {
-    if (bulkFiles.length === 0) return
+    const selected = bulkFiles.filter(f => bulkSelected.has(f.id))
+    if (selected.length === 0) {
+      setError("Seleccioná al menos una canción para importar")
+      return
+    }
     setIsImporting(true)
     setError("")
     setImportProgress(0)
-    setImportTotal(bulkFiles.length)
+    setImportTotal(selected.length)
     let imported = 0
     let failed: string[] = []
 
-    for (let i = 0; i < bulkFiles.length; i++) {
-      const entry = bulkFiles[i]
+    for (let i = 0; i < selected.length; i++) {
+      const entry = selected[i]
       if (!entry.titulo.trim()) continue
       const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
@@ -277,17 +270,15 @@ export function AdminMusicPanel() {
                   </label>
                   <div className="flex gap-2">
                     <Input type="file" accept=".mp3,audio/mpeg" onChange={handleArchivoFile} className="flex-1 text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:gradient-primary file:text-white hover:file:opacity-90" />
-                    <Button type="button" size="sm" variant="outline" onClick={() => singleFolderRef.current?.click()} title="Seleccionar desde carpeta">
+                    <Button type="button" size="sm" variant="outline" onClick={() => singleFileRef.current?.click()} title="Seleccionar archivo MP3">
                       <FolderOpen className="w-3.5 h-3.5" />
                     </Button>
                     <input
-                      ref={singleFolderRef}
+                      ref={singleFileRef}
                       type="file"
-                      multiple
                       accept=".mp3,audio/mpeg"
-                      onChange={handleSingleFolderSelect}
+                      onChange={handleArchivoFile}
                       className="hidden"
-                      {...{ webkitdirectory: "", directory: "" }}
                     />
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">Máx 10MB</p>
@@ -337,15 +328,47 @@ export function AdminMusicPanel() {
                 <Music className="w-4 h-4" />
                 Importar {bulkFiles.length} canción{bulkFiles.length !== 1 ? "es" : ""}
               </CardTitle>
-              <button onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }} className="text-muted-foreground hover:text-foreground transition-colors">
+              <button onClick={() => { setIsBulkOpen(false); setBulkFiles([]); setBulkSelected(new Set()) }} className="text-muted-foreground hover:text-foreground transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <p className="text-xs text-muted-foreground">Revisa los datos antes de importar. Los títulos se toman del nombre del archivo.</p>
           </CardHeader>
           <CardContent className="space-y-3 max-h-[400px] overflow-y-auto">
+            <div className="flex items-center gap-3 px-2 py-1.5 border-b border-primary/5">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={bulkSelected.size === bulkFiles.length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setBulkSelected(new Set(bulkFiles.map(f => f.id)))
+                    } else {
+                      setBulkSelected(new Set())
+                    }
+                  }}
+                  className="accent-primary w-3.5 h-3.5"
+                />
+                Seleccionar todos
+              </label>
+              <span className="text-[10px] text-muted-foreground">{bulkSelected.size} de {bulkFiles.length}</span>
+            </div>
             {bulkFiles.map((entry, i) => (
               <div key={entry.id} className="flex items-center gap-3 p-2 rounded-lg border border-primary/5 bg-card/30">
+                <input
+                  type="checkbox"
+                  checked={bulkSelected.has(entry.id)}
+                  onChange={(e) => {
+                    const next = new Set(bulkSelected)
+                    if (e.target.checked) {
+                      next.add(entry.id)
+                    } else {
+                      next.delete(entry.id)
+                    }
+                    setBulkSelected(next)
+                  }}
+                  className="accent-primary w-3.5 h-3.5 shrink-0"
+                />
                 <span className="text-xs text-muted-foreground w-5 shrink-0 text-right">{i + 1}</span>
                 <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Input
@@ -373,7 +396,7 @@ export function AdminMusicPanel() {
             ))}
           </CardContent>
           <div className="flex items-center justify-end gap-2 px-6 pb-4">
-            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]) }} disabled={isImporting}>
+            <Button variant="ghost" size="sm" onClick={() => { setIsBulkOpen(false); setBulkFiles([]); setBulkSelected(new Set()) }} disabled={isImporting}>
               Cancelar
             </Button>
             <Button size="sm" onClick={handleBulkImport} disabled={isImporting}>
@@ -384,7 +407,7 @@ export function AdminMusicPanel() {
               )}
               {isImporting
                 ? `Importando ${importProgress}/${importTotal}...`
-                : `Importar ${bulkFiles.length} canción${bulkFiles.length !== 1 ? "es" : ""}`
+                : `Importar ${bulkSelected.size} canción${bulkSelected.size !== 1 ? "es" : ""}`
               }
             </Button>
           </div>

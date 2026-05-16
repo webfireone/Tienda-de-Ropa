@@ -62,6 +62,7 @@ async function ensureMockInit(): Promise<void> {
     }
 
     mockCanciones = result
+    saveMockCanciones(mockCanciones)
   })()
 
   return mockInitPromise

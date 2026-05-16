@@ -101,16 +101,20 @@ export const useMusicStore = create<MusicStore>((set, get) => {
       const wasSame = song.id === get().currentSong?.id
       const a = initAudio(storeActions)
 
+      console.log("[musicStore] playSong:", song.titulo, "url:", song.archivoUrl?.slice(0, 80))
+
       if (wasSame) {
         if (get().isPlaying) {
           a.pause()
         } else {
-          a.play().catch(() => set({ isPlaying: false, audioError: "Error al reproducir" }))
+          a.play().catch((err) => {
+            console.warn("[musicStore] resume failed:", err)
+            set({ isPlaying: false, audioError: "Error al reproducir" })
+          })
         }
         return
       }
 
-      // Nueva canción: reproducir DIRECTAMENTE (sincrónico con el gesto del usuario)
       a.src = song.archivoUrl || ""
       a.volume = get().volume
       set({
@@ -123,7 +127,8 @@ export const useMusicStore = create<MusicStore>((set, get) => {
         hasJustChanged: true,
       })
 
-      a.play().catch(() => {
+      a.play().catch((err) => {
+        console.error("[musicStore] play failed:", err, "src:", a.src)
         set({ isPlaying: false, audioError: "Error al reproducir el audio" })
       })
     },
