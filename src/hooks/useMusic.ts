@@ -26,7 +26,7 @@ function isCurrentMonth(dateStr: string): boolean {
 
 async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]> {
   if (USE_MOCK) {
-    if (path === "music/songs") return mockCanciones as unknown as T[]
+    if (path === "music_songs") return mockCanciones as unknown as T[]
     return fallback
   }
   try {
@@ -40,7 +40,7 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
 export function useCanciones() {
   return useQuery({
     queryKey: ["music", "canciones"],
-    queryFn: () => fetchMusicCollection<Cancion>("music/songs", MOCK_SONGS),
+    queryFn: () => fetchMusicCollection<Cancion>("music_songs", MOCK_SONGS),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -63,7 +63,7 @@ export function useSaveCancion() {
         }
         return cancion
       }
-      await setDoc(doc(db, "music/songs", cancion.id), cancion)
+      await setDoc(doc(db, "music_songs", cancion.id), cancion)
       return cancion
     },
     onSuccess: () => {
@@ -80,7 +80,7 @@ export function useDeleteCancion() {
         mockCanciones = mockCanciones.filter(c => c.id !== id)
         return id
       }
-      await deleteDoc(doc(db, "music/songs", id))
+      await deleteDoc(doc(db, "music_songs", id))
       return id
     },
     onSuccess: () => {
@@ -92,7 +92,7 @@ export function useDeleteCancion() {
 export function useReproducciones() {
   return useQuery({
     queryKey: ["music", "reproducciones"],
-    queryFn: () => fetchMusicCollection<Reproduccion>("music/plays", []),
+    queryFn: () => fetchMusicCollection<Reproduccion>("music_plays", []),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -109,7 +109,7 @@ export function useRegistrarReproduccion() {
         fechaReproduccion: new Date().toISOString(),
       }
       if (!USE_MOCK) {
-        await setDoc(doc(db, "music/plays", play.id), play)
+        await setDoc(doc(db, "music_plays", play.id), play)
       }
       return play
     },
@@ -122,7 +122,7 @@ export function useRegistrarReproduccion() {
 export function useLikes() {
   return useQuery({
     queryKey: ["music", "likes"],
-    queryFn: () => fetchMusicCollection<LikeCancion>("music/likes", []),
+    queryFn: () => fetchMusicCollection<LikeCancion>("music_likes", []),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -134,12 +134,12 @@ export function useToggleLike() {
     mutationFn: async (cancionId: string) => {
       const existingLikeId = `${cancionId}_${user?.uid}`
       if (!USE_MOCK) {
-        const existingDoc = await getDoc(doc(db, "music/likes", existingLikeId))
+        const existingDoc = await getDoc(doc(db, "music_likes", existingLikeId))
         if (existingDoc.exists()) {
-          await deleteDoc(doc(db, "music/likes", existingLikeId))
+          await deleteDoc(doc(db, "music_likes", existingLikeId))
           return { cancionId, liked: false }
         }
-        await setDoc(doc(db, "music/likes", existingLikeId), {
+        await setDoc(doc(db, "music_likes", existingLikeId), {
           cancionId,
           usuarioId: user?.uid ?? "",
           fechaLike: new Date().toISOString(),

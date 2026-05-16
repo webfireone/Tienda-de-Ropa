@@ -50,7 +50,7 @@ service cloud.firestore {
     }
 
     // Glamours Music - solo admins pueden escribir, todos pueden leer
-    match /music/songs/{songId} {
+    match /music_songs/{songId} {
       allow read: if true;
       allow write: if request.auth != null
         && (request.auth.token.email == 'admin@tiendaropa.com'
@@ -58,7 +58,7 @@ service cloud.firestore {
             || request.auth.uid == 'admin-001');
     }
 
-    match /music/plays/{playId} {
+    match /music_plays/{playId} {
       allow read: if request.auth != null
         && (request.auth.token.email == 'admin@tiendaropa.com'
             || request.auth.token.email == 'tiendaderopa@admin.com'
@@ -66,7 +66,7 @@ service cloud.firestore {
       allow create: if request.auth != null;
     }
 
-    match /music/likes/{likeId} {
+    match /music_likes/{likeId} {
       allow read: if request.auth != null
         && (request.auth.token.email == 'admin@tiendaropa.com'
             || request.auth.token.email == 'tiendaderopa@admin.com'
