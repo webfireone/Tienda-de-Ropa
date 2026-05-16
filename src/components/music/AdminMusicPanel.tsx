@@ -7,6 +7,7 @@ import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, 
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 import { saveAudioFile } from "@/lib/mockStorage"
+import { uploadAudio } from "@/lib/audioStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
@@ -29,6 +30,9 @@ export function AdminMusicPanel() {
   const [portadaUrl, setPortadaUrl] = useState("")
   const [activo, setActivo] = useState(true)
   const [error, setError] = useState("")
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
 
   const [isBulkOpen, setIsBulkOpen] = useState(false)
   const [bulkFiles, setBulkFiles] = useState<{ file: File; titulo: string; artista: string; id: string }[]>([])
@@ -82,20 +86,35 @@ export function AdminMusicPanel() {
       return
     }
 
+    if (!editingId && !selectedFileRef.current) {
+      setError("Debes seleccionar un archivo MP3")
+      return
+    }
+
+    const id = editingId || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+
+    let audioUrl = archivoUrl
+    if (selectedFileRef.current) {
+      if (!USE_MOCK) {
+        audioUrl = await uploadAudio(id, selectedFileRef.current)
+      } else {
+        await saveAudioFile(id, selectedFileRef.current)
+      }
+    }
+
     const cancion: Cancion = {
-      id: editingId || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id,
       titulo: titulo.trim(),
       artista: artista.trim(),
-      archivoUrl: archivoUrl || `https://placehold.co/200x200/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
+      archivoUrl: audioUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
       portadaUrl: portadaUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
-      fechaSubida: editingId ? (canciones.find(c => c.id === editingId)?.fechaSubida ?? new Date().toISOString().slice(0, 10)) : new Date().toISOString().slice(0, 10),
+      fechaSubida: editingId
+        ? (canciones.find(c => c.id === editingId)?.fechaSubida ?? new Date().toISOString().slice(0, 10))
+        : new Date().toISOString().slice(0, 10),
       activo,
     }
 
     try {
-      if (USE_MOCK && selectedFileRef.current && !editingId) {
-        await saveAudioFile(cancion.id, selectedFileRef.current)
-      }
       await saveCancion.mutateAsync(cancion)
       resetForm()
     } catch (err) {
@@ -111,8 +130,11 @@ export function AdminMusicPanel() {
         return
       }
       selectedFileRef.current = file
-      const url = URL.createObjectURL(file)
-      setArchivoUrl(url)
+      const reader = new FileReader()
+      reader.onload = () => {
+        setArchivoUrl(reader.result as string)
+      }
+      reader.readAsDataURL(file)
       if (!titulo) {
         setTitulo(file.name.replace(/\.mp3$/i, "").trim())
       }
@@ -184,6 +206,7 @@ export function AdminMusicPanel() {
     setIsImporting(false)
     setIsBulkOpen(false)
     setBulkFiles([])
+    setBulkSelected(new Set())
     if (failed.length > 0) {
       setError(`${imported} importadas, ${failed.length} fallaron: ${failed.join(", ")}`)
     } else if (imported > 0) {
@@ -193,6 +216,36 @@ export function AdminMusicPanel() {
     }
   }
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return
+    if (!window.confirm(`¿Eliminar ${selectedIds.size} canción${selectedIds.size !== 1 ? "es" : ""} seleccionada${selectedIds.size !== 1 ? "s" : ""}?`)) return
+    setIsBulkDeleting(true)
+    setError("")
+    let deleted = 0
+    let failed: string[] = []
+    for (const id of selectedIds) {
+      try {
+        await deleteCancion.mutateAsync(id)
+        deleted++
+      } catch {
+        const c = canciones.find(c => c.id === id)
+        failed.push(c?.titulo ?? id)
+      }
+    }
+    setSelectedIds(new Set())
+    setIsBulkDeleting(false)
+    if (failed.length > 0) {
+      setError(`${deleted} eliminadas, ${failed.length} fallaron: ${failed.join(", ")}`)
+    } else if (deleted > 0) {
+      setError(`${deleted} canción${deleted !== 1 ? "es" : ""} eliminada${deleted !== 1 ? "s" : ""} exitosamente`)
+    }
+  }
+
+  const sortedCanciones = [...canciones].sort((a, b) => {
+    if (a.activo !== b.activo) return a.activo ? -1 : 1
+    return (b.fechaSubida || "").localeCompare(a.fechaSubida || "")
+  })
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -201,23 +254,32 @@ export function AdminMusicPanel() {
           <p className="text-sm text-muted-foreground">Administra las canciones de Glamours Music</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => { resetForm(); setIsFormOpen(true) }} size="sm">
-            <Plus className="w-4 h-4" />
-            Nueva Canción
-          </Button>
-          <Button type="button" size="sm" variant="outline" onClick={() => folderInputRef.current?.click()}>
-            <FolderOpen className="w-4 h-4" />
-            Importar Múltiples
-          </Button>
-          <input
-            ref={folderInputRef}
-            type="file"
-            multiple
-            accept=".mp3,audio/mpeg"
-            onChange={handleFolderSelect}
-            className="hidden"
-            {...{ webkitdirectory: "", directory: "" }}
-          />
+          {selectedIds.size > 0 ? (
+            <Button onClick={handleBulkDelete} size="sm" variant="destructive" disabled={isBulkDeleting}>
+              {isBulkDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              Eliminar {selectedIds.size > 1 ? `(${selectedIds.size})` : ""}
+            </Button>
+          ) : (
+            <>
+              <Button onClick={() => { resetForm(); setIsFormOpen(true) }} size="sm">
+                <Plus className="w-4 h-4" />
+                Nueva Canción
+              </Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => folderInputRef.current?.click()}>
+                <FolderOpen className="w-4 h-4" />
+                Importar Múltiples
+              </Button>
+              <input
+                ref={folderInputRef}
+                type="file"
+                multiple
+                accept=".mp3,audio/mpeg"
+                onChange={handleFolderSelect}
+                className="hidden"
+                {...{ webkitdirectory: "", directory: "" } as any}
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -230,7 +292,7 @@ export function AdminMusicPanel() {
         </div>
       )}
 
-      {/* Form */}
+      {/* Form: Nueva / Editar */}
       {isFormOpen && (
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -243,11 +305,6 @@ export function AdminMusicPanel() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-sm text-destructive">
-                  {error}
-                </div>
-              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1">Título</label>
@@ -258,7 +315,7 @@ export function AdminMusicPanel() {
                   <Input value={artista} onChange={e => setArtista(e.target.value)} placeholder="Nombre del artista" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {!editingId && (
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground mb-1">
                     <Music className="w-3 h-3 inline mr-1" />
@@ -279,13 +336,13 @@ export function AdminMusicPanel() {
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">Máx 10MB</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1">
-                    <ImageIcon className="w-3 h-3 inline mr-1" />
-                    Portada (opcional)
-                  </label>
-                  <Input type="file" accept="image/*" onChange={handlePortadaFile} className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:gradient-primary file:text-white hover:file:opacity-90" />
-                </div>
+              )}
+              <div>
+                <label className="block text-xs font-medium text-muted-foreground mb-1">
+                  <ImageIcon className="w-3 h-3 inline mr-1" />
+                  Portada (opcional)
+                </label>
+                <Input type="file" accept="image/*" onChange={handlePortadaFile} className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:gradient-primary file:text-white hover:file:opacity-90" />
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -432,54 +489,80 @@ export function AdminMusicPanel() {
       )}
 
       {/* Lista de canciones */}
-      <div className="space-y-2">
-        {isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">Cargando canciones...</div>
-        ) : canciones.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Music className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>No hay canciones todavía</p>
-            <p className="text-xs">Sube tu primera canción</p>
-          </div>
-        ) : (
-          canciones.map(cancion => (
-            <div
-              key={cancion.id}
-              className={cn(
-                "flex items-center gap-4 p-3 rounded-xl transition-all",
-                "border border-primary/5 hover:border-primary/15",
-                cancion.activo ? "bg-card/50" : "bg-card/30 opacity-60"
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium">
+              {isLoading ? "Cargando..." : `${canciones.length} canción${canciones.length !== 1 ? "es" : ""}`}
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {canciones.length > 0 && (
+                <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size === canciones.length && canciones.length > 0}
+                    onChange={e => {
+                      if (e.target.checked) {
+                        setSelectedIds(new Set(canciones.map(c => c.id)))
+                      } else {
+                        setSelectedIds(new Set())
+                      }
+                    }}
+                    className="rounded border-border"
+                  />
+                  Seleccionar todo
+                </label>
               )}
-            >
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/10 shrink-0">
-                <img src={cancion.portadaUrl} alt={cancion.titulo} className="w-full h-full object-cover" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate">{cancion.titulo}</p>
-                <p className="text-xs text-muted-foreground">{cancion.artista}</p>
-              </div>
-              <span className={cn(
-                "text-[10px] px-2 py-0.5 rounded-full",
-                cancion.activo ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-              )}>
-                {cancion.activo ? "Activa" : "Inactiva"}
-              </span>
-              <button
-                onClick={() => handleEdit(cancion)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => handleDelete(cancion.id)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
             </div>
-          ))
-        )}
-      </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-1">
+            {sortedCanciones.map((cancion) => (
+              <div
+                key={cancion.id}
+                className={cn(
+                  "flex items-center gap-3 p-3 rounded-xl transition-colors",
+                  "hover:bg-accent/50 group",
+                  !cancion.activo && "opacity-50"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(cancion.id)}
+                  onChange={e => {
+                    const next = new Set(selectedIds)
+                    if (e.target.checked) {
+                      next.add(cancion.id)
+                    } else {
+                      next.delete(cancion.id)
+                    }
+                    setSelectedIds(next)
+                  }}
+                  className="rounded border-border"
+                />
+                <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                  {cancion.portadaUrl && (
+                    <img src={cancion.portadaUrl} alt="" className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).style.display = "none" }} />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{cancion.titulo}</p>
+                  <p className="text-xs text-muted-foreground truncate">{cancion.artista}</p>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button size="icon" variant="ghost" className="w-8 h-8" onClick={() => handleEdit(cancion)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="w-8 h-8 text-destructive hover:text-destructive" onClick={() => handleDelete(cancion.id)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

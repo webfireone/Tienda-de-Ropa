@@ -5,7 +5,8 @@ import { MonthlyRanking } from "./MonthlyRanking"
 import { Music, Disc3 } from "lucide-react"
 
 export function MusicSection() {
-  const { data: canciones = [], isLoading } = useCanciones()
+  const { data: canciones = [], isLoading, isError, error } = useCanciones()
+  console.log("[MusicSection] canciones:", canciones?.length, "isLoading:", isLoading, "isError:", isError, error)
   const activeSongs = canciones.filter(c => c.activo)
 
   if (isLoading) {

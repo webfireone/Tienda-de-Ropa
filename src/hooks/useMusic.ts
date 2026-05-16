@@ -5,12 +5,19 @@ import type { Cancion, Reproduccion, LikeCancion, MonthlyRankingEntry } from "@/
 import { MOCK_SONGS } from "@/types/music"
 import { useAuth } from "@/context/AuthContext"
 import { loadAudioBlob, deleteAudioFile } from "@/lib/mockStorage"
+import { deleteAudio } from "@/lib/audioStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
-// Almacén mutable para modo mock (permite editar/eliminar/agregar)
-// Persiste en localStorage (solo metadatos, sin archivo blob URL que expira)
-// Los archivos MP3 se guardan en IndexedDB via mockStorage.ts
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
+
 const MOCK_STORAGE_KEY = "glamours_mock_canciones"
 function loadMockCanciones(): Cancion[] {
   try {
@@ -23,9 +30,7 @@ function saveMockCanciones(canciones: Cancion[]) {
   try {
     const sanitized = canciones.map(c => ({
       ...c,
-      archivoUrl: c.archivoUrl.startsWith("blob:")
-        ? ""
-        : c.archivoUrl,
+      archivoUrl: c.archivoUrl.startsWith("data:") ? "" : c.archivoUrl,
     }))
     localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(sanitized))
   } catch { /* ignore */ }
@@ -35,32 +40,31 @@ let mockCanciones: Cancion[] | null = null
 let mockInitPromise: Promise<void> | null = null
 
 async function ensureMockInit(): Promise<void> {
-  if (mockCanciones !== null) return
+  if (mockCanciones !== null) { console.log("[ensureMockInit] already initialized, count:", mockCanciones.length); return }
   if (mockInitPromise) return mockInitPromise
 
   mockInitPromise = (async () => {
     const raw = loadMockCanciones()
     const result: Cancion[] = []
-
     for (const c of raw) {
       const original = MOCK_SONGS.find(m => m.id === c.id)
       if (original) {
         result.push({ ...original })
         continue
       }
-      if (c.archivoUrl && !c.archivoUrl.startsWith("blob:")) {
+      if (c.archivoUrl && !c.archivoUrl.startsWith("blob:") && !c.archivoUrl.startsWith("data:")) {
         result.push(c)
         continue
       }
       try {
         const blob = await loadAudioBlob(c.id)
         if (blob) {
-          result.push({ ...c, archivoUrl: URL.createObjectURL(blob) })
+          const dataUrl = await blobToDataUrl(blob)
+          result.push({ ...c, archivoUrl: dataUrl })
           continue
         }
       } catch { /* ignore */ }
     }
-
     mockCanciones = result
     saveMockCanciones(mockCanciones)
   })()
@@ -92,7 +96,19 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
   }
   try {
     const snapshot = await getDocs(collection(db, path))
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
+    const firestoreDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[]
+    if (path === "music_songs") {
+      const active = (firestoreDocs as unknown as Cancion[]).filter(s => !(s as any).deleted)
+      if (active.length === 0) {
+        for (const s of MOCK_SONGS) {
+          await setDoc(doc(db, "music_songs", s.id), s)
+        }
+        const seeded = await getDocs(collection(db, path))
+        return seeded.docs.map(d => ({ id: d.id, ...d.data() })) as T[]
+      }
+      return active as unknown as T[]
+    }
+    return firestoreDocs.length > 0 ? firestoreDocs : fallback
   } catch {
     return fallback
   }
@@ -101,7 +117,20 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
 export function useCanciones() {
   return useQuery({
     queryKey: ["music", "canciones"],
-    queryFn: () => fetchMusicCollection<Cancion>("music_songs", MOCK_SONGS),
+    queryFn: async () => {
+      const songs = await fetchMusicCollection<Cancion>("music_songs", MOCK_SONGS)
+      for (const song of songs) {
+        if (!song.archivoUrl) {
+          try {
+            const blob = await loadAudioBlob(song.id)
+            if (blob) {
+              song.archivoUrl = await blobToDataUrl(blob)
+            }
+          } catch { /* ignore */ }
+        }
+      }
+      return songs
+    },
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -116,6 +145,8 @@ export function useSaveCancion() {
   return useMutation({
     mutationFn: async (cancion: Cancion) => {
       if (USE_MOCK) {
+        mockCanciones = null
+        mockInitPromise = null
         await ensureMockInit()
         const idx = mockCanciones!.findIndex(c => c.id === cancion.id)
         if (idx >= 0) {
@@ -146,11 +177,15 @@ export function useDeleteCancion() {
         try { await deleteAudioFile(id) } catch { /* ignore */ }
         return id
       }
-      await deleteDoc(doc(db, "music_songs", id))
+      await setDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
+      try { await deleteAudio(id) } catch { /* ignore */ }
       return id
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["music", "canciones"] })
+    },
+    onError: (err) => {
+      console.error("[useDeleteCancion] Error:", err)
     },
   })
 }

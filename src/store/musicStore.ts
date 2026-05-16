@@ -1,8 +1,37 @@
 import { create } from "zustand"
 import type { Cancion } from "@/types/music"
 
-// Audio element persistente a nivel de módulo
 let audioEl: HTMLAudioElement | null = null
+
+function setupAudioEvents(a: HTMLAudioElement, store: {
+  setProgress: (t: number) => void
+  setDuration: (d: number) => void
+  setIsPlaying: (p: boolean) => void
+  setAudioError: (e: string | null) => void
+}) {
+  a.preload = "metadata"
+  a.addEventListener("timeupdate", () => {
+    if (audioEl) store.setProgress(audioEl.currentTime)
+  })
+  a.addEventListener("loadedmetadata", () => {
+    if (audioEl) store.setDuration(audioEl.duration)
+  })
+  a.addEventListener("ended", () => {
+    store.setIsPlaying(false)
+    store.setAudioError(null)
+  })
+  a.addEventListener("error", () => {
+    const mediaErr = audioEl?.error
+    const msg = mediaErr
+      ? `Error ${mediaErr.code}: ${mediaErr.message}`
+      : "Error al cargar el audio"
+    console.warn("[audio] error event:", msg, "src:", audioEl?.src)
+    store.setAudioError(msg)
+    if (!a.paused) {
+      store.setIsPlaying(false)
+    }
+  })
+}
 
 function initAudio(store: {
   setProgress: (t: number) => void
@@ -10,29 +39,25 @@ function initAudio(store: {
   setIsPlaying: (p: boolean) => void
   setAudioError: (e: string | null) => void
 }) {
-  if (audioEl) return audioEl
-  audioEl = new Audio()
-  audioEl.preload = "metadata"
+  if (!audioEl) {
+    audioEl = new Audio()
+    setupAudioEvents(audioEl, store)
+  }
+  return audioEl
+}
 
-  audioEl.addEventListener("timeupdate", () => {
-    if (audioEl) store.setProgress(audioEl.currentTime)
-  })
-  audioEl.addEventListener("loadedmetadata", () => {
-    if (audioEl) store.setDuration(audioEl.duration)
-  })
-  audioEl.addEventListener("ended", () => {
-    store.setIsPlaying(false)
-    store.setAudioError(null)
-  })
-  audioEl.addEventListener("error", () => {
-    const mediaErr = audioEl?.error
-    const msg = mediaErr
-      ? `Error ${mediaErr.code}: ${mediaErr.message}`
-      : "Error al cargar el audio"
-    console.warn("[audio] error event:", msg, "src:", audioEl?.src)
-    store.setAudioError(msg)
-    store.setIsPlaying(false)
-  })
+function createNewAudio(store: {
+  setProgress: (t: number) => void
+  setDuration: (d: number) => void
+  setIsPlaying: (p: boolean) => void
+  setAudioError: (e: string | null) => void
+}) {
+  if (audioEl) {
+    audioEl.pause()
+    audioEl.src = ""
+  }
+  audioEl = new Audio()
+  setupAudioEvents(audioEl, store)
   return audioEl
 }
 
@@ -106,7 +131,7 @@ export const useMusicStore = create<MusicStore>((set, get) => {
       const wasSame = song.id === get().currentSong?.id
       const a = initAudio(storeActions)
 
-      console.log("[musicStore] playSong:", song.titulo, "url:", song.archivoUrl?.slice(0, 80))
+      console.log("[musicStore] playSong:", song.titulo, "id:", song.id, "url:", song.archivoUrl)
 
       if (wasSame) {
         if (get().isPlaying) {
@@ -120,8 +145,14 @@ export const useMusicStore = create<MusicStore>((set, get) => {
         return
       }
 
-      a.src = song.archivoUrl || ""
-      a.volume = get().volume
+      if (!song.archivoUrl) {
+        set({ isPlaying: false, audioError: "URL de audio no disponible" })
+        return
+      }
+
+      const el = createNewAudio(storeActions)
+      el.volume = get().volume
+      el.src = song.archivoUrl
       set({
         currentSong: song,
         isPlaying: true,
@@ -131,14 +162,13 @@ export const useMusicStore = create<MusicStore>((set, get) => {
         audioError: null,
         hasJustChanged: true,
       })
-
-      a.play().then(() => {
+      el.play().then(() => {
         console.log("[musicStore] play OK:", song.titulo)
       }).catch((err: unknown) => {
         const name = err instanceof Error ? err.name : typeof err
-        const message = err instanceof Error ? err.message : String(err)
-        console.error("[musicStore] play FAILED:", name, message, "src:", a.src)
-        set({ isPlaying: false, audioError: `Error al reproducir (${name})` })
+        const urlPreview = el.src ? el.src.substring(0, 60) : "(empty)"
+        console.error("[musicStore] play FAILED:", name, "src:", urlPreview, "songId:", song.id)
+        set({ isPlaying: false, audioError: `Error (${name}): ${urlPreview}` })
       })
     },
   }
