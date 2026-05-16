@@ -1,5 +1,5 @@
 import { useMusicStore } from "@/store/musicStore"
-import { useMonthlyRanking } from "@/hooks/useMusic"
+import { useMonthlyRanking, useReproducciones } from "@/hooks/useMusic"
 import { Trophy, Play, Pause, Music, Crown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
@@ -12,6 +12,9 @@ interface MonthlyRankingProps {
 export function MonthlyRanking({ canciones, compact }: MonthlyRankingProps) {
   const ranking = useMonthlyRanking()
   const { currentSong, isPlaying, playSong } = useMusicStore()
+  const { data: reproducciones = [] } = useReproducciones()
+  const today = new Date().toISOString().slice(0, 10)
+  const todayPlays = reproducciones.filter(r => r.fechaReproduccion.slice(0, 10) === today).length
 
   if (compact) {
     if (ranking.length === 0) return null
@@ -41,9 +44,12 @@ export function MonthlyRanking({ canciones, compact }: MonthlyRankingProps) {
   if (ranking.length === 0) {
     return (
       <div className="glass-card rounded-2xl p-5 border border-primary/5">
-        <div className="flex items-center gap-2 mb-3">
-          <Trophy className="w-4 h-4 text-yellow-400" />
-          <h3 className="font-display text-sm font-semibold">Top 5 del Mes</h3>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-yellow-400" />
+            <h3 className="font-display text-sm font-semibold">Top 5 del Mes</h3>
+          </div>
+          <span className="text-[10px] text-muted-foreground">Reproducciones del día: {todayPlays}</span>
         </div>
         <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
           <Music className="w-6 h-6 mb-2 opacity-40" />
@@ -64,9 +70,12 @@ export function MonthlyRanking({ canciones, compact }: MonthlyRankingProps) {
 
   return (
     <div className="glass-card rounded-2xl p-5 border border-primary/5">
-      <div className="flex items-center gap-2 mb-4">
-        <Crown className="w-4 h-4 text-yellow-400" />
-        <h3 className="font-display text-sm font-semibold">Top 5 del Mes</h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Crown className="w-4 h-4 text-yellow-400" />
+          <h3 className="font-display text-sm font-semibold">Top 5 del Mes</h3>
+        </div>
+        <span className="text-[10px] text-muted-foreground">Reproducciones del día: {todayPlays}</span>
       </div>
 
       <div className="space-y-1.5">

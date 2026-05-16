@@ -822,4 +822,43 @@ body::after {
   transition: height 0.3s ease;
 }
 
+/* Music player card */
+.music-player-wrapper {
+  position: relative;
+}
+
+.music-player-card {
+  background: rgba(22, 22, 39, 0.7);
+  backdrop-filter: blur(40px) saturate(1.2);
+  -webkit-backdrop-filter: blur(40px) saturate(1.2);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.03),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+}
+
+/* Vinyl disc spin — smooth, continuous, elegant */
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-spin {
+  animation: vinyl-spin 6s linear infinite;
+}
+
+.vinyl-spin-paused {
+  animation: vinyl-spin 6s linear infinite;
+  animation-play-state: paused;
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(124,92,252,0); }
+  100% { box-shadow: 0 0 0 0 rgba(124,92,252,0); }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
 

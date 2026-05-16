@@ -1,13 +1,22 @@
+import { useEffect } from "react"
 import { useCanciones } from "@/hooks/useMusic"
+import { useMusicStore } from "@/store/musicStore"
 import { MusicPlayer } from "./MusicPlayer"
 import { SongCard } from "./SongCard"
 import { MonthlyRanking } from "./MonthlyRanking"
 import { Music, Disc3 } from "lucide-react"
 
 export function MusicSection() {
-  const { data: canciones = [], isLoading, isError, error } = useCanciones()
-  console.log("[MusicSection] canciones:", canciones?.length, "isLoading:", isLoading, "isError:", isError, error)
+  const { data: canciones = [], isLoading } = useCanciones()
+  const setPlaylist = useMusicStore(s => s.setPlaylist)
   const activeSongs = canciones.filter(c => c.activo)
+
+  // Keep playlist in sync with active songs
+  useEffect(() => {
+    if (activeSongs.length > 0) {
+      setPlaylist(activeSongs)
+    }
+  }, [activeSongs.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
     return (
@@ -48,14 +57,16 @@ export function MusicSection() {
 
       {/* Right: Song list */}
       <div className="lg:col-span-2">
-        <h2 className="text-lg font-display font-semibold flex items-center gap-2 mb-4">
-          <Music className="w-4 h-4 text-primary" />
-          Canciones
-          <span className="text-sm text-muted-foreground font-normal">({activeSongs.length})</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-          {activeSongs.map((cancion) => (
-            <SongCard key={cancion.id} cancion={cancion} />
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-display font-semibold flex items-center gap-2">
+            <Music className="w-4 h-4 text-primary" />
+            Canciones
+            <span className="text-sm text-muted-foreground font-normal">({activeSongs.length})</span>
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+          {activeSongs.map((cancion, i) => (
+            <SongCard key={cancion.id} cancion={cancion} index={i} />
           ))}
         </div>
         <div className="mt-6 lg:hidden">

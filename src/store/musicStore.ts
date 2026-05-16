@@ -3,12 +3,15 @@ import type { Cancion } from "@/types/music"
 
 let audioEl: HTMLAudioElement | null = null
 
-function setupAudioEvents(a: HTMLAudioElement, store: {
+type StoreCallbacks = {
   setProgress: (t: number) => void
   setDuration: (d: number) => void
   setIsPlaying: (p: boolean) => void
   setAudioError: (e: string | null) => void
-}) {
+  onEnded: () => void
+}
+
+function setupAudioEvents(a: HTMLAudioElement, store: StoreCallbacks) {
   a.preload = "metadata"
   a.addEventListener("timeupdate", () => {
     if (audioEl) store.setProgress(audioEl.currentTime)
@@ -17,15 +20,13 @@ function setupAudioEvents(a: HTMLAudioElement, store: {
     if (audioEl) store.setDuration(audioEl.duration)
   })
   a.addEventListener("ended", () => {
-    store.setIsPlaying(false)
-    store.setAudioError(null)
+    store.onEnded()
   })
   a.addEventListener("error", () => {
     const mediaErr = audioEl?.error
     const msg = mediaErr
       ? `Error ${mediaErr.code}: ${mediaErr.message}`
       : "Error al cargar el audio"
-    console.warn("[audio] error event:", msg, "src:", audioEl?.src)
     store.setAudioError(msg)
     if (!a.paused) {
       store.setIsPlaying(false)
@@ -36,12 +37,7 @@ function setupAudioEvents(a: HTMLAudioElement, store: {
   })
 }
 
-function initAudio(store: {
-  setProgress: (t: number) => void
-  setDuration: (d: number) => void
-  setIsPlaying: (p: boolean) => void
-  setAudioError: (e: string | null) => void
-}) {
+function initAudio(store: StoreCallbacks) {
   if (!audioEl) {
     audioEl = new Audio()
     setupAudioEvents(audioEl, store)
@@ -49,12 +45,7 @@ function initAudio(store: {
   return audioEl
 }
 
-function createNewAudio(store: {
-  setProgress: (t: number) => void
-  setDuration: (d: number) => void
-  setIsPlaying: (p: boolean) => void
-  setAudioError: (e: string | null) => void
-}) {
+function createNewAudio(store: StoreCallbacks) {
   if (audioEl) {
     audioEl.pause()
     audioEl.src = ""
@@ -64,8 +55,31 @@ function createNewAudio(store: {
   return audioEl
 }
 
+function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
+  if (!song.archivoUrl) {
+    set({ isPlaying: false, audioError: "URL de audio no disponible" })
+    return
+  }
+  const el = createNewAudio(storeCallbacks)
+  el.volume = get().volume
+  el.src = song.archivoUrl
+  set({
+    currentSong: song,
+    isPlaying: true,
+    progress: 0,
+    duration: 0,
+    isLiked: false,
+    audioError: null,
+    hasJustChanged: true,
+  })
+  el.play().catch(() => {
+    set({ isPlaying: false, audioError: "Error al reproducir" })
+  })
+}
+
 interface MusicStore {
   currentSong: Cancion | null
+  playlist: Cancion[]
   isPlaying: boolean
   progress: number
   duration: number
@@ -73,8 +87,10 @@ interface MusicStore {
   isLiked: boolean
   audioError: string | null
   hasJustChanged: boolean
+  shuffle: boolean
 
   setCurrentSong: (song: Cancion | null) => void
+  setPlaylist: (songs: Cancion[]) => void
   setIsPlaying: (playing: boolean) => void
   setProgress: (progress: number) => void
   setDuration: (duration: number) => void
@@ -82,20 +98,43 @@ interface MusicStore {
   setIsLiked: (liked: boolean) => void
   setAudioError: (error: string | null) => void
   togglePlay: () => void
+  toggleShuffle: () => void
   seek: (value: number) => void
   playSong: (song: Cancion) => void
+  playNext: () => void
+  playPrevious: () => void
 }
 
 export const useMusicStore = create<MusicStore>((set, get) => {
-  const storeActions = {
+  const storeActions: StoreCallbacks = {
     setProgress: (p: number) => set({ progress: p }),
     setDuration: (d: number) => set({ duration: d }),
     setIsPlaying: (p: boolean) => set({ isPlaying: p }),
     setAudioError: (e: string | null) => set({ audioError: e }),
+    onEnded: () => {
+      // Auto-play next song when current ends
+      const { playlist, currentSong, shuffle } = get()
+      if (playlist.length > 1) {
+        const idx = playlist.findIndex(s => s.id === currentSong?.id)
+        let nextIdx: number
+        if (shuffle) {
+          do { nextIdx = Math.floor(Math.random() * playlist.length) } while (nextIdx === idx)
+        } else {
+          nextIdx = (idx + 1) % playlist.length
+        }
+        const nextSong = playlist[nextIdx]
+        if (nextSong?.archivoUrl) {
+          playNewSong(nextSong, storeActions, get, set)
+          return
+        }
+      }
+      set({ isPlaying: false, audioError: null })
+    },
   }
 
   return {
     currentSong: null,
+    playlist: [],
     isPlaying: false,
     progress: 0,
     duration: 0,
@@ -103,8 +142,10 @@ export const useMusicStore = create<MusicStore>((set, get) => {
     isLiked: false,
     audioError: null,
     hasJustChanged: false,
+    shuffle: false,
 
     setCurrentSong: (song) => set({ currentSong: song }),
+    setPlaylist: (songs) => set({ playlist: songs }),
     setIsPlaying: (playing) => set({ isPlaying: playing }),
     setProgress: (progress) => set({ progress }),
     setDuration: (duration) => set({ duration }),
@@ -120,10 +161,14 @@ export const useMusicStore = create<MusicStore>((set, get) => {
       const a = initAudio(storeActions)
       if (isPlaying) {
         a.pause()
+        set({ isPlaying: false })
       } else {
+        set({ isPlaying: true })
         a.play().catch(() => set({ isPlaying: false, audioError: "Error al reproducir" }))
       }
     },
+
+    toggleShuffle: () => set({ shuffle: !get().shuffle }),
 
     seek: (value) => {
       set({ progress: value })
@@ -134,45 +179,46 @@ export const useMusicStore = create<MusicStore>((set, get) => {
       const wasSame = song.id === get().currentSong?.id
       const a = initAudio(storeActions)
 
-      console.log("[musicStore] playSong:", song.titulo, "id:", song.id, "url:", song.archivoUrl)
-
       if (wasSame) {
         if (get().isPlaying) {
           a.pause()
+          set({ isPlaying: false })
         } else {
-          a.play().catch((err) => {
-            console.warn("[musicStore] resume failed:", err)
+          set({ isPlaying: true })
+          a.play().catch(() => {
             set({ isPlaying: false, audioError: "Error al reproducir" })
           })
         }
         return
       }
 
-      if (!song.archivoUrl) {
-        set({ isPlaying: false, audioError: "URL de audio no disponible" })
+      playNewSong(song, storeActions, get, set)
+    },
+
+    playNext: () => {
+      const { playlist, currentSong, shuffle } = get()
+      if (playlist.length === 0) return
+      const idx = playlist.findIndex(s => s.id === currentSong?.id)
+      let nextIdx: number
+      if (shuffle) {
+        do { nextIdx = Math.floor(Math.random() * playlist.length) } while (nextIdx === idx && playlist.length > 1)
+      } else {
+        nextIdx = (idx + 1) % playlist.length
+      }
+      playNewSong(playlist[nextIdx], storeActions, get, set)
+    },
+
+    playPrevious: () => {
+      const { playlist, currentSong, progress } = get()
+      if (playlist.length === 0) return
+      // If more than 3 seconds in, restart current song
+      if (progress > 3) {
+        if (audioEl) { audioEl.currentTime = 0; set({ progress: 0 }) }
         return
       }
-
-      const el = createNewAudio(storeActions)
-      el.volume = get().volume
-      el.src = song.archivoUrl
-      set({
-        currentSong: song,
-        isPlaying: true,
-        progress: 0,
-        duration: 0,
-        isLiked: false,
-        audioError: null,
-        hasJustChanged: true,
-      })
-      el.play().then(() => {
-        console.log("[musicStore] play OK:", song.titulo)
-      }).catch((err: unknown) => {
-        const name = err instanceof Error ? err.name : typeof err
-        const urlPreview = el.src ? el.src.substring(0, 60) : "(empty)"
-        console.error("[musicStore] play FAILED:", name, "src:", urlPreview, "songId:", song.id)
-        set({ isPlaying: false, audioError: `Error (${name}): ${urlPreview}` })
-      })
+      const idx = playlist.findIndex(s => s.id === currentSong?.id)
+      const prevIdx = idx <= 0 ? playlist.length - 1 : idx - 1
+      playNewSong(playlist[prevIdx], storeActions, get, set)
     },
   }
 })
