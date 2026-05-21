@@ -2244,3 +2244,85 @@ En modo mock, todos los datos se almacenan en arrays mutables a nivel de módulo
 ```
 
 El disco de vinilo usa una imagen fija (`/images/pasta.jpg`) con overlay de brillo. La rotación se activa/desactiva toggleando las clases `vinyl-spin` / `vinyl-spin-paused`.
+
+---
+
+## 36. Exportación/Importación de Catálogo y Gestión Masiva de Productos
+
+### 36.1. Exportación de Catálogo (CSV/Excel) — `ExportDialog.tsx`
+
+Se agregaron dos nuevas funciones de exportación específicas para el catálogo de productos, separadas de las exportaciones de ventas/reportes:
+
+| Función | Formato | Archivo |
+|---------|---------|---------|
+| `exportCatalogCSV()` | CSV | `catalogo-glamours.csv` |
+| `exportCatalogExcel()` | XLSX | `catalogo-glamours.xlsx` |
+
+**Columnas exportadas**: Nombre, Marca, Categoría, Género, Precio, Precio Anterior, Descripción, Imagen URL, Material, Tags, Sección, Estado, Colores, y todos los talles (XS, S, M, L, XL, XXL) con stock total por talle.
+
+El campo **Tags** se usa para almacenar números de artículo. Se exporta como columna `"Tags"` (no `"Etiquetas"`) para que coincida con el nombre que espera la importación.
+
+**Layout UI**: El Card de exportación se dividió en dos secciones:
+- "Ventas y Reportes" → PDF / CSV / Excel (ventas)
+- "Catálogo de Productos" → Descargar CSV / Descargar Excel
+
+### 36.2. Importación Mejorada — `ImportDialog.tsx`
+
+**Soporte bilingüe (español/inglés)**: Cada campo puede venir con nombre en español o inglés:
+
+| Campo español | Campo inglés | Requerido |
+|--------------|--------------|-----------|
+| `Nombre` | `name` | Sí |
+| `Marca` | `brand` | Sí |
+| `Categoría` | `category` | Sí |
+| `Precio` | `price` | Sí |
+| `Precio Anterior` | `previousPrice` | No |
+| `Descripción` | `description` | No |
+| `Imagen URL` | `imageUrl` | No |
+| `Material` | `material` | No |
+| `Tags` / `Etiquetas` | `tags` | No |
+| `Sección` | `seccion` | No |
+| `Estado` | `status` | No |
+| `Género` | `gender` | No |
+| `Colores` | `colors` | No |
+
+**Detección inteligente**:
+- **Género**: `hombre/mujer/niños/bebes/unisex` (input flexible: acepta "hom", "muj", "nin", "beb")
+- **Estado**: `activo/active`, `borrador/draft`, `archivado/archived`
+- **Sección**: `ofertas/oferta`, `nueva-coleccion/nueva`
+- **Colores**: se parsea como JSON array primero, si falla se divide por coma
+- **Tags**: se dividen por coma
+
+**Plantilla de ejemplo**: Se agregó enlace de descarga `/planilla_ejemplo.xlsx` generada por `scripts/generate-sample-sheet.mjs`.
+
+### 36.3. Selección Múltiple y Eliminación en Lote — `ProductManager.tsx`
+
+**Master checkbox** en la barra superior que permite:
+- Seleccionar/deseleccionar todos los productos filtrados
+- Estado indeterminado (`indeterminate`) cuando solo algunos están seleccionados
+- Contador visible de productos seleccionados
+
+**Eliminación en lote**:
+1. Se seleccionan productos vía checkbox individual o master checkbox
+2. Aparece botón "Eliminar" con cuenta de seleccionados
+3. Confirmación con "Sí/No" antes de ejecutar
+4. Usa `writeBatch` de Firestore para eliminar en lote
+5. Invalida query `["products"]` al finalizar
+6. Compatible con mock mode (no ejecuta batch si no hay API key real)
+
+### 36.4. Assets de Productos — `ropa/`
+
+Directorio con 18 imágenes de productos (9 artículos × 2 imágenes cada uno: `.jpeg` y `_model.png`) listas para ser referenciadas desde el catálogo. Pendiente de integración con los productos en Firestore.
+
+### 36.5. Scripts
+
+| Archivo | Propósito |
+|---------|-----------|
+| `scripts/generate-sample-sheet.mjs` | Genera `public/planilla_ejemplo.xlsx` con estructura de columnas esperada por la importación, fila de ejemplo y comentarios por columna |
+
+### 36.6. Notas para Futuras AI
+
+14. **Bilingüe en importación**: El importador acepta nombres de columna en español E inglés. Si se agregan nuevos campos, mantener ambos mapeos.
+15. **Tags como números de artículo**: El campo `tags` almacena IDs de artículo como strings separados por coma. Se exporta como columna "Tags".
+16. **Bulk delete en lote**: Usa `writeBatch` de Firestore (máximo 500 docs por lote). Para más de 500 productos, habría que dividir en múltiples batches.
+17. **Planilla de ejemplo**: Se sirve desde `public/planilla_ejemplo.xlsx`. Si se cambian las columnas esperadas, regenerarla con `scripts/generate-sample-sheet.mjs`.
