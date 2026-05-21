@@ -3,9 +3,10 @@ import { useParamsStore } from "@/store/paramsStore"
 import { useCartStore } from "@/store/cartStore"
 import { useCreateOrder } from "@/hooks/useFirestore"
 import { addOrderAlert } from "@/lib/orderAlerts"
+import { PROVINCES } from "@/lib/argentina-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { X, Truck, CreditCard, CheckCircle, Package, Loader2, Store, MessageCircle, ShieldCheck } from "lucide-react"
+import { X, Truck, CreditCard, CheckCircle, Package, Loader2, Store, MessageCircle, ShieldCheck, ChevronDown } from "lucide-react"
 import type { Order, OrderItem } from "@/types"
 
 const MP_PAYMENT = "Mercado Pago"
@@ -19,7 +20,7 @@ function buildWhatsAppMessage(order: Order): string {
 
   const deliveryText = order.deliveryMethod === "pickup"
     ? "Retiro por local (Italia 1037, Luján)"
-    : `Envío a domicilio: ${order.deliveryAddress}${order.deliveryCity ? `, ${order.deliveryCity}` : ""}`
+    : `Envío a domicilio: ${order.deliveryAddress || ""}`
 
   return encodeURIComponent(
     `🛍️ *NUEVO PEDIDO* - ${order.id}\n\n` +
@@ -50,7 +51,8 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [email, setEmail] = useState("")
   const [deliveryMethod, setDeliveryMethod] = useState<"shipping" | "pickup">("pickup")
   const [address, setAddress] = useState("")
-  const [city, setCity] = useState("")
+  const [province, setProvince] = useState("")
+  const [selectedCity, setSelectedCity] = useState("")
   const [postalCode, setPostalCode] = useState("")
   const [paymentMethod, setPaymentMethod] = useState(params.cart.paymentMethods[0]?.name ?? "")
   const [error, setError] = useState("")
@@ -65,13 +67,26 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const selectedPayment = params.cart.paymentMethods.find(m => m.name === paymentMethod)
   const surcharge = selectedPayment ? subtotal * selectedPayment.rate : 0
 
+  const currentProvince = PROVINCES.find(p => p.name === province)
+  const availableCities = currentProvince?.cities ?? []
+
+  const handleCitySelect = (cityName: string) => {
+    setSelectedCity(cityName)
+    const city = currentProvince?.cities.find(c => c.name === cityName)
+    if (city) setPostalCode(city.postalCode)
+  }
+
   const handleSubmit = async () => {
     setError("")
     const isMp = paymentMethod === MP_PAYMENT
 
     if (!name.trim()) { setError("Ingresá tu nombre"); return }
     if (!phone.trim()) { setError("Ingresá tu teléfono"); return }
-    if (deliveryMethod === "shipping" && !address.trim()) { setError("Ingresá tu dirección"); return }
+    if (deliveryMethod === "shipping") {
+      if (!address.trim()) { setError("Ingresá tu dirección"); return }
+      if (!province) { setError("Seleccioná tu provincia"); return }
+      if (!selectedCity) { setError("Seleccioná tu ciudad"); return }
+    }
 
     const orderId = `ORD-${Date.now()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`
     const now = new Date().toISOString()
@@ -93,8 +108,8 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       customerPhone: phone.trim(),
       customerEmail: email.trim(),
       deliveryMethod,
-      deliveryAddress: deliveryMethod === "shipping" ? address.trim() : undefined,
-      deliveryCity: deliveryMethod === "shipping" ? city.trim() : undefined,
+      deliveryAddress: deliveryMethod === "shipping" ? `${address.trim()}, ${selectedCity}, ${province}` : undefined,
+      deliveryCity: deliveryMethod === "shipping" ? `${selectedCity}, ${province}` : undefined,
       deliveryPostalCode: deliveryMethod === "shipping" ? postalCode.trim() : undefined,
       paymentMethod: paymentMethod,
       paymentRate: selectedPayment?.rate ?? 0,
@@ -161,7 +176,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
     return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center bg-[#0d0d1a]/80 backdrop-blur-sm p-4" onClick={handleClose}>
-        <div className="relative w-full max-w-md rounded-2xl border border-primary/10 bg-gradient-to-br from-card to-muted/50 p-8 text-center shadow-2xl shadow-primary/10" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-md rounded-2xl border border-primary/10 bg-gradient-to-br from-card to-muted/50 p-6 sm:p-8 text-center shadow-2xl shadow-primary/10 overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-5">
             <CheckCircle className="h-8 w-8 text-emerald-500" />
           </div>
@@ -192,22 +207,22 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#0d0d1a]/80 backdrop-blur-sm p-4" onClick={handleClose}>
-      <div className="min-h-full flex items-start justify-center pt-8 pb-20" onClick={e => e.stopPropagation()}>
-        <div className="w-full max-w-2xl rounded-2xl border border-primary/10 bg-gradient-to-br from-card to-muted/30 shadow-2xl shadow-primary/10 overflow-hidden">
-          <div className="flex items-center justify-between p-5 border-b border-primary/10">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                <Package className="h-4 w-4 text-white" />
-              </div>
-              <h2 className="font-display font-bold text-lg">Finalizar pedido</h2>
+    <div className="fixed inset-0 z-[60] bg-[#0d0d1a]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-0 sm:p-4" onClick={handleClose}>
+      <div className="w-full max-w-2xl h-dvh sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-2xl border-0 sm:border border-primary/10 bg-gradient-to-br from-card to-muted/30 shadow-2xl shadow-primary/10 flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-primary/10 shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+              <Package className="h-4 w-4 text-white" />
             </div>
-            <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-              <X className="h-5 w-5" />
-            </button>
+            <h2 className="font-display font-bold text-lg">Finalizar pedido</h2>
           </div>
+          <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-          <div className="p-5 md:p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
             {/* Customer info */}
             <section>
               <h3 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground mb-4">Tus datos</h3>
@@ -278,18 +293,47 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
               </div>
 
               {deliveryMethod === "shipping" && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
-                  <div className="md:col-span-2">
-                    <label className="text-xs text-muted-foreground mb-1.5 block">Dirección *</label>
-                    <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="Calle y número" className="bg-card/50 border-primary/10" />
+                <div className="space-y-3 mt-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Dirección y altura *</label>
+                    <Input value={address} onChange={e => setAddress(e.target.value)} placeholder="Ej: Italia 1037" className="bg-card/50 border-primary/10" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Provincia *</label>
+                    <div className="relative">
+                      <select
+                        value={province}
+                        onChange={e => { setProvince(e.target.value); setSelectedCity(""); setPostalCode("") }}
+                        className="w-full h-11 rounded-xl border border-input bg-card px-4 py-2 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        <option value="">Seleccioná una provincia</option>
+                        {PROVINCES.map(p => (
+                          <option key={p.name} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 block">Ciudad *</label>
+                    <div className="relative">
+                      <select
+                        value={selectedCity}
+                        onChange={e => handleCitySelect(e.target.value)}
+                        disabled={!province}
+                        className="w-full h-11 rounded-xl border border-input bg-card px-4 py-2 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="">{province ? "Seleccioná una ciudad" : "Primero seleccioná una provincia"}</option>
+                        {availableCities.map(c => (
+                          <option key={c.name} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground mb-1.5 block">Código postal</label>
-                    <Input value={postalCode} onChange={e => setPostalCode(e.target.value)} placeholder="6700" className="bg-card/50 border-primary/10" />
-                  </div>
-                  <div className="md:col-span-3">
-                    <label className="text-xs text-muted-foreground mb-1.5 block">Ciudad</label>
-                    <Input value={city} onChange={e => setCity(e.target.value)} placeholder="Ciudad" className="bg-card/50 border-primary/10" />
+                    <Input value={postalCode} readOnly placeholder="Se completa automáticamente" className="bg-card/50 border-primary/10 text-muted-foreground" />
                   </div>
                 </div>
               )}
@@ -412,7 +456,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-3 p-5 border-t border-primary/10 bg-card/30">
+          <div className="flex items-center gap-3 p-4 sm:p-5 border-t border-primary/10 bg-card/30 shrink-0">
             <Button variant="outline" onClick={handleClose} className="flex-1 border-primary/10">
               Cancelar
             </Button>
@@ -432,6 +476,5 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           </div>
         </div>
       </div>
-    </div>
   )
 }
