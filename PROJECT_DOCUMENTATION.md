@@ -1042,6 +1042,22 @@ Stock para una talla específica
 
 ---
 
+### Fecha: 21/05/2026
+- **Fix**: Scroll con ruedita del mouse en modal "Finalizar pedido"
+  - Causa raíz: Lenis interceptaba los wheel events incluso después de `stop()`, evitando el scroll nativo del contenido del modal
+  - Solución: Agregado `data-lenis-prevent` al contenedor scrollable (Lenis ignora wheel events allí), `tabIndex={0}` con auto-focus via ref, y `overscroll-behavior: contain`
+  - Eliminado el `lenis.stop/start` del useEffect (innecesario con data-lenis-prevent)
+  - Build 0 errores, tests 28 pass
+
+- **Feature**: Cálculo automático de envío según provincia
+  - Nueva constante `PROVINCE_SHIPPING_RATES` en `constants.ts` con tabla de 24 provincias (costos desde Luján, BA de referencia Andreani/OCA/Correo Argentino)
+  - Nuevo campo `provinceRates: Record<string, number>` en `GlobalParams.shipping`
+  - `DEFAULT_PARAMS` actualizado con las tarifas por provincia
+  - `CheckoutModal` ahora calcula el envío automáticamente al seleccionar provincia (fallback a `fixedCost` si no hay tarifa específica)
+  - Build 0 errores, tests 28 pass
+
+---
+
 # Notas para Futuras AI
 
 1. **Modo Development**: El proyecto funciona en modo mock si no hay Firebase configurado. Para desarrollo completo, configurar Firebase en `.env`.
@@ -1078,7 +1094,16 @@ Stock para una talla específica
      - NO usa middleware `persist` (todo el estado es volátil).
      - El ranking mensual se calcula en `useMonthlyRanking()` ponderando likes (peso 3) + reproducciones (peso 1) del mes actual.
 
-13. **Colecciones Firestore para música**: Existen 4 colecciones en Firestore relacionadas:
+13. **Scroll en modales con Lenis**: Para que el scroll de la ruedita del mouse funcione dentro de un modal mientras Lenis está activo:
+     - Agregar `data-lenis-prevent` al contenedor scrollable (Lenis ignora wheel events allí)
+     - Agregar `tabIndex={0}` y un `ref` con `focus()` al abrir el modal
+     - Agregar `overscroll-behavior: contain` para evitar scroll chaining
+     - NO usar `lenis.stop()` + `lenis.start()` porque Lenis igual captura el evento; `data-lenis-prevent` es la solución correcta
+     - Ejemplo: `CheckoutModal.tsx` línea 245
+
+14. **Envío por provincia**: El cálculo de envío usa `params.shipping.provinceRates` que es un `Record<string, number>` (provincia → costo). Si la provincia no está en la tabla, fallback a `fixedCost`. Los precios están basados en costos de Andreani/OCA/Correo Argentino desde Luján, BA. Se pueden editar desde el panel de Configuración (provinceRates en GlobalParams).
+
+15. **Colecciones Firestore para música**: Existen 4 colecciones en Firestore relacionadas:
      - `canciones`: documentos `Cancion` con `archivoUrl` (Storage URL), `portadaUrl`, `activo`, `deleted` (soft-delete)
      - `reproducciones`: documentos `Reproduccion` con `cancionId`, `usuarioId`, `fechaReproduccion`
      - `likes`: documentos `LikeCancion` con `cancionId`, `usuarioId`, `fechaLike` (unique constraint por canción+usuario)
