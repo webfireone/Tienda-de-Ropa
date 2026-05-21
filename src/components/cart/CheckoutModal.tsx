@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useParamsStore } from "@/store/paramsStore"
 import { useCartStore } from "@/store/cartStore"
 import { useCreateOrder } from "@/hooks/useFirestore"
@@ -43,6 +43,20 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const { params } = useParamsStore()
   const createOrder = useCreateOrder()
   const lastOrder = useRef<Order | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden"
+      ;(window as any).lenis?.stop()
+    } else {
+      document.body.style.overflow = ""
+      ;(window as any).lenis?.start()
+    }
+    return () => {
+      document.body.style.overflow = ""
+      ;(window as any).lenis?.start()
+    }
+  }, [open])
 
   const [step, setStep] = useState<"form" | "review" | "success">("form")
   const [name, setName] = useState("")
