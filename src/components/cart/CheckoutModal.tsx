@@ -43,18 +43,17 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const { params } = useParamsStore()
   const createOrder = useCreateOrder()
   const lastOrder = useRef<Order | null>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden"
-      ;(window as any).lenis?.stop()
+      setTimeout(() => scrollRef.current?.focus(), 100)
     } else {
       document.body.style.overflow = ""
-      ;(window as any).lenis?.start()
     }
     return () => {
       document.body.style.overflow = ""
-      ;(window as any).lenis?.start()
     }
   }, [open])
 
@@ -73,7 +72,17 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const discount = subtotal > 100000 ? subtotal * 0.1 : subtotal > 50000 ? subtotal * 0.05 : 0
-  const shipping = deliveryMethod === "pickup" ? 0 : subtotal > 120000 ? 0 : params.shipping.fixedCost
+
+  const provinceRate = deliveryMethod === "shipping" && province
+    ? (params.shipping.provinceRates?.[province] ?? params.shipping.fixedCost)
+    : 0
+
+  const shipping = deliveryMethod === "pickup"
+    ? 0
+    : (params.shipping.freeShippingEnabled && subtotal >= params.shipping.freeShippingThreshold)
+      ? 0
+      : provinceRate
+
   const total = subtotal - discount + shipping
   const formatMoney = (n: number) => `$${n.toLocaleString("es-AR")}`
 
@@ -242,7 +251,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 relative custom-scroll">
+        <div ref={scrollRef} tabIndex={0} data-lenis-prevent className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 relative custom-scroll outline-none overscroll-contain">
           <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-card/80 pointer-events-none z-10" />
 
           {/* ══════ STEP 1: FORM ══════ */}

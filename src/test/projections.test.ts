@@ -14,6 +14,7 @@ const defaultParams: GlobalParams = {
     freeShippingEnabled: true,
     announcementBannerEnabled: true,
     announcementBannerText: "Free shipping",
+    provinceRates: { "Buenos Aires": 4000 },
   },
   financial: {
     monthlyInflation: 3.5,

@@ -92,6 +92,7 @@ export interface GlobalParams {
     freeShippingEnabled: boolean
     announcementBannerEnabled: boolean
     announcementBannerText: string
+    provinceRates: Record<string, number>
   }
   financial: {
     monthlyInflation: number
