@@ -209,8 +209,8 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const selectClass = "w-full h-11 rounded-xl border border-input bg-card text-foreground px-4 py-2 text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
 
   return (
-    <div className="fixed inset-0 z-[60] bg-[#0d0d1a]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-0 sm:p-4">
-      <div className="w-full max-w-2xl h-dvh sm:h-auto sm:max-h-[90vh] rounded-none sm:rounded-2xl border-0 sm:border border-primary/10 bg-gradient-to-br from-card to-muted/30 shadow-2xl shadow-primary/10 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[60] bg-[#0d0d1a]/80 backdrop-blur-sm flex items-start sm:items-center justify-center p-0 sm:p-6 sm:pt-20">
+      <div className="w-full max-w-2xl h-dvh sm:h-auto sm:max-h-[75vh] rounded-none sm:rounded-2xl border-0 sm:border border-primary/10 bg-gradient-to-br from-card to-muted/30 shadow-2xl shadow-primary/10 flex flex-col overflow-hidden">
 
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-primary/10 shrink-0">
@@ -228,7 +228,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 scrollbar-none relative">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5 relative custom-scroll">
           <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-b from-transparent to-card/80 pointer-events-none z-10" />
 
           {/* ══════ STEP 1: FORM ══════ */}
