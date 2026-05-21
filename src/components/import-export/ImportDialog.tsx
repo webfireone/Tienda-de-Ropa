@@ -41,10 +41,10 @@ export function ImportDialog() {
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
         
-        const name = row["Nombre"] || row["name"]
-        const brand = row["Marca"] || row["brand"]
-        const category = row["Categoría"] || row["category"]
-        const priceStr = row["Precio"] || row["price"]
+        const name = String(row["Nombre"] ?? row["name"] ?? "")
+        const brand = String(row["Marca"] ?? row["brand"] ?? "")
+        const category = String(row["Categoría"] ?? row["category"] ?? "")
+        const priceStr = String(row["Precio"] ?? row["price"] ?? "")
 
         const missing: string[] = []
         if (!name) missing.push("Nombre")
@@ -59,10 +59,10 @@ export function ImportDialog() {
 
         try {
           const sizes: Record<string, number> = {}
-          SIZES.forEach(s => { sizes[s] = parseInt(row[s]) || 0 })
+          SIZES.forEach(s => { sizes[s] = parseInt(String(row[s] ?? "")) || 0 })
 
           let colors: { name: string; sizes: Record<string, number> }[]
-          const colorsField = row["Colores"] || row["colors"] || ""
+          const colorsField = String(row["Colores"] ?? row["colors"] ?? "")
           try {
             colors = JSON.parse(colorsField)
           } catch {
@@ -73,22 +73,22 @@ export function ImportDialog() {
               .map(name => ({ name, sizes: { ...sizes } }))
           }
 
-          const rawGender = (row["Género"] || row["gender"] || "unisex").toLowerCase().trim()
+          const rawGender = String(row["Género"] ?? row["gender"] ?? "unisex").toLowerCase().trim()
           const gender = rawGender.includes("hom") ? "hombre" :
                          rawGender.includes("muj") ? "mujer" :
                          rawGender.includes("niñ") || rawGender.includes("nin") ? "niños" :
                          rawGender.includes("beb") ? "bebes" : "unisex"
 
-          const rawStatus = (row["Estado"] || row["status"] || "active").toLowerCase().trim()
+          const rawStatus = String(row["Estado"] ?? row["status"] ?? "active").toLowerCase().trim()
           const status = rawStatus === "activo" || rawStatus === "active" ? "active" :
                          rawStatus === "borrador" || rawStatus === "draft" ? "draft" :
                          rawStatus === "archivado" || rawStatus === "archived" ? "archived" : "active"
 
-          const rawSeccion = (row["Sección"] || row["seccion"] || "general").toLowerCase().trim()
+          const rawSeccion = String(row["Sección"] ?? row["seccion"] ?? "general").toLowerCase().trim()
           const seccion = rawSeccion.includes("oferta") ? "ofertas" :
                           rawSeccion.includes("nueva") ? "nueva-coleccion" : "general"
 
-          const tagsField = row["Etiquetas"] || row["tags"] || ""
+          const tagsField = String(row["Tags"] ?? row["Etiquetas"] ?? row["tags"] ?? "")
           const tags = tagsField ? tagsField.split(",").map((t: string) => t.trim()).filter(Boolean) : []
 
           const product: Product = {
@@ -98,11 +98,11 @@ export function ImportDialog() {
             category,
             gender,
             price: parseFloat(priceStr),
-            previousPrice: parseFloat(row["Precio Anterior"] || row["Precio anterior"] || row["previousPrice"]) || 0,
-            description: row["Descripción"] || row["description"] || "",
-            imageUrl: row["Imagen URL"] || row["imageUrl"] || "",
+            previousPrice: parseFloat(String(row["Precio Anterior"] ?? row["Precio anterior"] ?? row["previousPrice"] ?? "")) || 0,
+            description: String(row["Descripción"] ?? row["description"] ?? ""),
+            imageUrl: String(row["Imagen URL"] ?? row["imageUrl"] ?? ""),
             colors,
-            material: row["Material"] || row["material"] || "",
+            material: String(row["Material"] ?? row["material"] ?? ""),
             tags,
             status,
             seccion,
