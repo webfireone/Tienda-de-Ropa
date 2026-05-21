@@ -5,8 +5,10 @@ import { useCreateOrder } from "@/hooks/useFirestore"
 import { addOrderAlert } from "@/lib/orderAlerts"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { X, Truck, CreditCard, CheckCircle, Package, Loader2, Store, MessageCircle } from "lucide-react"
+import { X, Truck, CreditCard, CheckCircle, Package, Loader2, Store, MessageCircle, ShieldCheck } from "lucide-react"
 import type { Order, OrderItem } from "@/types"
+
+const MP_PAYMENT = "Mercado Pago"
 
 const WHATSAPP_NUMBER = "5491122618116"
 
@@ -52,6 +54,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const [postalCode, setPostalCode] = useState("")
   const [paymentMethod, setPaymentMethod] = useState(params.cart.paymentMethods[0]?.name ?? "")
   const [error, setError] = useState("")
+  const [processingMp, setProcessingMp] = useState(false)
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const discount = subtotal > 100000 ? subtotal * 0.1 : subtotal > 50000 ? subtotal * 0.05 : 0
@@ -64,6 +67,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
   const handleSubmit = async () => {
     setError("")
+    const isMp = paymentMethod === MP_PAYMENT
 
     if (!name.trim()) { setError("Ingresá tu nombre"); return }
     if (!phone.trim()) { setError("Ingresá tu teléfono"); return }
@@ -98,7 +102,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       subtotal,
       discount,
       shipping,
-      total,
+      total: total + surcharge,
       createdAt: now,
     }
 
@@ -106,10 +110,35 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
       await createOrder.mutateAsync(order)
       lastOrder.current = order
       addOrderAlert(order.id, order.customerName, order.total, order.deliveryMethod)
+
+      if (isMp) {
+        setProcessingMp(true)
+        const res = await fetch("/api/create-preference", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: orderItems,
+            total: order.total,
+            orderId: order.id,
+            customerName: name.trim(),
+            customerEmail: email.trim(),
+          }),
+        })
+        if (!res.ok) throw new Error("Error al crear preferencia de pago")
+        const data = await res.json()
+        if (data.initPoint) {
+          clearCart()
+          window.location.href = data.initPoint
+          return
+        }
+        throw new Error("No se obtuvo el link de pago")
+      }
+
       clearCart()
       setStep("success")
-    } catch {
-      setError("Ocurrió un error al procesar el pedido. Intentá de nuevo.")
+    } catch (err) {
+      setProcessingMp(false)
+      setError("Ocurrió un error al procesar el pago. Intentá de nuevo.")
     }
   }
 
@@ -272,26 +301,62 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
                 <CreditCard className="h-3 w-3" />
                 Medio de pago
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                {params.cart.paymentMethods.map(m => (
-                  <button
-                    key={m.name}
-                    onClick={() => setPaymentMethod(m.name)}
-                    className={`flex items-center gap-2 p-3 rounded-xl border text-sm transition-all duration-200 ${
-                      paymentMethod === m.name
-                        ? "border-primary/40 bg-primary/5 shadow-sm shadow-primary/10"
-                        : "border-primary/10 bg-card/50 hover:border-primary/20"
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      paymentMethod === m.name ? "border-primary" : "border-primary/20"
-                    }`}>
-                      {paymentMethod === m.name && <div className="w-2 h-2 rounded-full gradient-primary" />}
+              <div className="space-y-2">
+                <button
+                  onClick={() => setPaymentMethod(MP_PAYMENT)}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl border text-left transition-all duration-200 ${
+                    paymentMethod === MP_PAYMENT
+                      ? "border-primary/40 bg-primary/5 shadow-sm shadow-primary/10"
+                      : "border-primary/10 bg-card/50 hover:border-primary/20"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                    paymentMethod === MP_PAYMENT ? "border-primary" : "border-primary/20"
+                  }`}>
+                    {paymentMethod === MP_PAYMENT && <div className="w-2.5 h-2.5 rounded-full gradient-primary" />}
+                  </div>
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-lg bg-[#00B1EA]/10 flex items-center justify-center">
+                      <ShieldCheck className="h-5 w-5 text-[#00B1EA]" />
                     </div>
-                    <span>{m.name}</span>
-                    {m.rate > 0 && <span className="text-[10px] text-muted-foreground ml-auto">+{(m.rate * 100).toFixed(0)}%</span>}
-                  </button>
-                ))}
+                    <div>
+                      <p className="text-sm font-semibold">Mercado Pago</p>
+                      <p className="text-[11px] text-muted-foreground">Tarjeta crédito, débito, transferencia</p>
+                    </div>
+                    <span className="text-[10px] text-emerald-500 font-semibold ml-auto bg-emerald-500/10 px-2 py-0.5 rounded-full">Sin recargo</span>
+                  </div>
+                </button>
+
+                <div className="relative my-3">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-primary/10" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-card px-2 text-[10px] text-muted-foreground uppercase tracking-wider">O pagá al retirar</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  {params.cart.paymentMethods.map(m => (
+                    <button
+                      key={m.name}
+                      onClick={() => setPaymentMethod(m.name)}
+                      className={`flex items-center gap-2 p-3 rounded-xl border text-sm transition-all duration-200 ${
+                        paymentMethod === m.name
+                          ? "border-primary/40 bg-primary/5 shadow-sm shadow-primary/10"
+                          : "border-primary/10 bg-card/50 hover:border-primary/20"
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        paymentMethod === m.name ? "border-primary" : "border-primary/20"
+                      }`}>
+                        {paymentMethod === m.name && <div className="w-2 h-2 rounded-full gradient-primary" />}
+                      </div>
+                      <span>{m.name}</span>
+                      {m.rate > 0 && <span className="text-[10px] text-muted-foreground ml-auto">+{(m.rate * 100).toFixed(0)}%</span>}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
 
@@ -353,11 +418,13 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={createOrder.isPending}
-              className="flex-1 btn-shine"
+              disabled={createOrder.isPending || processingMp}
+              className={`flex-1 ${paymentMethod === MP_PAYMENT ? "bg-[#00B1EA] hover:bg-[#0099CC] text-white" : "btn-shine"}`}
             >
-              {createOrder.isPending ? (
-                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Procesando...</>
+              {createOrder.isPending || processingMp ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {processingMp ? "Redirigiendo a Mercado Pago..." : "Procesando..."}</>
+              ) : paymentMethod === MP_PAYMENT ? (
+                <>Pagar con Mercado Pago · {formatMoney(total + surcharge)}</>
               ) : (
                 <>Confirmar pedido · {formatMoney(total + surcharge)}</>
               )}
