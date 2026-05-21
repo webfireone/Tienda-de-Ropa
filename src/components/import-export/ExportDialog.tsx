@@ -6,6 +6,7 @@ import { jsPDF } from "jspdf"
 import Papa from "papaparse"
 import * as XLSX from "xlsx"
 import { Download, FileText, FileSpreadsheet, FileDown } from "lucide-react"
+import { SIZES } from "@/types"
 
 export function ExportDialog() {
   const { data: products = [] } = useProducts()
@@ -48,6 +49,82 @@ export function ExportDialog() {
     XLSX.writeFile(wb, "ventas-export.xlsx")
   }
 
+  const exportCatalogExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(products.map(p => {
+      const colorsStr = p.colors ? p.colors.map(c => c.name).join(", ") : ""
+      
+      const sizesObj: Record<string, number> = {}
+      SIZES.forEach(s => {
+        sizesObj[s] = p.colors ? p.colors.reduce((sum, c) => sum + (c.sizes[s] || 0), 0) : 0
+      })
+
+      const statusMap: Record<string, string> = {
+        active: "activo",
+        draft: "borrador",
+        archived: "archivado",
+      }
+
+      return {
+        Nombre: p.name,
+        Marca: p.brand,
+        Categoría: p.category,
+        Género: p.gender || "unisex",
+        Precio: p.price,
+        "Precio Anterior": p.previousPrice || 0,
+        Descripción: p.description || "",
+        "Imagen URL": p.imageUrl || "",
+        Material: p.material || "",
+        Etiquetas: p.tags ? p.tags.join(", ") : "",
+        Sección: p.seccion || "general",
+        Estado: statusMap[p.status] || "activo",
+        Colores: colorsStr,
+        ...sizesObj
+      }
+    }))
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, "Catálogo")
+    XLSX.writeFile(wb, "catalogo-glamours.xlsx")
+  }
+
+  const exportCatalogCSV = () => {
+    const csv = Papa.unparse(products.map(p => {
+      const colorsStr = p.colors ? p.colors.map(c => c.name).join(", ") : ""
+      
+      const sizesObj: Record<string, number> = {}
+      SIZES.forEach(s => {
+        sizesObj[s] = p.colors ? p.colors.reduce((sum, c) => sum + (c.sizes[s] || 0), 0) : 0
+      })
+
+      const statusMap: Record<string, string> = {
+        active: "activo",
+        draft: "borrador",
+        archived: "archivado",
+      }
+
+      return {
+        Nombre: p.name,
+        Marca: p.brand,
+        Categoría: p.category,
+        Género: p.gender || "unisex",
+        Precio: p.price,
+        "Precio Anterior": p.previousPrice || 0,
+        Descripción: p.description || "",
+        "Imagen URL": p.imageUrl || "",
+        Material: p.material || "",
+        Etiquetas: p.tags ? p.tags.join(", ") : "",
+        Sección: p.seccion || "general",
+        Estado: statusMap[p.status] || "activo",
+        Colores: colorsStr,
+        ...sizesObj
+      }
+    }))
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = "catalogo-glamours.csv"
+    a.click()
+  }
+
   const exportButtons = [
     { label: "PDF", icon: FileText, onClick: exportPDF, color: "text-rose-500" },
     { label: "CSV", icon: FileSpreadsheet, onClick: exportCSV, color: "text-emerald-500" },
@@ -62,21 +139,44 @@ export function ExportDialog() {
           <CardTitle>Exportar Datos</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">Exportá reportes y datos en diferentes formatos.</p>
-        <div className="grid grid-cols-3 gap-3">
-          {exportButtons.map(({ label, icon: Icon, onClick, color }) => (
+      <CardContent className="space-y-6">
+        <div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Ventas y Reportes</h4>
+          <div className="grid grid-cols-3 gap-3">
+            {exportButtons.map(({ label, icon: Icon, onClick, color }) => (
+              <button
+                key={label}
+                onClick={onClick}
+                className="flex flex-col items-center gap-2 p-4 rounded-xl border border-primary/5 hover:border-primary/20 bg-muted/30 hover:bg-muted/50 transition-all duration-300 group"
+              >
+                <Icon className={`h-6 w-6 ${color} group-hover:scale-110 transition-transform`} />
+                <span className="text-xs font-semibold">{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-primary/10 pt-4">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Catálogo de Productos</h4>
+          <div className="grid grid-cols-2 gap-3">
             <button
-              key={label}
-              onClick={onClick}
+              onClick={exportCatalogCSV}
               className="flex flex-col items-center gap-2 p-4 rounded-xl border border-primary/5 hover:border-primary/20 bg-muted/30 hover:bg-muted/50 transition-all duration-300 group"
             >
-              <Icon className={`h-6 w-6 ${color} group-hover:scale-110 transition-transform`} />
-              <span className="text-xs font-semibold">{label}</span>
+              <FileSpreadsheet className="h-6 w-6 text-emerald-500 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">Descargar CSV</span>
             </button>
-          ))}
+            <button
+              onClick={exportCatalogExcel}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border border-primary/5 hover:border-primary/20 bg-muted/30 hover:bg-muted/50 transition-all duration-300 group"
+            >
+              <FileDown className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">Descargar Excel</span>
+            </button>
+          </div>
         </div>
       </CardContent>
     </Card>
   )
 }
+

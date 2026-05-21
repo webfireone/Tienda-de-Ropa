@@ -36,18 +36,21 @@ export function ImportDialog() {
         setResult({ success: false, imported: 0, errors: ["Formato no soportado. Usá CSV o XLSX."] })
         return
       }
-
       const errors: string[] = []
       let imported = 0
       for (let i = 0; i < data.length; i++) {
         const row = data[i]
+        
+        const name = row["Nombre"] || row["name"]
+        const brand = row["Marca"] || row["brand"]
+        const category = row["Categoría"] || row["category"]
+        const priceStr = row["Precio"] || row["price"]
+
         const missing: string[] = []
-        if (!row.name) missing.push("name")
-        if (!row.brand) missing.push("brand")
-        if (!row.category) missing.push("category")
-        if (!row.price) missing.push("price")
-        if (!row.previousPrice) missing.push("previousPrice")
-        if (!row.imageUrl) missing.push("imageUrl")
+        if (!name) missing.push("Nombre")
+        if (!brand) missing.push("Marca")
+        if (!category) missing.push("Categoría")
+        if (!priceStr) missing.push("Precio")
 
         if (missing.length > 0) {
           errors.push(`Fila ${i + 1}: faltan campos requeridos (${missing.join(", ")})`)
@@ -59,31 +62,50 @@ export function ImportDialog() {
           SIZES.forEach(s => { sizes[s] = parseInt(row[s]) || 0 })
 
           let colors: { name: string; sizes: Record<string, number> }[]
+          const colorsField = row["Colores"] || row["colors"] || ""
           try {
-            colors = JSON.parse(row.colors || "[]")
+            colors = JSON.parse(colorsField)
           } catch {
-            colors = (row.colors || "")
+            colors = colorsField
               .split(",")
               .map(c => c.trim())
               .filter(Boolean)
               .map(name => ({ name, sizes: { ...sizes } }))
           }
 
+          const rawGender = (row["Género"] || row["gender"] || "unisex").toLowerCase().trim()
+          const gender = rawGender.includes("hom") ? "hombre" :
+                         rawGender.includes("muj") ? "mujer" :
+                         rawGender.includes("niñ") || rawGender.includes("nin") ? "niños" :
+                         rawGender.includes("beb") ? "bebes" : "unisex"
+
+          const rawStatus = (row["Estado"] || row["status"] || "active").toLowerCase().trim()
+          const status = rawStatus === "activo" || rawStatus === "active" ? "active" :
+                         rawStatus === "borrador" || rawStatus === "draft" ? "draft" :
+                         rawStatus === "archivado" || rawStatus === "archived" ? "archived" : "active"
+
+          const rawSeccion = (row["Sección"] || row["seccion"] || "general").toLowerCase().trim()
+          const seccion = rawSeccion.includes("oferta") ? "ofertas" :
+                          rawSeccion.includes("nueva") ? "nueva-coleccion" : "general"
+
+          const tagsField = row["Etiquetas"] || row["tags"] || ""
+          const tags = tagsField ? tagsField.split(",").map((t: string) => t.trim()).filter(Boolean) : []
+
           const product: Product = {
             id: crypto.randomUUID(),
-            name: row.name,
-            brand: row.brand,
-            category: row.category,
-            gender: (row.gender as Product["gender"]) || "unisex",
-            price: parseFloat(row.price),
-            previousPrice: parseFloat(row.previousPrice) || 0,
-            description: row.description || "",
-            imageUrl: row.imageUrl,
+            name,
+            brand,
+            category,
+            gender,
+            price: parseFloat(priceStr),
+            previousPrice: parseFloat(row["Precio Anterior"] || row["Precio anterior"] || row["previousPrice"]) || 0,
+            description: row["Descripción"] || row["description"] || "",
+            imageUrl: row["Imagen URL"] || row["imageUrl"] || "",
             colors,
-            material: row.material || "",
-            tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
-            status: (row.status as Product["status"]) || "active",
-            seccion: (row.seccion as Product["seccion"]) || "general",
+            material: row["Material"] || row["material"] || "",
+            tags,
+            status,
+            seccion,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           }
@@ -114,8 +136,18 @@ export function ImportDialog() {
         ) : (
           <>
             <p className="text-sm text-muted-foreground">
-              Formatos: CSV, XLSX. Campos requeridos: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">name</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">brand</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">category</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">price</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">imageUrl</code>. Opcional: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">previousPrice</code>
+              Formatos: CSV, XLSX. Campos requeridos: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">name</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">brand</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">category</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">price</code>. Opcionales: <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">imageUrl</code>, <code className="text-primary bg-muted px-1.5 py-0.5 rounded text-xs">previousPrice</code>, talles (XS, S, M, L, XL, XXL) y colores.
             </p>
+            <div className="flex justify-between items-center bg-muted/30 p-3 rounded-xl border border-primary/10">
+              <span className="text-xs text-muted-foreground">¿No tenés la plantilla de ejemplo?</span>
+              <a
+                href="/planilla_ejemplo.xlsx"
+                download="planilla_ejemplo_carga.xlsx"
+                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+              >
+                Descargar Plantilla
+              </a>
+            </div>
             <div className="relative">
               <input
                 ref={fileInputRef}

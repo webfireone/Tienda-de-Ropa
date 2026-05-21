@@ -329,6 +329,13 @@ Tienda de Ropa/
 │   │   │   └── ScenarioSelector.tsx
 │   │   ├── config/
 │   │   │   └── GlobalParamsForm.tsx
+│   │   ├── music/
+│   │   │   ├── MusicPlayer.tsx       # Reproductor con vinilo animado + controles shuffle/next/prev
+│   │   │   ├── MusicSection.tsx      # Sección completa de música (player + lista + ranking)
+│   │   │   ├── SongCard.tsx          # Tarjeta de canción con stats y like
+│   │   │   ├── MonthlyRanking.tsx    # Top 5 del mes con reproducciones diarias
+│   │   │   ├── Equalizer.tsx         # Barras animadas de equalizador
+│   │   │   └── AdminMusicPanel.tsx   # Panel admin para gestión de canciones
 │   │   ├── alerts/
 │   │   │   └── AlertsPanel.tsx
 │   │   ├── import-export/
@@ -723,10 +730,19 @@ Re-export de useProducts para mantener compatibilidad.
 ### UI Components (shadcn/ui)
 button, input, card, badge, select, switch, tabs, table, CursorGlow
 
+### Music Components
+| Componente | Descripción |
+|-------------|-------------|
+| MusicPlayer | Reproductor principal con disco de vinilo animado, glow ambiental, barra de progreso, controles play/pause/next/prev/shuffle, volumen |
+| MusicSection | Layout de la sección música: columna izquierda con MusicPlayer + MonthlyRanking, columna derecha con lista SongCard |
+| SongCard | Tarjeta de canción con track number, portada, título/artista, contador de plays, botón de like. Muestra Equalizer animado si es la canción actual |
+| MonthlyRanking | Top 5 del mes calculado con likes + reproducciones ponderadas. Muestra contador de reproducciones del día |
+| Equalizer | Barras animadas de equalizador que se activan cuando la canción está sonando |
+| AdminMusicPanel | Panel en admin para gestionar canciones: subir, editar, eliminar, importación masiva desde carpeta |
+
 ### Other Components
 | Componente | Descripción |
 |-------------|-------------|
-| BackgroundMusic | Reproductor de música de fondo con 2 tracks MP3 |
 | HeroParticles | Partículas animadas decorativas |
 
 ---
@@ -1014,6 +1030,16 @@ Stock para una talla específica
   - Importación secuencial con loader, muestra cantidad de canciones importadas
   - Build 0 errores
 
+### Fecha: 16/05/2026
+- **Feature**: Reproductor musical completo con disco de vinilo animado, shuffle y auto-next
+  - `musicStore.ts` — Refactor completo: agregados `playlist`, `shuffle`, `playNext()`, `playPrevious()`, auto-advance al terminar canción vía `onEnded`. Refactorizada lógica en `playNewSong()`. Eliminados `console.log` excesivos.
+  - `MusicPlayer.tsx` — Rediseño completo: disco de vinilo animado con CSS (`vinyl-spin`), glow ambiental, tonearm indicator, barra de progreso con knob, controles shuffle/next/prev, tracking acumulativo de reproducciones (pasa de timeout 10s a setInterval con contador de segundos acumulados). Vocals "Glamour's MUSIC" cuando no hay canción seleccionada.
+  - `MusicSection.tsx` — Sincroniza `setPlaylist()` con las canciones activas via `useEffect`. Grid de SongCards cambiado a `md:grid-cols-2`. `MonthlyRanking` movido a columna lateral.
+  - `SongCard.tsx` — Rediseño: track number con padding 2 dígitos, Equalizer animado para la canción actual, hover reveal del botón Play, stats simplificadas (solo plays + like), eliminado el disco 3D giratorio.
+  - `MonthlyRanking.tsx` — Agregado contador de reproducciones del día usando `useReproducciones` y filtrando por fecha actual.
+  - `index.css` — Nuevos estilos: `.music-player-wrapper`, `.music-player-card` (glass con backdrop-blur), animaciones `vinyl-spin` y `pulse-ring`. Gradientes lineales para barra de progreso y glow.
+  - Build 0 errores, commit `9b2c091`, push a GitHub + deploy automático a Render
+
 ---
 
 # Notas para Futuras AI
@@ -1042,6 +1068,21 @@ Stock para una talla específica
      - Ver en DevTools que no haya inline `style="font-family: inherit !important"` en los elementos objetivo
 
 11. **Mock mutable en hooks**: Los hooks de datos que usan arrays mock (ej. `useMusic.ts`) deben usar un array mutable a nivel de módulo (`let mockCanciones = [...MOCK_SONGS]`) para que las mutaciones (CRUD) funcionen en modo mock. Las funciones de mutación deben modificar este array y luego invalidar queries.
+
+12. **musicStore (Zustand sin persist)**: `src/store/musicStore.ts` usa un `Audio` element a nivel de módulo (`audioEl`) que se comparte entre toda la app. El store maneja:
+     - `playlist`: sincronizada desde `MusicSection` via `useEffect` cada vez que cambia `activeSongs.length`
+     - `shuffle`: toggle aleatorio para `playNext()` y auto-advance en `onEnded`
+     - `playPrevious()`: si `progress > 3s` reinicia la canción, si no va a la anterior
+     - `onEnded()`: auto-advance a siguiente canción en la playlist (aleatorio si shuffle activo)
+     - Registro de reproducción: `MusicPlayer` usa `setInterval` de 1s acumulando segundos; al llegar a 10s dispara `useRegistrarReproduccion.mutate()` y limpia el interval. Se resetea al cambiar de canción.
+     - NO usa middleware `persist` (todo el estado es volátil).
+     - El ranking mensual se calcula en `useMonthlyRanking()` ponderando likes (peso 3) + reproducciones (peso 1) del mes actual.
+
+13. **Colecciones Firestore para música**: Existen 4 colecciones en Firestore relacionadas:
+     - `canciones`: documentos `Cancion` con `archivoUrl` (Storage URL), `portadaUrl`, `activo`, `deleted` (soft-delete)
+     - `reproducciones`: documentos `Reproduccion` con `cancionId`, `usuarioId`, `fechaReproduccion`
+     - `likes`: documentos `LikeCancion` con `cancionId`, `usuarioId`, `fechaLike` (unique constraint por canción+usuario)
+     - En modo mock, los datos se almacenan en arrays mutables a nivel de módulo en `useMusic.ts`
 
 ---
 
@@ -1201,7 +1242,21 @@ App.tsx (Root)
 │       │       ├── LandingPage
 │       │       │   ├── useProducts()
 │       │       │   ├── usePromotions()
-│       │       │   └── Firebase (suscriptores)
+│       │       │   ├── Firebase (suscriptores)
+│       │       │   └── MusicSection
+│       │       │       ├── useMusicStore (playlist)
+│       │       │       ├── useCanciones()
+│       │       │       ├── MusicPlayer
+│       │       │       │   ├── useMusicStore
+│       │       │       │   └── useRegistrarReproduccion()
+│       │       │       ├── SongCard[]
+│       │       │       │   ├── useMusicStore
+│       │       │       │   ├── useAuth()
+│       │       │       │   └── useToggleLike() / useUserLikedSongs() / useSongStats()
+│       │       │       └── MonthlyRanking
+│       │       │           ├── useMusicStore
+│       │       │           ├── useMonthlyRanking()
+│       │       │           └── useReproducciones()
 │       │       │
 │       │       ├── CatalogPage
 │       │       │   ├── useProducts()
@@ -1266,6 +1321,9 @@ App.tsx (Root)
 | Estilos/strings | `import { cn } from "@/lib/utils"` |
 | Tipos | `import type { Product, Order } from "@/types"` |
 | Componentes UI | `import { Button } from "@/components/ui/button"` |
+| Componentes música | `import { useMusicStore } from "@/store/musicStore"` |
+| Componentes música | `import { useCanciones, useMonthlyRanking } from "@/hooks/useMusic"` |
+| Tipos música | `import type { Cancion, Reproduccion } from "@/types/music"` |
 
 ---
 
@@ -1994,3 +2052,195 @@ El descuento SE muestra solo cuando `previousPrice > price`. Si `previousPrice` 
 
 - Eliminada la regla `negative_margin` del hook `useAlerts` (ya no hay cálculo de margen)
 - El tipo `Alert.type` aún conserva `"negative_margin"` en la unión de tipos por compatibilidad, pero nunca se genera
+
+---
+
+## 35. Sistema de Música (Reproductor y Ranking)
+
+### 35.1. Arquitectura General
+
+El sistema de música se compone de 3 capas:
+
+```
+Firestore (canciones, reproducciones, likes)
+    ↓
+TanStack Query (useCanciones, useReproducciones, etc.)
+    ↓
+useMusicStore (Zustand) — estado del reproductor (canción actual, playlist, shuffle, volumen)
+    ↓
+Componentes UI (MusicSection, MusicPlayer, SongCard, MonthlyRanking)
+```
+
+### 35.2. Store: `src/store/musicStore.ts`
+
+**Propósito**: Estado global del reproductor de música.
+
+**Audio element singleton**: `audioEl` es una variable a nivel de módulo (no React state). Un solo `<Audio>` element creado por `new Audio()` se reusa para todas las canciones. Los eventos se conectan a través de `setupAudioEvents()`.
+
+```typescript
+interface MusicStore {
+  // Estado
+  currentSong: Cancion | null   // Canción actual
+  playlist: Cancion[]            // Lista de reproducción activa
+  isPlaying: boolean
+  progress: number               // Segundos reproducidos
+  duration: number               // Duración total
+  volume: number                 // 0.0 - 1.0 (default 0.7)
+  isLiked: boolean               // Like de la canción actual (para el usuario)
+  audioError: string | null      // Error de audio
+  hasJustChanged: boolean        // Flag para animaciones de transición
+  shuffle: boolean               // Modo aleatorio activo
+
+  // Acciones
+  setCurrentSong(song)
+  setPlaylist(songs)             // Sincronizada desde MusicSection
+  setIsPlaying(playing)
+  setProgress(progress)
+  setDuration(duration)
+  setVolume(volume)              // También aplica a audioEl.volume
+  setIsLiked(liked)
+  setAudioError(error)
+  togglePlay()                   // Pausa/reanuda
+  toggleShuffle()                // Activa/desactiva aleatorio
+  seek(value)                    // Buscar en la canción
+  playSong(song)                 // Reproducir canción (toggle si es la misma)
+  playNext()                     // Siguiente en playlist
+  playPrevious()                 // Anterior (o reinicio si >3s)
+}
+```
+
+**Eventos internos del Audio element**:
+- `timeupdate` → `setProgress(audioEl.currentTime)`
+- `loadedmetadata` → `setDuration(audioEl.duration)`
+- `ended` → `store.onEnded()` (auto-advance)
+- `error` → `setAudioError(msg)` + pausa
+- `canplay` → limpia `audioError`
+
+**Auto-advance (`onEnded`)**:
+1. Busca índice de `currentSong` en `playlist`
+2. Si `shuffle=true`: elige aleatorio hasta que sea diferente
+3. Si `shuffle=false`: `(idx + 1) % playlist.length`
+4. Ejecuta `playNewSong()` y sale (no toca `isPlaying`)
+5. Si playlist vacía o sin URL: `set({ isPlaying: false })`
+
+**Registro de reproducción**:
+- Se maneja desde `MusicPlayer.tsx` con `setInterval` de 1s
+- Acumula segundos en `cumulativeSeconds` (useRef)
+- Al llegar a 10s: llama `registrarReproduccion.mutate(currentSong.id)` y limpia el interval
+- Se resetea al cambiar de canción (`useEffect` con dep `currentSong.id`)
+
+### 35.3. Hooks: `src/hooks/useMusic.ts`
+
+| Hook | Query Key | Propósito |
+|------|-----------|-----------|
+| `useCanciones()` | `["canciones"]` | Obtiene todas las canciones activas |
+| `useCancion(id)` | `["cancion", id]` | Canción específica |
+| `useSaveCancion()` | mutation | Crear/actualizar canción |
+| `useDeleteCancion()` | mutation | Soft-delete (marca `deleted: true`) |
+| `useResetMusicCollection()` | mutation | Reset total de la colección |
+| `useReproducciones()` | `["reproducciones"]` | Todas las reproducciones |
+| `useRegistrarReproduccion()` | mutation | Registrar nueva reproducción |
+| `useLikes()` | `["likes"]` | Todos los likes |
+| `useToggleLike()` | mutation | Dar/quitar like a una canción |
+| `useMonthlyRanking()` | computed | Top 5 del mes (peso: likes=3, reproducciones=1) |
+| `useUserLikedSongs()` | `["user-liked"]` | IDs de canciones liked por el usuario |
+| `useSongStats(cancionId)` | computed | Total plays + total likes de una canción |
+
+**Modo mock**: Todos los hooks usan arrays mutables a nivel de módulo (`mockCanciones`, `mockReproducciones`, `mockLikes`). Las mutations modifican estos arrays directamente e invalidan queries.
+
+### 35.4. Flujo de reproducción
+
+```
+Usuario hace clic en SongCard/otro
+    ↓
+playSong(cancion)
+    ├─ ¿Es la misma canción actual?
+    │   ├─ Sí: toggle play/pause
+    │   └─ No: playNewSong()
+    │       ├─ createNewAudio() → nuevo Audio() + eventos
+    │       ├─ set({ currentSong, isPlaying: true, progress: 0, ... })
+    │       └─ a.play()
+    │
+    ↓ (en MusicPlayer, vía useEffect)
+setInterval 1s → acumula segundos
+    ↓ cuando cumulativeSeconds >= 10
+registrarReproduccion.mutate(currentSong.id)
+    ↓ (en el hook)
+mockReproducciones.push({ cancionId, usuarioId, fechaReproduccion })
+invalidar query ["reproducciones"]
+    ↓
+    ↓ (cuando termina la canción)
+ended → onEnded() → playNext() (auto-advance)
+```
+
+### 35.5. Componentes UI
+
+| Componente | Archivo | Props | Descripción |
+|-----------|---------|-------|-------------|
+| MusicSection | `src/components/music/MusicSection.tsx` | ninguna | Layout completo: llama `useCanciones()`, sincroniza `setPlaylist()`, renderiza MusicPlayer + MonthlyRanking + SongCards |
+| MusicPlayer | `src/components/music/MusicPlayer.tsx` | ninguna | Reproductor visual con vinilo animado, controles, barra de progreso, volumen |
+| SongCard | `src/components/music/SongCard.tsx` | `{ cancion: Cancion, index?: number }` | Tarjeta individual con track number, portada, stats, like |
+| MonthlyRanking | `src/components/music/MonthlyRanking.tsx` | `{ canciones: Cancion[], compact?: boolean }` | Top 5 del mes, contador de reproducciones del día |
+| Equalizer | `src/components/music/Equalizer.tsx` | `{ active: boolean, className?: string }` | Barras animadas |
+| AdminMusicPanel | `src/components/music/AdminMusicPanel.tsx` | ninguna | Admin: subir, editar, eliminar canciones, importación masiva |
+
+### 35.6. Tipos (`src/types/music.ts`)
+
+```typescript
+interface Cancion {
+  id: string
+  titulo: string
+  artista: string
+  archivoUrl: string       // URL del archivo MP3 (Firebase Storage o local)
+  portadaUrl: string       // URL de la imagen de portada
+  fechaSubida: string      // ISO date
+  activo: boolean
+}
+
+interface Reproduccion {
+  id: string
+  cancionId: string
+  usuarioId: string | null
+  fechaReproduccion: string  // ISO date
+}
+
+interface LikeCancion {
+  id: string
+  cancionId: string
+  usuarioId: string
+  fechaLike: string
+}
+
+interface MonthlyRankingEntry {
+  posicion: number
+  cancionId: string
+  titulo: string
+  artista: string
+  portadaUrl: string
+  puntaje: number          // likes*3 + reproducciones
+  likes: number
+  reproducciones: number
+}
+```
+
+### 35.7. Colecciones Firestore
+
+| Colección | Documento | Propósito |
+|-----------|-----------|-----------|
+| `canciones` | `Cancion` | Catálogo de canciones |
+| `reproducciones` | `Reproduccion` | Registro de cada reproducción >10s |
+| `likes` | `LikeCancion` | Likes de usuarios a canciones |
+
+En modo mock, todos los datos se almacenan en arrays mutables a nivel de módulo en `useMusic.ts`.
+
+### 35.8. Estilos del reproductor (`src/index.css`)
+
+```css
+.music-player-wrapper     /* Contenedor relativo para glow */
+.music-player-card        /* Card glass con backdrop-filter blur(40px) */
+.vinyl-spin               /* Animación rotación 6s linear infinite */
+.vinyl-spin-paused        /* Misma animación pero pausada */
+.animate-pulse-ring       /* Pulse ring glow */
+```
+
+El disco de vinilo usa una imagen fija (`/images/pasta.jpg`) con overlay de brillo. La rotación se activa/desactiva toggleando las clases `vinyl-spin` / `vinyl-spin-paused`.

@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useProducts, useDeleteProduct } from "@/hooks/useProducts"
+import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -13,12 +14,17 @@ import { collection, getDocs, writeBatch, doc } from "firebase/firestore"
 export function ProductManager() {
   const { data: products = [], isLoading } = useProducts()
   const deleteProduct = useDeleteProduct()
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState("")
   const [editing, setEditing] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [migrating, setMigrating] = useState(false)
   const [migrateMsg, setMigrateMsg] = useState("")
+
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false)
 
   const runMigration = async () => {
     setMigrating(true)
@@ -47,6 +53,51 @@ export function ProductManager() {
     p.brand.toLowerCase().includes(search.toLowerCase()) ||
     p.category.toLowerCase().includes(search.toLowerCase())
   )
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(p => selectedIds.includes(p.id))
+
+  const toggleAll = () => {
+    if (allFilteredSelected) {
+      const filteredIds = filtered.map(p => p.id)
+      setSelectedIds(prev => prev.filter(id => !filteredIds.includes(id)))
+    } else {
+      const filteredIds = filtered.map(p => p.id)
+      setSelectedIds(prev => {
+        const next = [...prev]
+        filteredIds.forEach(id => {
+          if (!next.includes(id)) next.push(id)
+        })
+        return next
+      })
+    }
+  }
+
+  const toggleOne = (id: string) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    )
+  }
+
+  const handleBulkDelete = async () => {
+    setIsDeletingBulk(true)
+    try {
+      const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
+      if (!USE_MOCK) {
+        const batch = writeBatch(db)
+        selectedIds.forEach(id => {
+          batch.delete(doc(db, "products", id))
+        })
+        await batch.commit()
+      }
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+      setSelectedIds([])
+      setConfirmBulkDelete(false)
+    } catch (error) {
+      console.error("Error deleting products in bulk:", error)
+    } finally {
+      setIsDeletingBulk(false)
+    }
+  }
 
   const totalStock = (p: Parameters<typeof getTotalStock>[0]) => getTotalStock(p)
 
@@ -126,40 +177,108 @@ export function ProductManager() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">No hay productos</div>
         ) : (
-          <div className="space-y-2">
-            {filtered.map(p => (
-              <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 border border-primary/5 hover:border-primary/20 transition-all group">
-                <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-lg object-cover" onError={e => (e.currentTarget.src = "https://placehold.co/200x200/1a1a30/8888a8?text=N/A")} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{p.name}</p>
-                  <p className="text-xs text-muted-foreground">{p.brand} · {p.category}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-medium">${p.price.toLocaleString("es-AR")}</span>
-                    <Badge variant={p.status === "active" ? "success" : p.status === "draft" ? "warning" : "outline"}>{p.status}</Badge>
-                    <span className="text-xs text-muted-foreground">Stock: {totalStock(p)}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="sm" onClick={() => setEditing(p.id)}>
-                    <Edit3 className="h-3.5 w-3.5" />
-                  </Button>
-                  {confirmDelete === p.id ? (
-                    <div className="flex items-center gap-1">
-                      <Button variant="destructive" size="sm" onClick={() => { deleteProduct.mutate(p.id); setConfirmDelete(null) }}>
-                        <AlertTriangle className="h-3 w-3" />
+          <div className="space-y-4">
+            {/* Master Selection Checkbox & Bulk Actions Bar */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/20 border border-primary/5">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={allFilteredSelected}
+                  ref={el => {
+                    if (el) {
+                      const someSelected = filtered.some(p => selectedIds.includes(p.id))
+                      el.indeterminate = someSelected && !allFilteredSelected
+                    }
+                  }}
+                  onChange={toggleAll}
+                  className="h-4 w-4 rounded border-primary/20 text-primary focus:ring-primary/30 accent-primary cursor-pointer"
+                />
+                <span className="text-xs text-muted-foreground font-medium">
+                  {allFilteredSelected ? "Deseleccionar todos" : `Seleccionar todos (${filtered.length})`}
+                </span>
+              </div>
+              
+              {selectedIds.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-primary">{selectedIds.length} seleccionados</span>
+                  {confirmBulkDelete ? (
+                    <div className="flex items-center gap-1.5 bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 rounded-lg">
+                      <span className="text-[10px] text-rose-400 font-semibold">¿Confirmar eliminación en lote?</span>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={handleBulkDelete}
+                        disabled={isDeletingBulk}
+                        className="h-6 text-[10px] px-2 py-0"
+                      >
+                        {isDeletingBulk ? "Eliminando..." : "Sí"}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(null)}>
-                        <X className="h-3 w-3" />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmBulkDelete(false)}
+                        disabled={isDeletingBulk}
+                        className="h-6 text-[10px] px-2 py-0"
+                      >
+                        No
                       </Button>
                     </div>
                   ) : (
-                    <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(p.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setConfirmBulkDelete(true)}
+                      className="h-7 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 gap-1 px-2.5"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Eliminar
                     </Button>
                   )}
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {filtered.map(p => (
+                <div key={p.id} className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 border border-primary/5 hover:border-primary/20 transition-all group">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(p.id)}
+                    onChange={() => toggleOne(p.id)}
+                    className="h-4 w-4 rounded border-primary/20 text-primary focus:ring-primary/30 accent-primary cursor-pointer shrink-0"
+                  />
+                  <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-lg object-cover" onError={e => (e.currentTarget.src = "https://placehold.co/200x200/1a1a30/8888a8?text=N/A")} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{p.brand} · {p.category}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs font-medium">${p.price.toLocaleString("es-AR")}</span>
+                      <Badge variant={p.status === "active" ? "success" : p.status === "draft" ? "warning" : "outline"}>{p.status}</Badge>
+                      <span className="text-xs text-muted-foreground">Stock: {totalStock(p)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="sm" onClick={() => setEditing(p.id)}>
+                      <Edit3 className="h-3.5 w-3.5" />
+                    </Button>
+                    {confirmDelete === p.id ? (
+                      <div className="flex items-center gap-1">
+                        <Button variant="destructive" size="sm" onClick={() => { deleteProduct.mutate(p.id); setConfirmDelete(null) }}>
+                          <AlertTriangle className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(null)}>
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(p.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-rose-400" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </CardContent>
