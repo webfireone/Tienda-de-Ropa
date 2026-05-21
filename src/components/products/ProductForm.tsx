@@ -41,6 +41,7 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
   const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null)
   const [tagInput, setTagInput] = useState("")
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [saveError, setSaveError] = useState("")
   const saveProduct = useSaveProduct()
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,8 +94,10 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
   }
 
   const handleSave = () => {
+    setSaveError("")
     saveProduct.mutate(form, {
-      onSuccess: () => onComplete?.()
+      onSuccess: () => onComplete?.(),
+      onError: (err) => setSaveError(err?.message || "Error al guardar el producto")
     })
   }
 
@@ -360,6 +363,11 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
           {steps[step - 1].content}
         </div>
 
+        {saveError && (
+          <div className="mt-4 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-medium">
+            {saveError}
+          </div>
+        )}
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-primary/10">
           <Button variant="ghost" onClick={() => step > 1 ? setStep(step - 1) : onComplete?.()} className="gap-2">
             <ChevronLeft className="h-4 w-4" /> {step > 1 ? "Anterior" : "Cancelar"}
