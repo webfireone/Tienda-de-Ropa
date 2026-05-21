@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSaveProduct } from "@/hooks/useProducts"
 import { SIZES, CATEGORIES, SECCIONES, GENDERS, type Product } from "@/types"
 import { getTotalStock } from "@/lib/utils"
-import { ChevronLeft, ChevronRight, Save, Sparkles } from "lucide-react"
+import { ChevronLeft, ChevronRight, Save, Sparkles, Upload, Loader2 } from "lucide-react"
+import { uploadProductImage } from "@/lib/imageStorage"
 
 interface ProductFormProps {
   product?: Product
@@ -39,7 +40,23 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
   const [colorInput, setColorInput] = useState("")
   const [selectedColorIdx, setSelectedColorIdx] = useState<number | null>(null)
   const [tagInput, setTagInput] = useState("")
+  const [uploadingImage, setUploadingImage] = useState(false)
   const saveProduct = useSaveProduct()
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingImage(true)
+    try {
+      const url = await uploadProductImage(form.id, file)
+      update({ imageUrl: url })
+    } catch (err) {
+      console.error("Error al subir imagen:", err)
+    } finally {
+      setUploadingImage(false)
+      if (e.target) e.target.value = ""
+    }
+  }
 
   const update = (partial: Partial<Product>) => setForm(prev => ({ ...prev, ...partial, updatedAt: new Date().toISOString().split("T")[0] }))
 
@@ -169,8 +186,15 @@ export function ProductForm({ product, onComplete }: ProductFormProps) {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL de Imagen *</label>
-            <Input value={form.imageUrl} onChange={e => update({ imageUrl: e.target.value })} placeholder="https://..." />
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Imagen *</label>
+            <div className="flex gap-2">
+              <Input value={form.imageUrl} onChange={e => update({ imageUrl: e.target.value })} placeholder="https://... o subí un archivo" className="flex-1" />
+              <label className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer transition-all ${uploadingImage ? "bg-muted text-muted-foreground" : "gradient-primary text-white hover:opacity-90"}`}>
+                {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploadingImage ? "Subiendo..." : "Subir"}
+                <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} className="hidden" />
+              </label>
+            </div>
             {form.imageUrl && (
               <div className="mt-2 w-20 h-20 rounded-xl overflow-hidden border border-primary/10">
                 <img src={form.imageUrl} alt="preview" className="w-full h-full object-cover" onError={e => (e.currentTarget.src = "https://placehold.co/200x200/1a1a30/8888a8?text=Error")} />
