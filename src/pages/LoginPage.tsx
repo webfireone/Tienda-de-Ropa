@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/context/AuthContext"
@@ -23,6 +23,8 @@ function getPasswordStrength(password: string): { label: string; color: string; 
 export function LoginPage() {
   const { signIn, signUp, signInWithGoogle, checkEmailExists, resetPassword } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const redirectTo = searchParams.get("redirect") || "/"
   const [isRegister, setIsRegister] = useState(false)
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -86,7 +88,7 @@ export function LoginPage() {
       } else {
         await signIn(email, password)
       }
-      navigate("/")
+      navigate(redirectTo)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión")
     }
@@ -96,7 +98,7 @@ export function LoginPage() {
     setError("")
     try {
       await signInWithGoogle()
-      navigate("/")
+      navigate(redirectTo)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión")
     }

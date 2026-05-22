@@ -44,7 +44,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const handleAdd = () => {
     if (!user) {
       onClose()
-      navigate("/login")
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`)
       return
     }
     if (!selectedColor || !selectedSize) return

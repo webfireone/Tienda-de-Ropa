@@ -185,7 +185,7 @@ export function CartPage() {
                         if (USE_MOCK || user) {
                           setCheckoutOpen(true)
                         } else {
-                          navigate("/login")
+                          navigate("/login?redirect=/cart")
                         }
                       }}
                       className="w-full btn-shine h-11 text-sm"
