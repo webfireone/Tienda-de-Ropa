@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/context/AuthContext"
@@ -12,8 +12,36 @@ import { SIZES } from "@/types"
 export function ImportDialog() {
   const { isAdmin } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const imageInputRef = useRef<HTMLInputElement>(null)
   const [result, setResult] = useState<ImportResult | null>(null)
+  const [localImages, setLocalImages] = useState<{ name: string; dataUrl: string }[]>([])
   const saveProduct = useSaveProduct()
+
+  const handleImageFiles = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    const readers: Promise<{ name: string; dataUrl: string }>[] = []
+    for (const file of files) {
+      readers.push(
+        new Promise((resolve) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve({ name: file.name, dataUrl: reader.result as string })
+          reader.readAsDataURL(file)
+        })
+      )
+    }
+    Promise.all(readers).then(setLocalImages)
+  }, [])
+
+  const getImageUrl = useCallback((path: string): string => {
+    if (!path) return ""
+    const isLocalPath = /^[a-zA-Z]:\\/.test(path) || path.startsWith("/") || path.startsWith("..") || path.startsWith("./")
+    if (!isLocalPath) return path
+    const filename = path.split(/[/\\]/).pop()?.toLowerCase() || ""
+    if (!filename) return path
+    const match = localImages.find(img => img.name.toLowerCase() === filename)
+    return match ? match.dataUrl : path
+  }, [localImages])
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -100,7 +128,7 @@ export function ImportDialog() {
             price: parseFloat(priceStr),
             previousPrice: parseFloat(String(row["Precio Anterior"] ?? row["Precio anterior"] ?? row["previousPrice"] ?? "")) || 0,
             description: String(row["Descripción"] ?? row["description"] ?? ""),
-            imageUrl: String(row["Imagen URL"] ?? row["imageUrl"] ?? ""),
+            imageUrl: getImageUrl(String(row["Imagen URL"] ?? row["imageUrl"] ?? "")),
             colors,
             material: String(row["Material"] ?? row["material"] ?? ""),
             tags,
@@ -147,6 +175,31 @@ export function ImportDialog() {
               >
                 Descargar Plantilla
               </a>
+            </div>
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground mb-1">
+              Si en la columna <code className="text-primary bg-muted px-1 py-0.5 rounded">Imagen URL</code> ponés una ruta local (ej: <code className="text-primary bg-muted px-1 py-0.5 rounded">C:\ropa\img.jpg</code>), seleccioná acá las imágenes para que se suban automáticamente:
+            </div>
+            <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-xl border border-dashed border-primary/20">
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageFiles}
+                  className="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30 file:cursor-pointer cursor-pointer"
+                />
+              </div>
+              {localImages.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {localImages.map((img, i) => (
+                    <div key={i} className="relative group">
+                      <img src={img.dataUrl} alt={img.name} className="w-12 h-12 object-cover rounded-lg border border-primary/10" />
+                      <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">{img.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="relative">
               <input
