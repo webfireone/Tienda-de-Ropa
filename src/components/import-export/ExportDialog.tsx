@@ -46,7 +46,16 @@ export function ExportDialog() {
     })))
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Ventas")
-    XLSX.writeFile(wb, "ventas-export.xlsx")
+    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "binary" })
+    const buf = new ArrayBuffer(wbOut.length)
+    const view = new Uint8Array(buf)
+    for (let i = 0; i < wbOut.length; i++) view[i] = wbOut.charCodeAt(i) & 0xFF
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = "ventas-export.xlsx"
+    a.click()
+    URL.revokeObjectURL(a.href)
   }
 
   const exportCatalogExcel = () => {
@@ -83,8 +92,11 @@ export function ExportDialog() {
     }))
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Catálogo")
-    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "array" })
-    const blob = new Blob([wbOut], { type: "application/octet-stream" })
+    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "binary" })
+    const buf = new ArrayBuffer(wbOut.length)
+    const view = new Uint8Array(buf)
+    for (let i = 0; i < wbOut.length; i++) view[i] = wbOut.charCodeAt(i) & 0xFF
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
     const a = document.createElement("a")
     a.href = URL.createObjectURL(blob)
     a.download = "catalogo-glamours.xlsx"
