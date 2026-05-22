@@ -46,62 +46,49 @@ export function ExportDialog() {
     })))
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Ventas")
-    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "binary" })
-    const buf = new ArrayBuffer(wbOut.length)
-    const view = new Uint8Array(buf)
-    for (let i = 0; i < wbOut.length; i++) view[i] = wbOut.charCodeAt(i) & 0xFF
-    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
-    const a = document.createElement("a")
-    a.href = URL.createObjectURL(blob)
-    a.download = "ventas-export.xlsx"
-    a.click()
-    URL.revokeObjectURL(a.href)
+    XLSX.writeFile(wb, "ventas-export.xlsx")
   }
 
   const exportCatalogExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(products.map(p => {
-      const colorsStr = p.colors ? p.colors.map(c => c.name).join(", ") : ""
-      
-      const sizesObj: Record<string, number> = {}
-      SIZES.forEach(s => {
-        sizesObj[s] = p.colors ? p.colors.reduce((sum, c) => sum + (c.sizes[s] || 0), 0) : 0
-      })
+    try {
+      const ws = XLSX.utils.json_to_sheet(products.map(p => {
+        const colorsStr = p.colors ? p.colors.map(c => c.name).join(", ") : ""
+        
+        const sizesObj: Record<string, number> = {}
+        SIZES.forEach(s => {
+          sizesObj[s] = p.colors ? p.colors.reduce((sum, c) => sum + (c.sizes[s] || 0), 0) : 0
+        })
 
-      const statusMap: Record<string, string> = {
-        active: "activo",
-        draft: "borrador",
-        archived: "archivado",
-      }
+        const statusMap: Record<string, string> = {
+          active: "activo",
+          draft: "borrador",
+          archived: "archivado",
+        }
 
-      return {
-        Nombre: p.name,
-        Marca: p.brand,
-        Categoría: p.category,
-        Género: p.gender || "unisex",
-        Precio: p.price,
-        "Precio Anterior": p.previousPrice || 0,
-        Descripción: p.description || "",
-        "Imagen URL": p.imageUrl || "",
-        Material: p.material || "",
-        Tags: p.tags ? p.tags.join(", ") : "",
-        Sección: p.seccion || "general",
-        Estado: statusMap[p.status] || "activo",
-        Colores: colorsStr,
-        ...sizesObj
-      }
-    }))
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, "Catálogo")
-    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "binary" })
-    const buf = new ArrayBuffer(wbOut.length)
-    const view = new Uint8Array(buf)
-    for (let i = 0; i < wbOut.length; i++) view[i] = wbOut.charCodeAt(i) & 0xFF
-    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })
-    const a = document.createElement("a")
-    a.href = URL.createObjectURL(blob)
-    a.download = "catalogo-glamours.xlsx"
-    a.click()
-    URL.revokeObjectURL(a.href)
+        return {
+          Nombre: p.name,
+          Marca: p.brand,
+          Categoría: p.category,
+          Género: p.gender || "unisex",
+          Precio: p.price,
+          "Precio Anterior": p.previousPrice || 0,
+          Descripción: p.description || "",
+          "Imagen URL": p.imageUrl || "",
+          Material: p.material || "",
+          Tags: p.tags ? p.tags.join(", ") : "",
+          Sección: p.seccion || "general",
+          Estado: statusMap[p.status] || "activo",
+          Colores: colorsStr,
+          ...sizesObj
+        }
+      }))
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Catálogo")
+      XLSX.writeFile(wb, "catalogo-glamours.xlsx")
+    } catch (e) {
+      console.error("Error exportando catálogo Excel:", e)
+      alert("Error al exportar: " + (e instanceof Error ? e.message : String(e)))
+    }
   }
 
   const exportCatalogCSV = () => {
