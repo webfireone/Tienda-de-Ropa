@@ -2293,6 +2293,13 @@ El campo **Tags** se usa para almacenar números de artículo. Se exporta como c
 
 ### 36.2. Importación Mejorada — `ImportDialog.tsx`
 
+**Flujo actual (3 pasos)**:
+1. **Seleccionar archivo** (CSV/XLSX) → se analiza y muestra preview con cantidad de productos detectados
+2. **Imágenes locales** (opcional) → si el archivo tiene rutas locales en `Imagen URL`, lista los nombres de archivo necesarios. El usuario selecciona TODAS las imágenes de una vez. El sistema empareja automáticamente por **nombre de archivo** (extrae el filename de la ruta y lo matchea con las imágenes seleccionadas).
+3. **Botón "Importar N productos"** → recién ahí se ejecuta la importación. No se importa automáticamente al seleccionar el archivo.
+
+**Soporte de rutas locales de imagen**: Si `Imagen URL` contiene una ruta local (ej: `C:\ropa\7060450010.jpeg`), se detecta automáticamente. Si el usuario seleccionó una imagen con el mismo nombre de archivo (`7060450010.jpeg`), se convierte a base64 y se guarda como `imageUrl`. Si no hay match, se guarda la ruta literal (no se verá en la web).
+
 **Soporte bilingüe (español/inglés)**: Cada campo puede venir con nombre en español o inglés:
 
 | Campo español | Campo inglés | Requerido |
@@ -2351,3 +2358,8 @@ Directorio con 18 imágenes de productos (9 artículos × 2 imágenes cada uno: 
 15. **Tags como números de artículo**: El campo `tags` almacena IDs de artículo como strings separados por coma. Se exporta como columna "Tags".
 16. **Bulk delete en lote**: Usa `writeBatch` de Firestore (máximo 500 docs por lote). Para más de 500 productos, habría que dividir en múltiples batches.
 17. **Planilla de ejemplo**: Se sirve desde `public/planilla_ejemplo.xlsx`. Si se cambian las columnas esperadas, regenerarla con `scripts/generate-sample-sheet.mjs`.
+18. **Importación no automática**: El importador ya no guarda al seleccionar el archivo. Primero muestra preview, luego el usuario hace clic en "Importar".
+19. **Imágenes locales en importación**: El input de imágenes es independiente del input de datos. El usuario selecciona el Excel, después selecciona las imágenes. El emparejamiento es por nombre de archivo (case-insensitive).
+20. **Truncado en export Excel**: Los campos `Descripción`, `Imagen URL` y `Tags` se truncan a 30.000 caracteres para evitar el límite de 32.767 caracteres por celda de XLSX.
+21. **Login obligatorio para comprar**: `ProductDetailModal` y `CartPage` redirigen a `/login?redirect=...` si el usuario no está autenticado. `LoginPage` lee el query param `redirect` y vuelve a esa ruta después de autenticar.
+22. **Datos de cliente en pedidos**: Al crear una orden, se guarda `userId` en el documento `orders/{orderId}` y se actualiza `users/{userId}` con `name`, `email`, `phone`, `lastOrderId`, `lastOrderDate`.
