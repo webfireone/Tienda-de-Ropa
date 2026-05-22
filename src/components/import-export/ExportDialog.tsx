@@ -83,7 +83,13 @@ export function ExportDialog() {
     }))
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, "Catálogo")
-    XLSX.writeFile(wb, "catalogo-glamours.xlsx")
+    const wbOut = XLSX.write(wb, { bookType: "xlsx", type: "array" })
+    const blob = new Blob([wbOut], { type: "application/octet-stream" })
+    const a = document.createElement("a")
+    a.href = URL.createObjectURL(blob)
+    a.download = "catalogo-glamours.xlsx"
+    a.click()
+    URL.revokeObjectURL(a.href)
   }
 
   const exportCatalogCSV = () => {
