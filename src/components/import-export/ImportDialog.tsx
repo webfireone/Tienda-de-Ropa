@@ -177,9 +177,13 @@ export function ImportDialog() {
               </a>
             </div>
             <div className="space-y-2">
-              <div className="text-xs text-muted-foreground mb-1">
-              Si en la columna <code className="text-primary bg-muted px-1 py-0.5 rounded">Imagen URL</code> ponés una ruta local (ej: <code className="text-primary bg-muted px-1 py-0.5 rounded">C:\ropa\img.jpg</code>), seleccioná acá las imágenes para que se suban automáticamente:
-            </div>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>Si en la columna <code className="text-primary bg-muted px-1 py-0.5 rounded">Imagen URL</code> ponés una ruta local (ej: <code className="text-primary bg-muted px-1 py-0.5 rounded">C:\ropa\7060450010.jpeg</code>), seleccioná TODAS las imágenes de la carpeta <strong>y el sistema las va a emparejar automáticamente por nombre de archivo</strong>.</p>
+                <p className="flex items-center gap-1 text-emerald-400">
+                  <CheckCircle2 className="h-3 w-3 shrink-0" />
+                  Ej: si la ruta dice <code className="text-primary bg-muted px-1 py-0.5 rounded">C:\ropa\7060450010.jpeg</code>, el sistema busca una imagen llamada <code className="text-primary bg-muted px-1 py-0.5 rounded">7060450010.jpeg</code> entre las que seleccionaste.
+                </p>
+              </div>
             <div className="flex items-center gap-2 p-3 bg-muted/20 rounded-xl border border-dashed border-primary/20">
                 <input
                   ref={imageInputRef}
