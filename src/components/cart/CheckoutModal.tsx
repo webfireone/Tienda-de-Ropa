@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { useParamsStore } from "@/store/paramsStore"
 import { useCartStore } from "@/store/cartStore"
 import { useCreateOrder } from "@/hooks/useFirestore"
+import { useAuth } from "@/context/AuthContext"
 import { addOrderAlert } from "@/lib/orderAlerts"
 import { PROVINCES } from "@/lib/argentina-data"
 import { Button } from "@/components/ui/button"
@@ -41,6 +42,7 @@ interface CheckoutModalProps {
 export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
   const { items, clearCart } = useCartStore()
   const { params } = useParamsStore()
+  const { user } = useAuth()
   const createOrder = useCreateOrder()
   const lastOrder = useRef<Order | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -135,6 +137,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
     const order: Order = {
       id: orderId,
+      userId: user?.uid ?? "anon",
       customerName: name.trim(),
       customerPhone: phone.trim(),
       customerEmail: email.trim(),

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore"
+import { collection, getDocs, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore"
 import type { Product, Sale, GlobalParams, Order } from "@/types"
 import { MOCK_PRODUCTS, MOCK_SALES, DEFAULT_PARAMS } from "@/lib/constants"
 import { addOrder } from "./useOrders"
@@ -102,6 +102,17 @@ export function useCreateOrder() {
           return order
         }
         await setDoc(doc(db, "orders", order.id), order)
+        if (order.userId && order.userId !== "anon") {
+          const userRef = doc(db, "users", order.userId)
+          await updateDoc(userRef, {
+            name: order.customerName,
+            email: order.customerEmail,
+            phone: order.customerPhone,
+            lastOrderId: order.id,
+            lastOrderDate: order.createdAt,
+            updatedAt: order.createdAt,
+          })
+        }
         return order
       } catch (err) {
         console.warn("Firestore no disponible, guardando localmente:", err)

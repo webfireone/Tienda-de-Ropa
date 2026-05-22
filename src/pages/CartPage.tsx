@@ -7,16 +7,18 @@ import { PageHero } from "@/components/dashboard/Decorative3D"
 import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
-import { ShoppingCartIcon, Trash2, Minus, Plus, CreditCard, Truck, ShoppingBag, ArrowLeft, ChevronRight } from "lucide-react"
+import { ShoppingCartIcon, Trash2, Minus, Plus, CreditCard, Truck, ShoppingBag, ArrowLeft, ChevronRight, LogIn } from "lucide-react"
 import { CheckoutModal } from "@/components/cart/CheckoutModal"
 import { useNavigate } from "react-router-dom"
+
+const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 export function CartPage() {
   const navigate = useNavigate()
   const { items, removeItem, updateQuantity } = useCartStore()
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const { params, updateParams, saveToFirestore } = useParamsStore()
-  const { isAdmin } = useAuth()
+  const { user, isAdmin } = useAuth()
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
   const discount = subtotal > 100000 ? subtotal * 0.1 : subtotal > 50000 ? subtotal * 0.05 : 0
@@ -178,9 +180,18 @@ export function CartPage() {
                       <span className="font-display text-xl font-bold gradient-text tabular-nums">{formatMoney(total)}</span>
                     </div>
 
-                    <Button onClick={() => setCheckoutOpen(true)} className="w-full btn-shine h-11 text-sm" size="lg">
-                      Finalizar Compra
-                      <ChevronRight className="h-4 w-4 ml-1" />
+                    <Button
+                      onClick={() => {
+                        if (USE_MOCK || user) {
+                          setCheckoutOpen(true)
+                        } else {
+                          navigate("/login")
+                        }
+                      }}
+                      className="w-full btn-shine h-11 text-sm"
+                      size="lg"
+                    >
+                      {USE_MOCK || user ? <><ChevronRight className="h-4 w-4 ml-1" /> Finalizar Compra</> : <><LogIn className="h-4 w-4 mr-1" /> Iniciar sesión para comprar</>}
                     </Button>
 
                     <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground">

@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from "react"
 import { createPortal } from "react-dom"
+import { useNavigate } from "react-router-dom"
 import { useCartStore } from "@/store/cartStore"
+import { useAuth } from "@/context/AuthContext"
 import { SIZES } from "@/types"
 import type { Product } from "@/types"
-import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle, Check } from "lucide-react"
+import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle, Check, LogIn } from "lucide-react"
 import { cn, getTotalStock } from "@/lib/utils"
 
 interface ProductDetailModalProps {
@@ -12,6 +14,8 @@ interface ProductDetailModalProps {
 }
 
 export function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const { addItem, items } = useCartStore()
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "")
   const [selectedSize, setSelectedSize] = useState("")
@@ -38,6 +42,11 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const isConfigured = hasColors && hasSizes
 
   const handleAdd = () => {
+    if (!user) {
+      onClose()
+      navigate("/login")
+      return
+    }
     if (!selectedColor || !selectedSize) return
     if (maxQty <= 0) return
     addItem(product, selectedColor, selectedSize, quantity)
@@ -45,6 +54,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   }
 
   const cantAddReason = useMemo(() => {
+    if (!user) return "Iniciá sesión para agregar al carrito"
     if (!hasColors) return "Este producto no tiene colores configurados"
     if (!selectedColor) return "Seleccioná un color"
     if (!currentColor) return "Color no disponible"
@@ -52,7 +62,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     if (availableStock === 0) return "Sin stock disponible"
     if (maxQty <= 0) return `Ya tenés ${inCartQty} uds. en tu carrito (stock máximo)`
     return null
-  }, [hasColors, selectedColor, currentColor, selectedSize, availableStock, maxQty, inCartQty])
+  }, [user, hasColors, selectedColor, currentColor, selectedSize, availableStock, maxQty, inCartQty])
 
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
@@ -225,7 +235,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                       : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
                   )}
                 >
-                  <ShoppingCart className="h-3.5 w-3.5" />
+                  {!user ? <LogIn className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
                   {cantAddReason ?? "Agregar al carrito"}
                 </button>
               </div>
