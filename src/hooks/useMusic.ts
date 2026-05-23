@@ -152,8 +152,20 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
       }
       return active as unknown as T[]
     }
+    if (path === "music_plays") {
+      const local = loadMockCollection<Reproduccion>(MOCK_PLAYS_KEY)
+      if (firestoreDocs.length === 0 && local.length > 0) return local as unknown as T[]
+      return firestoreDocs as unknown as T[]
+    }
+    if (path === "music_likes") {
+      const local = loadMockCollection<LikeCancion>(MOCK_LIKES_KEY)
+      if (firestoreDocs.length === 0 && local.length > 0) return local as unknown as T[]
+      return firestoreDocs as unknown as T[]
+    }
     return firestoreDocs.length > 0 ? firestoreDocs : fallback
   } catch {
+    if (path === "music_plays") return loadMockCollection<Reproduccion>(MOCK_PLAYS_KEY) as unknown as T[]
+    if (path === "music_likes") return loadMockCollection<LikeCancion>(MOCK_LIKES_KEY) as unknown as T[]
     return fallback
   }
 }
@@ -324,10 +336,13 @@ export function useRegistrarReproduccion() {
         usuarioId: user?.uid ?? null,
         fechaReproduccion: new Date().toISOString(),
       }
-      if (USE_MOCK) {
-        addMockPlay(play)
-      } else {
-        await setDoc(doc(db, "music_plays", play.id), play)
+      addMockPlay(play)
+      if (!USE_MOCK) {
+        try {
+          await setDoc(doc(db, "music_plays", play.id), play)
+        } catch (err) {
+          console.warn("[RegistrarReproduccion] Firebase failed, using localStorage fallback:", err)
+        }
       }
       return play
     },
@@ -335,7 +350,7 @@ export function useRegistrarReproduccion() {
       queryClient.invalidateQueries({ queryKey: ["music", "reproducciones"] })
     },
     onError: (err) => {
-      console.error("[RegistrarReproduccion] Firebase write error:", err)
+      console.error("[RegistrarReproduccion] Error:", err)
     },
   })
 }
