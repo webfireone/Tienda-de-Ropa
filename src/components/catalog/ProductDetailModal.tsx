@@ -63,6 +63,8 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
     return null
   }, [user, hasColors, selectedColor, currentColor, selectedSize, availableStock, maxQty, inCartQty])
 
+  const isLoginRequired = !user
+  const isDisabledReason = !isLoginRequired && !!cantAddReason
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
   const modal = (
@@ -225,17 +227,17 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                   </div>
                 )}
                 <button
-                  disabled={!isConfigured || !!cantAddReason}
-                  onClick={handleAdd}
+                  disabled={!isConfigured || (!isLoginRequired && !!cantAddReason)}
+                  onClick={isLoginRequired ? () => setShowLogin(true) : handleAdd}
                   className={cn(
                     "flex-1 h-11 text-xs font-semibold tracking-wide flex items-center justify-center gap-1.5 shadow-sm btn-micro",
-                    !isConfigured || cantAddReason
+                    !isConfigured || (!isLoginRequired && !!cantAddReason)
                       ? "bg-muted text-muted-foreground/50 cursor-not-allowed shadow-none"
                       : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
                   )}
                 >
                   {!user ? <LogIn className="h-3.5 w-3.5" /> : <ShoppingCart className="h-3.5 w-3.5" />}
-                  {cantAddReason ?? "Agregar al carrito"}
+                  {isLoginRequired && isConfigured ? "Iniciar sesión" : cantAddReason ?? "Agregar al carrito"}
                 </button>
               </div>
 
