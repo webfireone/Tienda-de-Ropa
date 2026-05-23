@@ -1,21 +1,17 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import { storage } from "./firebase"
 
-const MAX_WIDTH = 800
-const MAX_HEIGHT = 800
-const QUALITY = 0.7
+const MAX_WIDTH = 600
+const MAX_HEIGHT = 600
+const QUALITY = 0.6
 
-function isMockMode(): boolean {
-  return !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
-}
-
-async function resizeImage(file: File): Promise<Blob> {
+async function resizeImage(file: File, maxWidth = MAX_WIDTH, maxHeight = MAX_HEIGHT, quality = QUALITY): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
       let { width, height } = img
-      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
-        const ratio = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height)
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height)
         width = Math.round(width * ratio)
         height = Math.round(height * ratio)
       }
@@ -30,7 +26,7 @@ async function resizeImage(file: File): Promise<Blob> {
           else reject(new Error("No se pudo comprimir la imagen"))
         },
         "image/jpeg",
-        QUALITY
+        quality
       )
     }
     img.onerror = () => reject(new Error("No se pudo cargar la imagen"))
@@ -47,38 +43,37 @@ function blobToDataUrl(blob: Blob): Promise<string> {
   })
 }
 
-async function uploadBlob(storagePath: string, blob: Blob): Promise<string> {
-  const storageRef = ref(storage, storagePath)
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error("Tiempo de espera agotado (30s)")), 30_000)
-  )
-  await Promise.race([uploadBytes(storageRef, blob), timeout])
-  return getDownloadURL(storageRef)
+async function tryUploadOrDataUrl(imageId: string, file: File): Promise<string> {
+  const blob = await resizeImage(file)
+  const dataUrl = await blobToDataUrl(blob)
+
+  if (!import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key") {
+    return dataUrl
+  }
+
+  try {
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), 15_000)
+    )
+    const storageRef = ref(storage, `products/${imageId}.jpg`)
+    await Promise.race([uploadBytes(storageRef, blob), timeout])
+    return getDownloadURL(storageRef)
+  } catch {
+    return dataUrl
+  }
 }
 
 export async function uploadProductImage(productId: string, file: File): Promise<string> {
-  const blob = await resizeImage(file)
-
-  if (isMockMode()) {
-    return blobToDataUrl(blob)
-  }
-
-  return uploadBlob(`products/${productId}.jpg`, blob)
+  return tryUploadOrDataUrl(productId, file)
 }
 
 export async function uploadImageFile(imageId: string, file: File): Promise<string> {
-  const blob = await resizeImage(file)
-
-  if (isMockMode()) {
-    return blobToDataUrl(blob)
-  }
-
-  return uploadBlob(`products/${imageId}.jpg`, blob)
+  return tryUploadOrDataUrl(imageId, file)
 }
 
 export async function uploadDataUrlImage(imageId: string, dataUrl: string): Promise<string> {
   const response = await fetch(dataUrl)
   const blob = await response.blob()
   const file = new File([blob], `${imageId}.jpg`, { type: "image/jpeg" })
-  return uploadImageFile(imageId, file)
+  return tryUploadOrDataUrl(imageId, file)
 }
