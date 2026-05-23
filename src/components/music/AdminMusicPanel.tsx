@@ -91,7 +91,6 @@ export function AdminMusicPanel() {
 
     const id = editingId || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
-    let audioUrl = archivoUrl
     if (selectedFileRef.current) {
       await saveAudioFile(id, selectedFileRef.current)
     }
@@ -100,7 +99,7 @@ export function AdminMusicPanel() {
       id,
       titulo: titulo.trim(),
       artista: artista.trim(),
-      archivoUrl: audioUrl || "",
+      archivoUrl: "",
       portadaUrl: portadaUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
       fechaSubida: editingId
         ? (canciones.find(c => c.id === editingId)?.fechaSubida ?? new Date().toISOString().slice(0, 10))

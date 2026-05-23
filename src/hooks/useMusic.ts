@@ -213,17 +213,27 @@ export function useResetMusicCollection() {
   return useMutation({
     mutationFn: async () => {
       if (USE_MOCK) return 0
+      async function clearCollection(path: string) {
+        const snap = await getDocs(collection(db, path))
+        for (const d of snap.docs) {
+          await deleteDoc(doc(db, path, d.id))
+        }
+      }
       const snapshot = await getDocs(collection(db, "music_songs"))
       const docs = snapshot.docs
       for (const d of docs) {
         await deleteDoc(doc(db, "music_songs", d.id))
         try { await deleteAudio(d.id) } catch { /* ignore */ }
       }
+      await clearCollection("music_plays")
+      await clearCollection("music_likes")
       await setDoc(doc(db, "_meta", "music_seeded"), { seeded: true, resetAt: new Date().toISOString() })
       return docs.length
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["music", "canciones"] })
+      queryClient.invalidateQueries({ queryKey: ["music", "reproducciones"] })
+      queryClient.invalidateQueries({ queryKey: ["music", "likes"] })
     },
     onError: (err) => {
       console.error("[useResetMusicCollection] Error:", err)
