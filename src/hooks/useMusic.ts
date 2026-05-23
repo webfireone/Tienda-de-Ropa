@@ -188,13 +188,9 @@ export function useDeleteCancion() {
         return id
       }
       try {
-        await updateDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
+        await deleteDoc(doc(db, "music_songs", id))
       } catch (err) {
-        if ((err as any)?.code === "not-found") {
-          await setDoc(doc(db, "music_songs", id), { deleted: true, _deletedAt: new Date().toISOString() })
-        } else {
-          throw err
-        }
+        if ((err as any)?.code !== "not-found") throw err
       }
       deleteAudio(id).catch(() => {})
       return id
