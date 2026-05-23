@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { Cancion } from "@/types/music"
+import { loadAudioDataUrl } from "@/lib/mockStorage"
 
 let audioEl: HTMLAudioElement | null = null
 
@@ -70,16 +71,27 @@ function createNewAudio(store: StoreCallbacks) {
   return audioEl
 }
 
-function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
-  if (!song.archivoUrl) {
-    set({ isPlaying: false, audioError: "URL de audio no disponible" })
-    return
-  }
+async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
   _lastRegisteredSong = ""
+  let url = song.archivoUrl
+  if (!url || url.startsWith("blob:")) {
+    try {
+      const dataUrl = await loadAudioDataUrl(song.id)
+      if (dataUrl) {
+        url = dataUrl
+      } else {
+        set({ isPlaying: false, audioError: "Audio no disponible offline" })
+        return
+      }
+    } catch {
+      set({ isPlaying: false, audioError: "Error al cargar el audio" })
+      return
+    }
+  }
   const el = createNewAudio(storeCallbacks)
   el.dataset.songId = song.id
   el.volume = get().volume
-  el.src = song.archivoUrl
+  el.src = url
   set({
     currentSong: song,
     isPlaying: true,
@@ -132,7 +144,6 @@ export const useMusicStore = create<MusicStore>((set, get) => {
     setAudioError: (e: string | null) => set({ audioError: e }),
     setPlayRegistered: (v: boolean) => set({ playRegistered: v }),
     onEnded: () => {
-      // Auto-play next song when current ends
       const { playlist, currentSong, shuffle } = get()
       if (playlist.length > 1) {
         const idx = playlist.findIndex(s => s.id === currentSong?.id)
@@ -143,7 +154,7 @@ export const useMusicStore = create<MusicStore>((set, get) => {
           nextIdx = (idx + 1) % playlist.length
         }
         const nextSong = playlist[nextIdx]
-        if (nextSong?.archivoUrl) {
+        if (nextSong) {
           playNewSong(nextSong, storeActions, get, set)
           return
         }
