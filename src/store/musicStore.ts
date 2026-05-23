@@ -16,6 +16,7 @@ type StoreCallbacks = {
   setIsPlaying: (p: boolean) => void
   setAudioError: (e: string | null) => void
   onEnded: () => void
+  setPlayRegistered: (v: boolean) => void
 }
 
 function setupAudioEvents(a: HTMLAudioElement, store: StoreCallbacks) {
@@ -25,8 +26,9 @@ function setupAudioEvents(a: HTMLAudioElement, store: StoreCallbacks) {
     store.setProgress(audioEl.currentTime)
     const songId = audioEl.dataset.songId
     if (songId && audioEl.currentTime >= 10 && _lastRegisteredSong !== songId) {
-      _lastRegisteredSong = songId
-      _playThresholdCb?.(songId)
+    _lastRegisteredSong = songId
+    store.setPlayRegistered(true)
+    _playThresholdCb?.(songId)
     }
   })
   a.addEventListener("loadedmetadata", () => {
@@ -86,6 +88,7 @@ function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => M
     isLiked: false,
     audioError: null,
     hasJustChanged: true,
+    playRegistered: false,
   })
   el.play().catch(() => {
     set({ isPlaying: false, audioError: "Error al reproducir" })
@@ -103,6 +106,7 @@ interface MusicStore {
   audioError: string | null
   hasJustChanged: boolean
   shuffle: boolean
+  playRegistered: boolean
 
   setCurrentSong: (song: Cancion | null) => void
   setPlaylist: (songs: Cancion[]) => void
@@ -126,6 +130,7 @@ export const useMusicStore = create<MusicStore>((set, get) => {
     setDuration: (d: number) => set({ duration: d }),
     setIsPlaying: (p: boolean) => set({ isPlaying: p }),
     setAudioError: (e: string | null) => set({ audioError: e }),
+    setPlayRegistered: (v: boolean) => set({ playRegistered: v }),
     onEnded: () => {
       // Auto-play next song when current ends
       const { playlist, currentSong, shuffle } = get()
@@ -158,6 +163,7 @@ export const useMusicStore = create<MusicStore>((set, get) => {
     audioError: null,
     hasJustChanged: false,
     shuffle: false,
+    playRegistered: false,
 
     setCurrentSong: (song) => set({ currentSong: song }),
     setPlaylist: (songs) => set({ playlist: songs }),

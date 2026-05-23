@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 export function MusicPlayer() {
   const {
-    currentSong, isPlaying, progress, duration, volume, shuffle,
+    currentSong, isPlaying, progress, duration, volume, shuffle, playRegistered,
     setVolume, togglePlay, seek, playNext, playPrevious, toggleShuffle,
   } = useMusicStore()
 
@@ -103,6 +103,20 @@ export function MusicPlayer() {
               <p className="text-[11px] text-muted-foreground/60 mt-1 tracking-wide uppercase">
                 {currentSong.artista}
               </p>
+              {isPlaying && (
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  <div className={cn(
+                    "w-1.5 h-1.5 rounded-full transition-all duration-300",
+                    playRegistered ? "bg-success shadow-[0_0_6px_rgba(16,185,129,0.5)]" : "bg-primary/50 animate-pulse"
+                  )} />
+                  <span className={cn(
+                    "text-[9px] font-mono transition-all duration-300",
+                    playRegistered ? "text-success/70" : "text-muted-foreground/40"
+                  )}>
+                    {playRegistered ? "reproducción contada" : "escuchando..."}
+                  </span>
+                </div>
+              )}
             </>
           ) : (
             <>
