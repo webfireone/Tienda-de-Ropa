@@ -253,17 +253,17 @@ export function AdminMusicPanel() {
                 Importar Múltiples
               </Button>
               <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={async () => {
-                if (!window.confirm("¿Eliminar TODAS las canciones de Firebase? La biblioteca quedará vacía para que subas tus propios temas.")) return
+                if (!window.confirm("¿Resetear Top 5 y borrar TODAS las canciones? La biblioteca quedará vacía para que subas tus temas.\n\nTambién se borrarán los plays y likes (Ranking del Mes).")) return
                 setError("")
                 try {
                   const count = await resetMusic.mutateAsync()
-                  setError(`Reset completado: ${count} canciones eliminadas. La biblioteca está vacía, ya puedes subir tus temas desde cero.`)
+                  setError(`Reset completado: ${count} canciones eliminadas. Plays y likes también borrados. Podés subir temas desde cero.`)
                 } catch (err) {
                   setError(err instanceof Error ? err.message : "Error al resetear")
                 }
               }} disabled={resetMusic.isPending}>
                 {resetMusic.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                Reset
+                Reset Top / Canciones
               </Button>
               <input
                 ref={folderInputRef}

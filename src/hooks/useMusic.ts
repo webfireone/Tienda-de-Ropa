@@ -223,7 +223,7 @@ export function useResetMusicCollection() {
       const docs = snapshot.docs
       for (const d of docs) {
         await deleteDoc(doc(db, "music_songs", d.id))
-        try { await deleteAudio(d.id) } catch { /* ignore */ }
+        deleteAudio(d.id).catch(() => {})
       }
       await clearCollection("music_plays")
       await clearCollection("music_likes")
