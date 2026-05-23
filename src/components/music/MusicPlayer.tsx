@@ -1,6 +1,5 @@
-import { useEffect, useCallback } from "react"
-import { useMusicStore, setPlayThresholdCb } from "@/store/musicStore"
-import { useRegistrarReproduccion } from "@/hooks/useMusic"
+import { useCallback } from "react"
+import { useMusicStore } from "@/store/musicStore"
 import { Equalizer } from "./Equalizer"
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, Shuffle } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -10,15 +9,6 @@ export function MusicPlayer() {
     currentSong, isPlaying, progress, duration, volume, shuffle,
     setVolume, togglePlay, seek, playNext, playPrevious, toggleShuffle,
   } = useMusicStore()
-
-  const registrarReproduccion = useRegistrarReproduccion()
-
-  // Register play when audio passes 10 seconds (handled in store via timeupdate)
-  useEffect(() => {
-    setPlayThresholdCb((songId) => {
-      registrarReproduccion.mutate(songId)
-    })
-  }, [registrarReproduccion])
 
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()

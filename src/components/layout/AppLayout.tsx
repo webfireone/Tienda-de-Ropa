@@ -4,6 +4,7 @@ import { Header } from "./Header"
 import { SmoothScroll } from "./SmoothScroll"
 import { migrateOrdersToFirestore } from "@/lib/migrateOrders"
 import { BackgroundMusic } from "@/components/BackgroundMusic"
+import { PlayRegistration } from "@/components/music/PlayRegistration"
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -29,6 +30,7 @@ export function AppLayout() {
         </main>
 
         <BackgroundMusic />
+        <PlayRegistration />
 
         {/* Floating WhatsApp */}
         <a
