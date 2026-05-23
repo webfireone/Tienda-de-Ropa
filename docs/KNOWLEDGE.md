@@ -41,6 +41,11 @@
 - Audio: carga on-demand con prefetch secuencial del próximo tema
 - Cache de audio para reproducción instantánea en mobile
 
+## Elementos UI fijos (tamaños reducidos)
+- **WhatsApp flotante**: `w-11 h-11` (44px), icono `h-5 w-5`, abajo izquierda
+- **Reproductor música**: `w-8 h-8` (32px) botón play, barra progreso `w-12 h-0.5`, abajo derecha
+- **Nav móvil inferior**: texto `text-[9px]`, iconos `h-2 w-2`, padding reducido
+
 ## Errores conocidos y soluciones
 1. **Discos sin color**: Tailwind JIT no genera `bg-[color]` desde arrays → usar `style={{ backgroundColor }}`
 2. **Variables CSS pisadas**: usar selector `.music-section` para scoping
