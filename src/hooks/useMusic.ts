@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { db } from "@/lib/firebase"
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, updateDoc } from "firebase/firestore"
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "firebase/firestore"
 import type { Cancion, Reproduccion, LikeCancion, MonthlyRankingEntry } from "@/types/music"
 import { MOCK_SONGS } from "@/types/music"
 import { useAuth } from "@/context/AuthContext"
