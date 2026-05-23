@@ -7,7 +7,6 @@ import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, 
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 import { saveAudioFile } from "@/lib/mockStorage"
-import { uploadAudio } from "@/lib/audioStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
@@ -97,9 +96,6 @@ export function AdminMusicPanel() {
     let audioUrl = archivoUrl
     if (selectedFileRef.current) {
       await saveAudioFile(id, selectedFileRef.current)
-      if (!USE_MOCK) {
-        uploadAudio(id, selectedFileRef.current).then(url => { audioUrl = url }).catch(() => {})
-      }
     }
 
     const cancion: Cancion = {

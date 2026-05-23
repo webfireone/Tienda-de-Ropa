@@ -133,7 +133,8 @@ export function useCanciones() {
             } else if (song.archivoUrl?.startsWith("blob:")) {
               song.archivoUrl = ""
             }
-          } catch {
+          } catch (e) {
+            console.warn("[useCanciones] Error loading audio for", song.id, e)
             if (song.archivoUrl?.startsWith("blob:")) song.archivoUrl = ""
           }
         }

@@ -60,6 +60,9 @@ function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => M
     set({ isPlaying: false, audioError: "URL de audio no disponible" })
     return
   }
+  if (!song.archivoUrl.startsWith("blob:") && !song.archivoUrl.startsWith("http")) {
+    console.warn("[playNewSong] URL no es blob ni http:", song.archivoUrl, "para", song.titulo)
+  }
   const el = createNewAudio(storeCallbacks)
   el.volume = get().volume
   el.src = song.archivoUrl
