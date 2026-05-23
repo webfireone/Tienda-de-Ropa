@@ -132,6 +132,35 @@ export const analytics = typeof window !== "undefined" ? getAnalytics(app) : nul
 
 ---
 
+### 3.1. Almacenamiento de Imágenes — `src/lib/imageStorage.ts`
+
+**Propósito**: Gestionar la subida, redimensionamiento y almacenamiento de imágenes de productos.
+
+**Funciones exportadas**:
+
+| Función | Parámetros | Retorno | Propósito |
+|---------|-----------|---------|-----------|
+| `uploadProductImage(productId, file)` | `productId: string`, `file: File` | `Promise<string>` | Redimensiona y almacena imagen de producto |
+| `uploadImageFile(imageId, file)` | `imageId: string`, `file: File` | `Promise<string>` | Similar a uploadProductImage, usada en importación masiva |
+| `uploadDataUrlImage(imageId, dataUrl)` | `imageId: string`, `dataUrl: string` | `Promise<string>` | Convierte data URL a File, la redimensiona y la almacena |
+
+**Flujo interno (`tryUploadOrDataUrl`)**:
+1. `resizeImage(file, 600, 600, 0.6)` — redimensiona a máximo 600×600px, JPEG calidad 0.6
+2. `blobToDataUrl(blob)` — convierte el blob redimensionado a data URL (fallback listo)
+3. **Intenta Firebase Storage** con timeout de 15s: `uploadBytes(storageRef, blob)` → `getDownloadURL()`
+4. Si Firebase Storage **falla** (timeout, bucket no disponible, error de red): retorna la **data URL comprimida** del paso 2
+
+**Nota importante**: Firebase Storage no está habilitado en el proyecto `tienda-de-ropa-35bea` (el bucket GCS no existe). Todas las imágenes se almacenan como data URLs comprimidas en Firestore. El tamaño típico es ~50-150KB en base64, muy por debajo del límite de 1MB por documento de Firestore.
+
+**Constantes de compresión**:
+- `MAX_WIDTH` = 600, `MAX_HEIGHT` = 600
+- `QUALITY` = 0.6 (JPEG)
+- `STORAGE_TIMEOUT` = 15000ms
+
+**Archivos relacionados**: `src/lib/firebase.ts`, `src/components/products/ProductForm.tsx`, `src/components/import-export/ImportDialog.tsx`
+
+---
+
 ## 4. Variables de Entorno
 
 ### Archivo: `.env`
@@ -1055,6 +1084,34 @@ Stock para una talla específica
   - `DEFAULT_PARAMS` actualizado con las tarifas por provincia
   - `CheckoutModal` ahora calcula el envío automáticamente al seleccionar provincia (fallback a `fixedCost` si no hay tarifa específica)
   - Build 0 errores, tests 28 pass
+
+---
+
+### Fecha: 22/05/2026
+- **Fix**: Error "imageUrl longer than 1048487 bytes" al importar productos con imágenes
+  - **Causa raíz**: El XLSX contenía imágenes como data URLs base64 en la columna "Imagen URL", superando el límite de 1MB de Firestore por documento
+  - **Fix 1**: Nueva función `uploadDataUrlImage()` en `imageStorage.ts` que convierte data URLs a File, las redimensiona y las sube a Firebase Storage (o las devuelve como data URL comprimida como fallback)
+  - **Fix 2**: Durante la importación, si `imageUrl` empieza con `data:`, se sube automáticamente a Firebase Storage antes de guardar el producto
+  - Build 0 errores, commit `4ceb309`
+
+- **Fix**: Imágenes colgadas en "Comprimiendo y subiendo imágenes..." sin progreso ni errores
+  - **Causa raíz**: `handleImageFiles()` usaba `Promise.all` que se colgaba si Firebase Storage no respondía, sin feedback al usuario
+  - **Fix 1**: Procesamiento secuencial de imágenes con progreso visible (`uploadProgress.current/uploadProgress.total`)
+  - **Fix 2**: Captura de errores individuales por imagen sin cancelar las demás
+  - **Fix 3**: Timeout de 15s en Firebase Storage con fallback a data URL comprimida
+  - Build 0 errores, commit `534d184`
+
+- **Fix**: Firebase Storage no disponible (bucket no configurado en el proyecto)
+  - **Causa raíz**: El proyecto `tienda-de-ropa-35bea` nunca habilitó Firebase Storage. El dominio `firebasestorage.app` no resuelve DNS y el bucket GCS no existe
+  - **Fix**: Refactor completo de `imageStorage.ts`:
+    - Reducción de tamaño máximo de imagen a **600x600** con calidad **JPEG 0.6** (~50-150KB en base64)
+    - Nueva función `tryUploadOrDataUrl()`: intenta Firebase Storage con timeout de 15s, si falla retorna la data URL comprimida
+    - `resizeImage()` acepta parámetros opcionales para reutilización
+    - Eliminada función `uploadBlob()` (reemplazada por lógica inline en `tryUploadOrDataUrl`)
+    - Flujo: `File → resizeImage → blobToDataUrl (fallback listo) → try Firebase Storage → si falla → retorna data URL`
+  - La data URL comprimida (600x600, JPEG 0.6) está muy por debajo del límite de 1MB de Firestore
+  - Aplica a: importación CSV/XLSX, formulario de producto (`ProductForm.tsx`), y cualquier otro lugar que use `uploadProductImage` o `uploadImageFile`
+  - Build 0 errores, commit `1ac614e`, push a GitHub + deploy automático a Render
 
 ---
 
@@ -2298,7 +2355,15 @@ El campo **Tags** se usa para almacenar números de artículo. Se exporta como c
 2. **Imágenes locales** (opcional) → si el archivo tiene rutas locales en `Imagen URL`, lista los nombres de archivo necesarios. El usuario selecciona TODAS las imágenes de una vez. El sistema empareja automáticamente por **nombre de archivo** (extrae el filename de la ruta y lo matchea con las imágenes seleccionadas).
 3. **Botón "Importar N productos"** → recién ahí se ejecuta la importación. No se importa automáticamente al seleccionar el archivo.
 
-**Soporte de rutas locales de imagen**: Si `Imagen URL` contiene una ruta local (ej: `C:\ropa\7060450010.jpeg`), se detecta automáticamente. Si el usuario seleccionó una imagen con el mismo nombre de archivo (`7060450010.jpeg`), se convierte a base64 y se guarda como `imageUrl`. Si no hay match, se guarda la ruta literal (no se verá en la web).
+**Soporte de rutas locales de imagen**: Si `Imagen URL` contiene una ruta local (ej: `C:\ropa\7060450010.jpeg`), se detecta automáticamente. Si el usuario seleccionó una imagen con el mismo nombre de archivo (`7060450010.jpeg`), se sube a Firebase Storage (o se guarda como data URL comprimida si Storage no está disponible). Si no hay match, se guarda la ruta literal (no se verá en la web).
+
+**Subida de imágenes (paso 2)**:
+- **Procesamiento secuencial**: las imágenes se procesan una por una, no con `Promise.all`
+- **Progreso visible**: muestra contador "Comprimiendo y subiendo imágenes... (3/5)"
+- **Errores individuales**: si una imagen falla, muestra el error sin cancelar las demás
+- **Timeout + fallback**: intenta Firebase Storage con 15s de timeout; si falla, usa la imagen redimensionada como data URL comprimida (600x600, JPEG 0.6, ~50-150KB en base64)
+
+**Manejo de data URLs**: Si la columna `Imagen URL` contiene un data URL base64 (ej: `data:image/jpeg;base64,...`), el sistema lo sube automáticamente a Firebase Storage durante la importación para evitar el límite de 1MB de Firestore. Si Firebase Storage no está disponible, la imagen se redimensiona y almacena como data URL comprimida.
 
 **Soporte bilingüe (español/inglés)**: Cada campo puede venir con nombre en español o inglés:
 
