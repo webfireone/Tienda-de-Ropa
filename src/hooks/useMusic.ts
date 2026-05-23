@@ -237,6 +237,31 @@ export function useResetMusicCollection() {
   })
 }
 
+export function useResetRanking() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      if (USE_MOCK) return true
+      async function clearCollection(path: string) {
+        const snap = await getDocs(collection(db, path))
+        for (const d of snap.docs) {
+          await deleteDoc(doc(db, path, d.id))
+        }
+      }
+      await clearCollection("music_plays")
+      await clearCollection("music_likes")
+      return true
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["music", "reproducciones"] })
+      queryClient.invalidateQueries({ queryKey: ["music", "likes"] })
+    },
+    onError: (err) => {
+      console.error("[useResetRanking] Error:", err)
+    },
+  })
+}
+
 export function useReproducciones() {
   return useQuery({
     queryKey: ["music", "reproducciones"],

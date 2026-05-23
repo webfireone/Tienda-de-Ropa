@@ -57,12 +57,22 @@ export function MusicSection() {
 
       {/* Right: Song list */}
       <div className="lg:col-span-2">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-display font-semibold flex items-center gap-2">
-            <Music className="w-4 h-4 text-primary" />
-            Canciones
-            <span className="text-sm text-muted-foreground font-normal">({activeSongs.length})</span>
-          </h2>
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-primary/5">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-lg shadow-primary/20">
+              <Music className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-display font-semibold bg-gradient-to-r from-primary to-highlight bg-clip-text text-transparent">
+                Canciones
+              </h2>
+              <p className="text-[10px] text-muted-foreground/60 -mt-0.5">Playlist Glamour's</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-px bg-gradient-to-b from-primary/30 to-highlight/30" />
+            <span className="text-xs font-mono tabular-nums text-muted-foreground/60">{String(activeSongs.length).padStart(2, "0")} temas</span>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
           {activeSongs.map((cancion, i) => (

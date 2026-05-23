@@ -1,5 +1,5 @@
 import { useState, useRef } from "react"
-import { useCanciones, useSaveCancion, useDeleteCancion, useResetMusicCollection } from "@/hooks/useMusic"
+import { useCanciones, useSaveCancion, useDeleteCancion, useResetRanking } from "@/hooks/useMusic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -18,7 +18,7 @@ export function AdminMusicPanel() {
   const { data: canciones = [], isLoading } = useCanciones()
   const saveCancion = useSaveCancion()
   const deleteCancion = useDeleteCancion()
-  const resetMusic = useResetMusicCollection()
+  const resetRanking = useResetRanking()
 
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -253,17 +253,17 @@ export function AdminMusicPanel() {
                 Importar Múltiples
               </Button>
               <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={async () => {
-                if (!window.confirm("¿Resetear Top 5 y borrar TODAS las canciones? La biblioteca quedará vacía para que subas tus temas.\n\nTambién se borrarán los plays y likes (Ranking del Mes).")) return
+                if (!window.confirm("¿Resetear el Top 5? Se borrarán todos los plays y likes del Ranking del Mes.\n\nLas canciones NO se eliminan.")) return
                 setError("")
                 try {
-                  const count = await resetMusic.mutateAsync()
-                  setError(`Reset completado: ${count} canciones eliminadas. Plays y likes también borrados. Podés subir temas desde cero.`)
+                  await resetRanking.mutateAsync()
+                  setError("Ranking reseteado: plays y likes borrados. Las canciones siguen intactas.")
                 } catch (err) {
-                  setError(err instanceof Error ? err.message : "Error al resetear")
+                  setError(err instanceof Error ? err.message : "Error al resetear ranking")
                 }
-              }} disabled={resetMusic.isPending}>
-                {resetMusic.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                Reset Top / Canciones
+              }} disabled={resetRanking.isPending}>
+                {resetRanking.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
+                Reset Top 5
               </Button>
               <input
                 ref={folderInputRef}
