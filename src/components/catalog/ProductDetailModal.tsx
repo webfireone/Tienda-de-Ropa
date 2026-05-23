@@ -64,7 +64,6 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   }, [user, hasColors, selectedColor, currentColor, selectedSize, availableStock, maxQty, inCartQty])
 
   const isLoginRequired = !user
-  const isDisabledReason = !isLoginRequired && !!cantAddReason
   const showQty = !!selectedColor && !!selectedSize && availableStock > 0 && maxQty > 0
 
   const modal = (
