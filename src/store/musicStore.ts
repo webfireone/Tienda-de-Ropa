@@ -3,6 +3,13 @@ import type { Cancion } from "@/types/music"
 
 let audioEl: HTMLAudioElement | null = null
 
+let _playThresholdCb: ((songId: string) => void) | null = null
+let _lastRegisteredSong = ""
+
+export function setPlayThresholdCb(cb: (songId: string) => void) {
+  _playThresholdCb = cb
+}
+
 type StoreCallbacks = {
   setProgress: (t: number) => void
   setDuration: (d: number) => void
@@ -14,7 +21,13 @@ type StoreCallbacks = {
 function setupAudioEvents(a: HTMLAudioElement, store: StoreCallbacks) {
   a.preload = "metadata"
   a.addEventListener("timeupdate", () => {
-    if (audioEl) store.setProgress(audioEl.currentTime)
+    if (!audioEl) return
+    store.setProgress(audioEl.currentTime)
+    const songId = audioEl.dataset.songId
+    if (songId && audioEl.currentTime >= 10 && _lastRegisteredSong !== songId) {
+      _lastRegisteredSong = songId
+      _playThresholdCb?.(songId)
+    }
   })
   a.addEventListener("loadedmetadata", () => {
     if (audioEl) store.setDuration(audioEl.duration)
@@ -60,10 +73,9 @@ function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => M
     set({ isPlaying: false, audioError: "URL de audio no disponible" })
     return
   }
-  if (!song.archivoUrl.startsWith("blob:") && !song.archivoUrl.startsWith("http")) {
-    console.warn("[playNewSong] URL no es blob ni http:", song.archivoUrl, "para", song.titulo)
-  }
+  _lastRegisteredSong = ""
   const el = createNewAudio(storeCallbacks)
+  el.dataset.songId = song.id
   el.volume = get().volume
   el.src = song.archivoUrl
   set({

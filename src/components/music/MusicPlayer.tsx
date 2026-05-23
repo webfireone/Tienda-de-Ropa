@@ -1,5 +1,5 @@
-import { useEffect, useRef, useCallback } from "react"
-import { useMusicStore } from "@/store/musicStore"
+import { useEffect, useCallback } from "react"
+import { useMusicStore, setPlayThresholdCb } from "@/store/musicStore"
 import { useRegistrarReproduccion } from "@/hooks/useMusic"
 import { Equalizer } from "./Equalizer"
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, Shuffle } from "lucide-react"
@@ -12,25 +12,13 @@ export function MusicPlayer() {
   } = useMusicStore()
 
   const registrarReproduccion = useRegistrarReproduccion()
-  const hasRegisteredPlay = useRef(false)
-  const playTimer = useRef<ReturnType<typeof setInterval> | null>(null)
-  const cumulativeSeconds = useRef(0)
 
+  // Register play when audio passes 10 seconds (handled in store via timeupdate)
   useEffect(() => {
-    hasRegisteredPlay.current = false
-    cumulativeSeconds.current = 0
-    if (isPlaying && currentSong) {
-      playTimer.current = setInterval(() => {
-        cumulativeSeconds.current += 1
-        if (cumulativeSeconds.current >= 10 && !hasRegisteredPlay.current) {
-          hasRegisteredPlay.current = true
-          registrarReproduccion.mutate(currentSong.id)
-          if (playTimer.current) clearInterval(playTimer.current)
-        }
-      }, 1000)
-    }
-    return () => { if (playTimer.current) { clearInterval(playTimer.current); playTimer.current = null } }
-  }, [isPlaying, currentSong?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+    setPlayThresholdCb((songId) => {
+      registrarReproduccion.mutate(songId)
+    })
+  }, [registrarReproduccion])
 
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
