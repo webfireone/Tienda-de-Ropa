@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge"
 import { useAuth } from "@/context/AuthContext"
 import * as XLSX from "xlsx"
 import Papa from "papaparse"
-import { Upload, AlertCircle, CheckCircle2, ImageIcon } from "lucide-react"
+import { Upload, AlertCircle, CheckCircle2, ImageIcon, Loader2 } from "lucide-react"
+import { uploadImageFile, uploadDataUrlImage } from "@/lib/imageStorage"
 import type { ImportResult, Product } from "@/types"
 import { useSaveProduct } from "@/hooks/useFirestore"
 import { SIZES } from "@/types"
@@ -26,7 +27,8 @@ export function ImportDialog() {
   const [result, setResult] = useState<ImportResult | null>(null)
   const [importing, setImporting] = useState(false)
   const [parsedData, setParsedData] = useState<ParsedRow[] | null>(null)
-  const [localImages, setLocalImages] = useState<{ name: string; dataUrl: string }[]>([])
+  const [localImages, setLocalImages] = useState<{ name: string; url: string }[]>([])
+  const [uploadingImages, setUploadingImages] = useState(false)
   const [selectedFileName, setSelectedFileName] = useState("")
   const saveProduct = useSaveProduct()
 
@@ -70,20 +72,22 @@ export function ImportDialog() {
     }
   }
 
-  const handleImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
-    const readers: Promise<{ name: string; dataUrl: string }>[] = []
-    for (const file of files) {
-      readers.push(
-        new Promise((resolve) => {
-          const reader = new FileReader()
-          reader.onload = () => resolve({ name: file.name, dataUrl: reader.result as string })
-          reader.readAsDataURL(file)
+    setUploadingImages(true)
+    try {
+      const results = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const imageId = crypto.randomUUID()
+          const url = await uploadImageFile(imageId, file)
+          return { name: file.name, url }
         })
       )
+      setLocalImages(results)
+    } finally {
+      setUploadingImages(false)
     }
-    Promise.all(readers).then(setLocalImages)
   }
 
   const getImageUrl = (path: string): string => {
@@ -92,7 +96,7 @@ export function ImportDialog() {
     const filename = extractFilename(path).toLowerCase()
     if (!filename) return path
     const match = localImages.find(img => img.name.toLowerCase() === filename)
-    return match ? match.dataUrl : path
+    return match ? match.url : path
   }
 
   const handleImport = async () => {
@@ -153,8 +157,13 @@ export function ImportDialog() {
         const tagsField = String(row["Tags"] ?? row["Etiquetas"] ?? row["tags"] ?? "")
         const tags = tagsField ? tagsField.split(",").map((t: string) => t.trim()).filter(Boolean) : []
 
+        const productId = crypto.randomUUID()
+        let imageUrl = getImageUrl(String(row["Imagen URL"] ?? row["imageUrl"] ?? ""))
+        if (imageUrl.startsWith("data:")) {
+          imageUrl = await uploadDataUrlImage(productId, imageUrl)
+        }
         const product: Product = {
-          id: crypto.randomUUID(),
+          id: productId,
           name,
           brand,
           category,
@@ -162,7 +171,7 @@ export function ImportDialog() {
           price: parseFloat(priceStr),
           previousPrice: parseFloat(String(row["Precio Anterior"] ?? row["Precio anterior"] ?? row["previousPrice"] ?? "")) || 0,
           description: String(row["Descripción"] ?? row["description"] ?? ""),
-          imageUrl: getImageUrl(String(row["Imagen URL"] ?? row["imageUrl"] ?? "")),
+          imageUrl,
           colors,
           material: String(row["Material"] ?? row["material"] ?? ""),
           tags,
@@ -273,14 +282,21 @@ export function ImportDialog() {
                         })}
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg border border-dashed border-primary/10 mt-3">
-                        <input
-                          ref={imageInputRef}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageFiles}
-                          className="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30 file:cursor-pointer cursor-pointer"
-                        />
+                        {uploadingImages ? (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Comprimiendo y subiendo imágenes...
+                          </div>
+                        ) : (
+                          <input
+                            ref={imageInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageFiles}
+                            className="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30 file:cursor-pointer cursor-pointer"
+                          />
+                        )}
                       </div>
                       {localImages.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -288,7 +304,7 @@ export function ImportDialog() {
                             const isNeeded = neededFilenames.some(n => n.toLowerCase() === img.name.toLowerCase())
                             return (
                               <div key={i} className={`relative group ${!isNeeded ? "opacity-40" : ""}`}>
-                                <img src={img.dataUrl} alt={img.name} className="w-12 h-12 object-cover rounded-lg border border-primary/10" />
+                                <img src={img.url} alt={img.name} className="w-12 h-12 object-cover rounded-lg border border-primary/10" />
                                 <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">{img.name}</span>
                               </div>
                             )
