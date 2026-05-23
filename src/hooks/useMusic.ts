@@ -125,13 +125,17 @@ export function useCanciones() {
     queryFn: async () => {
       const songs = await fetchMusicCollection<Cancion>("music_songs", MOCK_SONGS)
       for (const song of songs) {
-        if (!song.archivoUrl) {
+        if (!song.archivoUrl || song.archivoUrl.startsWith("blob:")) {
           try {
             const blob = await loadAudioBlob(song.id)
             if (blob) {
-              song.archivoUrl = await blobToDataUrl(blob)
+              song.archivoUrl = URL.createObjectURL(blob)
+            } else if (song.archivoUrl?.startsWith("blob:")) {
+              song.archivoUrl = ""
             }
-          } catch { /* ignore */ }
+          } catch {
+            if (song.archivoUrl?.startsWith("blob:")) song.archivoUrl = ""
+          }
         }
       }
       return songs

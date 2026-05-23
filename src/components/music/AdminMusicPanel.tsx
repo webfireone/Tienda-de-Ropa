@@ -96,18 +96,19 @@ export function AdminMusicPanel() {
 
     let audioUrl = archivoUrl
     if (selectedFileRef.current) {
-      if (!USE_MOCK) {
-        audioUrl = await uploadAudio(id, selectedFileRef.current)
-      } else {
-        await saveAudioFile(id, selectedFileRef.current)
-      }
+      try {
+        if (!USE_MOCK) {
+          audioUrl = await uploadAudio(id, selectedFileRef.current)
+        }
+      } catch { /* Firebase Storage not available */ }
+      await saveAudioFile(id, selectedFileRef.current)
     }
 
     const cancion: Cancion = {
       id,
       titulo: titulo.trim(),
       artista: artista.trim(),
-      archivoUrl: audioUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
+      archivoUrl: audioUrl || "",
       portadaUrl: portadaUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
       fechaSubida: editingId
         ? (canciones.find(c => c.id === editingId)?.fechaSubida ?? new Date().toISOString().slice(0, 10))
@@ -184,17 +185,15 @@ export function AdminMusicPanel() {
       if (!entry.titulo.trim()) continue
       const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
+        await saveAudioFile(entry.id, entry.file)
         const cancion: Cancion = {
           id: entry.id,
           titulo: entry.titulo.trim(),
           artista: entry.artista.trim() || "Glamour's",
-          archivoUrl: URL.createObjectURL(entry.file),
+          archivoUrl: "",
           portadaUrl: `https://placehold.co/400x400/${color}/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
           fechaSubida: new Date().toISOString().slice(0, 10),
           activo: true,
-        }
-        if (USE_MOCK) {
-          await saveAudioFile(cancion.id, entry.file)
         }
         await saveCancion.mutateAsync(cancion)
         imported++
