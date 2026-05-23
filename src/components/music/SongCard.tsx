@@ -13,27 +13,27 @@ interface SongCardProps {
 }
 
 const DISK_COLORS = [
-  { ring: "from-[#ff2a6d] to-[#7b2cbf]", shadow: "rgba(255,42,109,0.4)", bg: "from-[#ff2a6d]/20 to-[#7b2cbf]/20" },
-  { ring: "from-[#7b2cbf] to-[#00f5d4]", shadow: "rgba(123,44,191,0.4)", bg: "from-[#7b2cbf]/20 to-[#00f5d4]/20" },
-  { ring: "from-[#00f5d4] to-[#ff2a6d]", shadow: "rgba(0,245,212,0.4)", bg: "from-[#00f5d4]/20 to-[#ff2a6d]/20" },
-  { ring: "from-[#ff2a6d] to-[#00f5d4]", shadow: "rgba(255,42,109,0.4)", bg: "from-[#ff2a6d]/20 to-[#00f5d4]/20" },
-  { ring: "from-[#7b2cbf] to-[#ff2a6d]", shadow: "rgba(123,44,191,0.4)", bg: "from-[#7b2cbf]/20 to-[#ff2a6d]/20" },
+  { ringFrom: "#ff2a6d", ringTo: "#7b2cbf", shadow: "rgba(255,42,109,0.4)", bgFrom: "#ff2a6d", bgTo: "#7b2cbf" },
+  { ringFrom: "#7b2cbf", ringTo: "#00f5d4", shadow: "rgba(123,44,191,0.4)", bgFrom: "#7b2cbf", bgTo: "#00f5d4" },
+  { ringFrom: "#00f5d4", ringTo: "#ff2a6d", shadow: "rgba(0,245,212,0.4)", bgFrom: "#00f5d4", bgTo: "#ff2a6d" },
+  { ringFrom: "#ff2a6d", ringTo: "#00f5d4", shadow: "rgba(255,42,109,0.4)", bgFrom: "#ff2a6d", bgTo: "#00f5d4" },
+  { ringFrom: "#7b2cbf", ringTo: "#ff2a6d", shadow: "rgba(123,44,191,0.4)", bgFrom: "#7b2cbf", bgTo: "#ff2a6d" },
 ]
 
 const CARD_ACCENTS = [
-  { bar: "from-[#ff2a6d] via-[#7b2cbf] to-[#ff2a6d]", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
-  { bar: "from-[#7b2cbf] via-[#00f5d4] to-[#7b2cbf]", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
-  { bar: "from-[#00f5d4] via-[#7b2cbf] to-[#00f5d4]", glow: "rgba(0,245,212,0.15)", border: "rgba(0,245,212,0.08)" },
-  { bar: "from-[#ff2a6d] via-[#00f5d4] to-[#ff2a6d]", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
-  { bar: "from-[#7b2cbf] via-[#ff2a6d] to-[#7b2cbf]", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
+  { barFrom: "#ff2a6d", barVia: "#7b2cbf", barTo: "#ff2a6d", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
+  { barFrom: "#7b2cbf", barVia: "#00f5d4", barTo: "#7b2cbf", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
+  { barFrom: "#00f5d4", barVia: "#7b2cbf", barTo: "#00f5d4", glow: "rgba(0,245,212,0.15)", border: "rgba(0,245,212,0.08)" },
+  { barFrom: "#ff2a6d", barVia: "#00f5d4", barTo: "#ff2a6d", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
+  { barFrom: "#7b2cbf", barVia: "#ff2a6d", barTo: "#7b2cbf", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
 ]
 
 const CARD_GRADIENT_BG = [
-  "from-[#ff2a6d]/[0.04] via-transparent to-[#7b2cbf]/[0.03]",
-  "from-[#7b2cbf]/[0.04] via-transparent to-[#00f5d4]/[0.03]",
-  "from-[#00f5d4]/[0.04] via-transparent to-[#ff2a6d]/[0.03]",
-  "from-[#ff2a6d]/[0.04] via-transparent to-[#00f5d4]/[0.03]",
-  "from-[#7b2cbf]/[0.04] via-transparent to-[#ff2a6d]/[0.03]",
+  { from: "#ff2a6d", to: "#7b2cbf" },
+  { from: "#7b2cbf", to: "#00f5d4" },
+  { from: "#00f5d4", to: "#ff2a6d" },
+  { from: "#ff2a6d", to: "#00f5d4" },
+  { from: "#7b2cbf", to: "#ff2a6d" },
 ]
 
 export function SongCard({ cancion, index }: SongCardProps) {
@@ -68,18 +68,22 @@ export function SongCard({ cancion, index }: SongCardProps) {
       } : undefined}
     >
       {/* Left accent bar */}
-      <div className={cn(
-        "absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full transition-all duration-500",
-        `bg-gradient-to-b ${accent.bar}`,
-        isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-70"
-      )} />
+      <div
+        className={cn(
+          "absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full transition-all duration-500",
+          isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-70"
+        )}
+        style={{ background: `linear-gradient(to bottom, ${accent.barFrom}, ${accent.barVia}, ${accent.barTo})` }}
+      />
 
       {/* Background gradient */}
-      <div className={cn(
-        "absolute inset-0 transition-all duration-500",
-        `bg-gradient-to-br ${bgGradient}`,
-        isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-80"
-      )} />
+      <div
+        className={cn(
+          "absolute inset-0 transition-all duration-500",
+          isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-80"
+        )}
+        style={{ background: `linear-gradient(135deg, ${bgGradient.from}08, transparent, ${bgGradient.to}06)` }}
+      />
 
       {/* Hover glow */}
       <div
@@ -142,10 +146,10 @@ export function SongCard({ cancion, index }: SongCardProps) {
           }}
         >
           {/* Colored gradient ring background */}
-          <div className={cn(
-            "absolute inset-0 rounded-full bg-gradient-to-br opacity-30",
-            diskColor.bg
-          )} />
+          <div
+            className="absolute inset-0 rounded-full opacity-30"
+            style={{ background: `linear-gradient(135deg, ${diskColor.bgFrom}33, ${diskColor.bgTo}33)` }}
+          />
 
           {/* Album art */}
           <img
@@ -169,10 +173,14 @@ export function SongCard({ cancion, index }: SongCardProps) {
           <div className="absolute inset-0 rounded-full pointer-events-none shadow-[inset_0_4px_8px_rgba(0,0,0,0.4)]" />
 
           {/* Colored border ring */}
-          <div className={cn(
-            "absolute inset-0 rounded-full bg-gradient-to-br opacity-60 pointer-events-none",
-            diskColor.ring
-          )} style={{ WebkitMask: "radial-gradient(circle, transparent 68%, black 70%)", mask: "radial-gradient(circle, transparent 68%, black 70%)" }} />
+          <div
+            className="absolute inset-0 rounded-full opacity-60 pointer-events-none"
+            style={{
+              background: `linear-gradient(135deg, ${diskColor.ringFrom}, ${diskColor.ringTo})`,
+              WebkitMask: "radial-gradient(circle, transparent 68%, black 70%)",
+              mask: "radial-gradient(circle, transparent 68%, black 70%)"
+            }}
+          />
         </div>
 
         {/* Center vinyl spindle */}
