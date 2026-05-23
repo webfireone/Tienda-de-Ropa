@@ -90,7 +90,16 @@ export function LoginPage() {
       }
       navigate(redirectTo)
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión")
+      const msg = err instanceof Error ? err.message : "Error al iniciar sesión"
+      if (msg.includes("auth/email-already-in-use")) {
+        setIsRegister(false)
+        setError("Este email ya está registrado. Cambiamos a Iniciar Sesión — ingresá tu contraseña.")
+      } else if (msg.includes("auth/user-not-found") || msg.includes("auth/invalid-credential")) {
+        if (!isRegister) setError("Email o contraseña incorrectos")
+        else setError(msg)
+      } else {
+        setError(msg)
+      }
     }
   }
 

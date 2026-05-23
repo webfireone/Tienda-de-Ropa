@@ -3,7 +3,7 @@ import { createPortal } from "react-dom"
 import { Button } from "./button"
 import { Input } from "./input"
 import { useAuth } from "@/context/AuthContext"
-import { X, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
+import { X, Mail, Lock, Eye, EyeOff, Loader2, User } from "lucide-react"
 
 interface LoginModalProps {
   onClose: () => void
@@ -11,7 +11,9 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
-  const { signIn, signInWithGoogle } = useAuth()
+  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const [isRegister, setIsRegister] = useState(false)
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -23,12 +25,22 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
     e.preventDefault()
     setError("")
     if (!email.trim() || !password) return
+    if (isRegister && !name.trim()) return
     setLoading(true)
     try {
-      await signIn(email, password)
+      if (isRegister) {
+        await signUp(name.trim(), email, password)
+      } else {
+        await signIn(email, password)
+      }
       onSuccess()
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Error al iniciar sesión")
+      const msg = err instanceof Error ? err.message : "Error al iniciar sesión"
+      if (msg.includes("auth/email-already-in-use")) {
+        setError("Este email ya está registrado. Usá 'Iniciar Sesión' o probá con Google.")
+      } else {
+        setError(msg)
+      }
     }
     setLoading(false)
   }
@@ -53,14 +65,28 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
           <X className="h-4 w-4 text-muted-foreground" />
         </button>
 
-        <h2 className="text-lg font-display font-semibold mb-1">Iniciar Sesión</h2>
-        <p className="text-xs text-muted-foreground mb-5">Ingresá para agregar al carrito</p>
+        <h2 className="text-lg font-display font-semibold mb-1">{isRegister ? "Crear Cuenta" : "Iniciar Sesión"}</h2>
+        <p className="text-xs text-muted-foreground mb-5">{isRegister ? "Registrate para comprar" : "Ingresá para agregar al carrito"}</p>
 
         {error && (
           <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive mb-4">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
+          {isRegister && (
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Tu nombre"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="pl-10"
+                required={isRegister}
+                autoFocus={isRegister}
+              />
+            </div>
+          )}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -70,7 +96,7 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
               onChange={e => setEmail(e.target.value)}
               className="pl-10"
               required
-              autoFocus
+              autoFocus={!isRegister}
             />
           </div>
           <div className="relative">
@@ -93,7 +119,7 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Ingresar
+            {isRegister ? "Crear Cuenta" : "Ingresar"}
           </Button>
         </form>
 
@@ -121,8 +147,14 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
         </Button>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
-          ¿No tenés cuenta?{" "}
-          <a href="/login?redirect=" className="text-primary hover:underline font-medium">Registrarse</a>
+          {isRegister ? "¿Ya tenés cuenta?" : "¿No tenés cuenta?"}{" "}
+          <button
+            type="button"
+            onClick={() => { setIsRegister(!isRegister); setError("") }}
+            className="text-primary hover:underline font-medium"
+          >
+            {isRegister ? "Iniciar Sesión" : "Registrarse"}
+          </button>
         </p>
       </div>
     </div>
