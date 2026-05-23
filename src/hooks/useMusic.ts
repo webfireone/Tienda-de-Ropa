@@ -195,7 +195,7 @@ export function useDeleteCancion() {
           throw err
         }
       }
-      try { await deleteAudio(id) } catch { /* ignore */ }
+      deleteAudio(id).catch(() => {})
       return id
     },
     onSuccess: () => {

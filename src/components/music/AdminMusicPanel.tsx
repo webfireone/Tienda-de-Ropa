@@ -96,12 +96,10 @@ export function AdminMusicPanel() {
 
     let audioUrl = archivoUrl
     if (selectedFileRef.current) {
-      try {
-        if (!USE_MOCK) {
-          audioUrl = await uploadAudio(id, selectedFileRef.current)
-        }
-      } catch { /* Firebase Storage not available */ }
       await saveAudioFile(id, selectedFileRef.current)
+      if (!USE_MOCK) {
+        uploadAudio(id, selectedFileRef.current).then(url => { audioUrl = url }).catch(() => {})
+      }
     }
 
     const cancion: Cancion = {
