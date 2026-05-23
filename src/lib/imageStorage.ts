@@ -49,7 +49,10 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 
 async function uploadBlob(storagePath: string, blob: Blob): Promise<string> {
   const storageRef = ref(storage, storagePath)
-  await uploadBytes(storageRef, blob)
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error("Tiempo de espera agotado (30s)")), 30_000)
+  )
+  await Promise.race([uploadBytes(storageRef, blob), timeout])
   return getDownloadURL(storageRef)
 }
 

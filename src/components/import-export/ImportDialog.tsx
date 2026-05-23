@@ -50,6 +50,7 @@ export function ImportDialog() {
     setResult(null)
     setSelectedFileName(file.name)
     setParsedData(null)
+    setUploadError(null)
 
     try {
       let data: ParsedRow[] = []
@@ -72,22 +73,30 @@ export function ImportDialog() {
     }
   }
 
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 })
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
   const handleImageFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
     setUploadingImages(true)
-    try {
-      const results = await Promise.all(
-        Array.from(files).map(async (file) => {
-          const imageId = crypto.randomUUID()
-          const url = await uploadImageFile(imageId, file)
-          return { name: file.name, url }
-        })
-      )
-      setLocalImages(results)
-    } finally {
-      setUploadingImages(false)
+    setUploadError(null)
+    setLocalImages([])
+    const total = files.length
+    setUploadProgress({ current: 0, total })
+    const results: { name: string; url: string }[] = []
+    for (const file of Array.from(files)) {
+      try {
+        const imageId = crypto.randomUUID()
+        const url = await uploadImageFile(imageId, file)
+        results.push({ name: file.name, url })
+      } catch (err) {
+        setUploadError(`Error al subir ${file.name}: ${err}`)
+      }
+      setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }))
     }
+    setLocalImages(results)
+    setUploadingImages(false)
   }
 
   const getImageUrl = (path: string): string => {
@@ -195,6 +204,7 @@ export function ImportDialog() {
     setSelectedFileName("")
     setLocalImages([])
     setResult(null)
+    setUploadError(null)
     if (fileInputRef.current) fileInputRef.current.value = ""
     if (imageInputRef.current) imageInputRef.current.value = ""
   }
@@ -283,9 +293,17 @@ export function ImportDialog() {
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg border border-dashed border-primary/10 mt-3">
                         {uploadingImages ? (
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                            Comprimiendo y subiendo imágenes...
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Comprimiendo y subiendo imágenes... ({uploadProgress.current}/{uploadProgress.total})
+                            </div>
+                            {uploadError && (
+                              <p className="text-xs text-rose-400 flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" />
+                                {uploadError}
+                              </p>
+                            )}
                           </div>
                         ) : (
                           <input
