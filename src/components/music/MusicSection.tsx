@@ -57,24 +57,33 @@ export function MusicSection() {
 
       {/* Right: Song list */}
       <div className="lg:col-span-2">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-primary/5">
+        <div className="relative flex items-center justify-between mb-5 pb-4 border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shadow-lg shadow-primary/20">
-              <Music className="w-4 h-4 text-white" />
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-primary/25 relative z-10">
+                <Music className="w-[18px] h-[18px] text-white" />
+              </div>
+              <div className="absolute -inset-1 rounded-xl bg-primary/20 blur-xl opacity-60 animate-pulse-glow" />
             </div>
             <div>
-              <h2 className="text-lg font-display font-semibold bg-gradient-to-r from-primary to-highlight bg-clip-text text-transparent">
-                Canciones
+              <h2 className="text-lg font-display font-semibold">
+                <span className="bg-gradient-to-r from-primary via-purple-400 to-highlight bg-clip-text text-transparent">
+                  Canciones
+                </span>
               </h2>
-              <p className="text-[10px] text-muted-foreground/60 -mt-0.5">Playlist Glamour's</p>
+              <p className="text-[10px] text-muted-foreground/50 -mt-0.5 tracking-wide uppercase">Playlist Oficial</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-6 w-px bg-gradient-to-b from-primary/30 to-highlight/30" />
-            <span className="text-xs font-mono tabular-nums text-muted-foreground/60">{String(activeSongs.length).padStart(2, "0")} temas</span>
+          <div className="flex items-center gap-3">
+            <div className="h-7 w-px bg-gradient-to-b from-transparent via-primary/20 to-transparent" />
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+              <span className="text-[11px] font-mono tabular-nums text-muted-foreground/50">{String(activeSongs.length).padStart(2, "0")}</span>
+              <span className="text-[9px] text-muted-foreground/30">temas</span>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {activeSongs.map((cancion, i) => (
             <SongCard key={cancion.id} cancion={cancion} index={i} />
           ))}

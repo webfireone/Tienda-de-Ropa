@@ -281,13 +281,19 @@ export function useRegistrarReproduccion() {
         usuarioId: user?.uid ?? null,
         fechaReproduccion: new Date().toISOString(),
       }
+      console.log("[RegistrarReproduccion] Playing song:", cancionId, "user:", user?.uid)
       if (!USE_MOCK) {
         await setDoc(doc(db, "music_plays", play.id), play)
+        console.log("[RegistrarReproduccion] Saved to Firestore:", play.id)
       }
       return play
     },
     onSuccess: () => {
+      console.log("[RegistrarReproduccion] Success, invalidating")
       queryClient.invalidateQueries({ queryKey: ["music", "reproducciones"] })
+    },
+    onError: (err) => {
+      console.error("[RegistrarReproduccion] Firebase write error:", err)
     },
   })
 }
