@@ -12,6 +12,14 @@ interface SongCardProps {
   index?: number
 }
 
+const DISK_COLORS = [
+  { ring: "from-violet-500 to-fuchsia-500", shadow: "rgba(139,92,246,0.4)", bg: "from-violet-900/30 to-fuchsia-900/20" },
+  { ring: "from-rose-500 to-pink-500", shadow: "rgba(244,63,94,0.4)", bg: "from-rose-900/30 to-pink-900/20" },
+  { ring: "from-sky-500 to-cyan-500", shadow: "rgba(14,165,233,0.4)", bg: "from-sky-900/30 to-cyan-900/20" },
+  { ring: "from-emerald-500 to-teal-500", shadow: "rgba(16,185,129,0.4)", bg: "from-emerald-900/30 to-teal-900/20" },
+  { ring: "from-amber-500 to-orange-500", shadow: "rgba(245,158,11,0.4)", bg: "from-amber-900/30 to-orange-900/20" },
+]
+
 const CARD_ACCENTS = [
   { bar: "from-primary via-highlight to-primary", glow: "rgba(124,92,252,0.15)", border: "rgba(124,92,252,0.08)" },
   { bar: "from-highlight via-pink-400 to-highlight", glow: "rgba(236,72,153,0.15)", border: "rgba(236,72,153,0.08)" },
@@ -43,6 +51,7 @@ export function SongCard({ cancion, index }: SongCardProps) {
   const idx = index !== undefined ? index : 0
   const accent = CARD_ACCENTS[idx % CARD_ACCENTS.length]
   const bgGradient = CARD_GRADIENT_BG[idx % CARD_GRADIENT_BG.length]
+  const diskColor = DISK_COLORS[idx % DISK_COLORS.length]
 
   return (
     <div
@@ -109,42 +118,77 @@ export function SongCard({ cancion, index }: SongCardProps) {
         )}
       </div>
 
-      {/* Cover - Vinyl style */}
+      {/* Cover - 3D Vinyl Disc */}
       <div className="relative shrink-0 z-10">
+        {/* Outer glow ring */}
         <div className={cn(
-          "relative w-[42px] h-[42px] rounded-full overflow-hidden transition-all duration-500",
-          "shadow-[0_4px_16px_rgba(0,0,0,0.5)] group-hover:shadow-[0_8px_32px_rgba(0,0,0,0.6)]",
-          isCurrent ? "ring-2 ring-primary/40 ring-offset-2 ring-offset-background" : "ring-1 ring-white/[0.06] group-hover:ring-primary/20"
-        )}>
+          "absolute -inset-2 rounded-full opacity-0 blur-xl transition-all duration-500 pointer-events-none",
+          isThisPlaying ? "opacity-40" : "group-hover:opacity-20"
+        )}
+          style={{ background: `radial-gradient(circle, ${diskColor.shadow} 0%, transparent 70%)` }}
+        />
+
+        {/* Disc container with 3D effect */}
+        <div className={cn(
+          "relative w-[46px] h-[46px] rounded-full overflow-hidden transition-all duration-500",
+          "shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_2px_4px_rgba(255,255,255,0.1)]",
+          "group-hover:shadow-[0_12px_36px_rgba(0,0,0,0.7),inset_0_2px_4px_rgba(255,255,255,0.1)]",
+          "group-hover:scale-105 group-hover:-rotate-3",
+          isCurrent ? "ring-offset-2 ring-offset-background" : "ring-1 ring-white/[0.08] group-hover:ring-2"
+        )}
+          style={{
+            boxShadow: `0 8px 24px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1)`,
+            ...(isCurrent ? { boxShadow: `0 8px 32px ${diskColor.shadow}, 0 0 0 2px ${diskColor.shadow.replace("0.4", "0.3")}` } : {}),
+          }}
+        >
+          {/* Colored gradient ring background */}
+          <div className={cn(
+            "absolute inset-0 rounded-full bg-gradient-to-br opacity-30",
+            diskColor.bg
+          )} />
+
+          {/* Album art */}
           <img
             src={cancion.portadaUrl}
             alt={cancion.titulo}
             className={cn(
-              "w-full h-full object-cover transition-all duration-700",
+              "w-full h-full object-cover transition-all duration-700 rounded-full",
               isThisPlaying ? "vinyl-spin" : "",
               !isThisPlaying && "group-hover:scale-110"
             )}
           />
-          {/* Vinyl shine overlay */}
+
+          {/* 3D Shine overlay - glossy reflection */}
           <div className="absolute inset-0 rounded-full pointer-events-none"
             style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.03) 100%)"
+              background: "linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.04) 100%)"
             }}
           />
+
+          {/* Inner shadow for depth */}
+          <div className="absolute inset-0 rounded-full pointer-events-none shadow-[inset_0_4px_8px_rgba(0,0,0,0.4)]" />
+
+          {/* Colored border ring */}
+          <div className={cn(
+            "absolute inset-0 rounded-full bg-gradient-to-br opacity-60 pointer-events-none",
+            diskColor.ring
+          )} style={{ WebkitMask: "radial-gradient(circle, transparent 68%, black 70%)", mask: "radial-gradient(circle, transparent 68%, black 70%)" }} />
         </div>
-        {/* Center dot */}
+
+        {/* Center vinyl spindle */}
         <div className={cn(
           "absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-500",
           isThisPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         )}>
-          <div className={cn(
-            "w-2.5 h-2.5 rounded-full",
-            isThisPlaying ? "bg-primary shadow-[0_0_8px_rgba(124,92,252,0.6)]" : "bg-white/30"
-          )} />
+          <div className="w-[10px] h-[10px] rounded-full bg-gradient-to-br from-white/80 to-white/20 shadow-[0_0_6px_rgba(0,0,0,0.4),inset_0_1px_2px_rgba(255,255,255,0.6)]" />
         </div>
+
         {/* Playing ring */}
         {isThisPlaying && (
-          <div className="absolute -inset-1.5 rounded-full border border-primary/20 animate-pulse-ring pointer-events-none" />
+          <div className={cn(
+            "absolute -inset-2 rounded-full animate-pulse-ring pointer-events-none",
+            `ring-1 ring-primary/30`
+          )} />
         )}
       </div>
 

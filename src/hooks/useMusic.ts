@@ -76,6 +76,39 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
+const MOCK_PLAYS_KEY = "glamours_mock_plays"
+const MOCK_LIKES_KEY = "glamours_mock_likes"
+
+function loadMockCollection<T>(key: string): T[] {
+  try {
+    const saved = localStorage.getItem(key)
+    if (saved) return JSON.parse(saved)
+  } catch { /* ignore */ }
+  return []
+}
+function saveMockCollection<T>(key: string, data: T[]) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch { /* ignore */ }
+}
+
+function addMockPlay(play: Reproduccion) {
+  const plays = loadMockCollection<Reproduccion>(MOCK_PLAYS_KEY)
+  plays.push(play)
+  saveMockCollection(MOCK_PLAYS_KEY, plays)
+}
+
+function addMockLike(like: LikeCancion) {
+  const likes = loadMockCollection<LikeCancion>(MOCK_LIKES_KEY)
+  const existing = likes.findIndex(l => l.cancionId === like.cancionId && l.usuarioId === like.usuarioId)
+  if (existing >= 0) {
+    likes.splice(existing, 1)
+  } else {
+    likes.push(like)
+  }
+  saveMockCollection(MOCK_LIKES_KEY, likes)
+}
+
 function getCurrentMonthKey(): string {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
@@ -91,6 +124,12 @@ async function fetchMusicCollection<T>(path: string, fallback: T[]): Promise<T[]
     if (path === "music_songs") {
       await ensureMockInit()
       return (mockCanciones ?? []) as unknown as T[]
+    }
+    if (path === "music_plays") {
+      return loadMockCollection<Reproduccion>(MOCK_PLAYS_KEY) as unknown as T[]
+    }
+    if (path === "music_likes") {
+      return loadMockCollection<LikeCancion>(MOCK_LIKES_KEY) as unknown as T[]
     }
     return fallback
   }
@@ -241,7 +280,11 @@ export function useResetRanking() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async () => {
-      if (USE_MOCK) return true
+      if (USE_MOCK) {
+        localStorage.removeItem(MOCK_PLAYS_KEY)
+        localStorage.removeItem(MOCK_LIKES_KEY)
+        return true
+      }
       async function clearCollection(path: string) {
         const snap = await getDocs(collection(db, path))
         for (const d of snap.docs) {
@@ -281,15 +324,14 @@ export function useRegistrarReproduccion() {
         usuarioId: user?.uid ?? null,
         fechaReproduccion: new Date().toISOString(),
       }
-      console.log("[RegistrarReproduccion] Playing song:", cancionId, "user:", user?.uid)
-      if (!USE_MOCK) {
+      if (USE_MOCK) {
+        addMockPlay(play)
+      } else {
         await setDoc(doc(db, "music_plays", play.id), play)
-        console.log("[RegistrarReproduccion] Saved to Firestore:", play.id)
       }
       return play
     },
     onSuccess: () => {
-      console.log("[RegistrarReproduccion] Success, invalidating")
       queryClient.invalidateQueries({ queryKey: ["music", "reproducciones"] })
     },
     onError: (err) => {
@@ -312,19 +354,32 @@ export function useToggleLike() {
   return useMutation({
     mutationFn: async (cancionId: string) => {
       const existingLikeId = `${cancionId}_${user?.uid}`
-      if (!USE_MOCK) {
-        const existingDoc = await getDoc(doc(db, "music_likes", existingLikeId))
-        if (existingDoc.exists()) {
-          await deleteDoc(doc(db, "music_likes", existingLikeId))
+      if (USE_MOCK) {
+        const likes = loadMockCollection<LikeCancion>(MOCK_LIKES_KEY)
+        const existing = likes.find(l => l.cancionId === cancionId && l.usuarioId === (user?.uid ?? ""))
+        if (existing) {
+          const remaining = likes.filter(l => l.id !== existing.id)
+          saveMockCollection(MOCK_LIKES_KEY, remaining)
           return { cancionId, liked: false }
         }
-        await setDoc(doc(db, "music_likes", existingLikeId), {
+        addMockLike({
+          id: existingLikeId,
           cancionId,
           usuarioId: user?.uid ?? "",
           fechaLike: new Date().toISOString(),
         })
         return { cancionId, liked: true }
       }
+      const existingDoc = await getDoc(doc(db, "music_likes", existingLikeId))
+      if (existingDoc.exists()) {
+        await deleteDoc(doc(db, "music_likes", existingLikeId))
+        return { cancionId, liked: false }
+      }
+      await setDoc(doc(db, "music_likes", existingLikeId), {
+        cancionId,
+        usuarioId: user?.uid ?? "",
+        fechaLike: new Date().toISOString(),
+      })
       return { cancionId, liked: true }
     },
     onSuccess: () => {
