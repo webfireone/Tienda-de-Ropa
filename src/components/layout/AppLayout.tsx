@@ -44,7 +44,7 @@ export function AppLayout() {
         >
           {/* Button */}
           <div
-            className={`relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
+            className={`relative w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${
               waHovered ? "translate-x-0" : ""
             }`}
             style={{
@@ -56,7 +56,7 @@ export function AppLayout() {
           >
             {/* Pulse rings */}
             <div className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: "linear-gradient(135deg, #7c5cfc, #ec4899)" }} />
-            <WhatsAppIcon className="h-7 w-7 text-white relative z-10" />
+            <WhatsAppIcon className="h-5 w-5 text-white relative z-10" />
           </div>
 
           {/* Label */}

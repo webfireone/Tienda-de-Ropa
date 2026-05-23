@@ -214,7 +214,7 @@ export function Header() {
 
         {/* Mobile nav + cart + auth */}
         <div className="md:hidden flex flex-col">
-          <div className="flex overflow-x-auto px-3 pb-1 gap-1 no-scrollbar">
+          <div className="flex overflow-x-auto px-2 pb-1 gap-0.5 no-scrollbar">
             {allLinks.map(link => {
               const isActive = !link.external && location.pathname === link.to
               return (
@@ -222,36 +222,36 @@ export function Header() {
                   key={link.to}
                   onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
                   className={cn(
-                    "flex items-center gap-1 px-2 py-1 text-[10px] font-menu rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
+                    "flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-menu rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
                     isActive
                       ? "bg-secondary text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <link.icon className="h-2.5 w-2.5" />
+                  <link.icon className="h-2 w-2" />
                   {link.label}
                 </button>
               )
             })}
           </div>
-          <div className="flex items-center justify-between px-3 pb-2 border-t border-primary/5 pt-1.5">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between px-2 pb-1.5 border-t border-primary/5 pt-1">
+            <div className="flex items-center gap-1.5">
               {isAdmin && (
                 <button
                   onClick={() => window.open("/manual-usuario.pdf", "_blank")}
-                  className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileText className="h-3 w-3" />
+                  <FileText className="h-2.5 w-2.5" />
                   <span>Manual</span>
                 </button>
               )}
               <button
                 onClick={() => navigate("/cart")}
-                className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
               >
-                <ShoppingCart className="h-3 w-3" />
+                <ShoppingCart className="h-2.5 w-2.5" />
                 <span>Carrito</span>
-                <span className="w-3.5 h-3.5 rounded-full gradient-primary text-white text-[7px] flex items-center justify-center font-bold">
+                <span className="w-3 h-3 rounded-full gradient-primary text-white text-[6px] flex items-center justify-center font-bold">
                   {totalItems}
                 </span>
               </button>
@@ -261,36 +261,36 @@ export function Header() {
                 <button
                   onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
                   className={cn(
-                    "flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium transition-all",
+                    "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium transition-all",
                     isAdmin
                       ? "gradient-primary text-white shadow-sm"
                       : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
                   )}
                 >
-                  <User className="h-2.5 w-2.5" />
+                  <User className="h-2 w-2" />
                   {isAdmin ? "Admin" : "Cliente"}
                 </button>
               ) : user ? (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   {isAdmin && (
-                    <span className="text-[8px] font-semibold uppercase tracking-wider gradient-primary text-white px-1.5 py-0.5 rounded-full">
+                    <span className="text-[7px] font-semibold uppercase tracking-wider gradient-primary text-white px-1 py-0.5 rounded-full">
                       Admin
                     </span>
                   )}
                   <button
                     onClick={() => signOut()}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
                   >
-                    <LogOut className="h-2.5 w-2.5" />
+                    <LogOut className="h-2 w-2" />
                     <span>Salir</span>
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => navigate("/login")}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
+                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
                 >
-                  <User className="h-2.5 w-2.5" />
+                  <User className="h-2 w-2" />
                   Ingresar
                 </button>
               )}

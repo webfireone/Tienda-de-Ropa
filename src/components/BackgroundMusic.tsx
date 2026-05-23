@@ -112,7 +112,7 @@ export function BackgroundMusic() {
       {/* Mini reproductor */}
       {started && (
         <div
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-1 py-1 pr-3 rounded-full backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-up"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 px-1 py-1 pr-2 rounded-full backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-up"
           style={{
             background: "linear-gradient(135deg, rgba(124,92,252,0.15), rgba(236,72,153,0.1))",
             boxShadow: "0 8px 32px rgba(124,92,252,0.2)",
@@ -120,17 +120,17 @@ export function BackgroundMusic() {
         >
           <button
             onClick={togglePlay}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 hover:opacity-90 transition-all shrink-0 shadow-lg shadow-violet-500/30"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 hover:opacity-90 transition-all shrink-0 shadow-lg shadow-violet-500/30"
           >
             {playing ? (
-              <Pause className="h-4 w-4 text-white" />
+              <Pause className="h-3 w-3 text-white" />
             ) : (
-              <Play className="h-4 w-4 text-white ml-0.5" />
+              <Play className="h-3 w-3 text-white ml-0.5" />
             )}
           </button>
 
-          <div className="flex items-center gap-2">
-            <div className="w-16 h-1 rounded-full bg-white/10 overflow-hidden">
+          <div className="flex items-center gap-1.5">
+            <div className="w-12 h-0.5 rounded-full bg-white/10 overflow-hidden">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400 transition-all duration-500"
                 style={{ width: playing ? "100%" : "0%" }}
@@ -139,12 +139,12 @@ export function BackgroundMusic() {
 
             <button
               onClick={toggleMute}
-              className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-white/10 transition-all shrink-0"
+              className="flex items-center justify-center w-5 h-5 rounded-full hover:bg-white/10 transition-all shrink-0"
             >
               {muted ? (
-                <VolumeX className="h-3.5 w-3.5 text-white/50" />
+                <VolumeX className="h-3 w-3 text-white/50" />
               ) : (
-                <Volume2 className="h-3.5 w-3.5 text-white/80" />
+                <Volume2 className="h-3 w-3 text-white/80" />
               )}
             </button>
           </div>
