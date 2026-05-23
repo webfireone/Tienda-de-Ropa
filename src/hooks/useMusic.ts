@@ -4,7 +4,7 @@ import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, updateDoc } from "
 import type { Cancion, Reproduccion, LikeCancion, MonthlyRankingEntry } from "@/types/music"
 import { MOCK_SONGS } from "@/types/music"
 import { useAuth } from "@/context/AuthContext"
-import { loadAudioBlob, deleteAudioFile } from "@/lib/mockStorage"
+import { loadAudioDataUrl, deleteAudioFile } from "@/lib/mockStorage"
 import { deleteAudio } from "@/lib/audioStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"

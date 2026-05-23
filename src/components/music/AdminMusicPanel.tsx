@@ -8,8 +8,6 @@ import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
 import { saveAudioFile } from "@/lib/mockStorage"
 
-const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
-
 const COVER_COLORS = [
   "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
   "ef4444", "a855f7", "06b6d4", "f97316", "84cc16",

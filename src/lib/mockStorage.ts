@@ -17,29 +17,50 @@ function openDB(): Promise<IDBDatabase> {
 
 export async function saveAudioFile(songId: string, file: File): Promise<void> {
   const db = await openDB()
-  const buffer = await file.arrayBuffer()
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, "readwrite")
-    tx.objectStore(STORE_NAME).put(buffer, songId)
-    tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    const reader = new FileReader()
+    reader.onload = () => {
+      const tx = db.transaction(STORE_NAME, "readwrite")
+      tx.objectStore(STORE_NAME).put(reader.result, songId)
+      tx.oncomplete = () => resolve()
+      tx.onerror = () => reject(tx.error)
+    }
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
   })
 }
 
-export async function loadAudioBlob(songId: string): Promise<Blob | null> {
+export async function loadAudioDataUrl(songId: string): Promise<string | null> {
   const db = await openDB()
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readonly")
     const req = tx.objectStore(STORE_NAME).get(songId)
     req.onsuccess = () => {
       if (req.result) {
-        resolve(new Blob([req.result], { type: "audio/mpeg" }))
+        resolve(req.result as string)
       } else {
         resolve(null)
       }
     }
     req.onerror = () => reject(req.error)
   })
+}
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const parts = dataUrl.split(",")
+  const mime = parts[0].match(/:(.*?);/)?.[1] || "audio/mpeg"
+  const binary = atob(parts[1])
+  const array = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    array[i] = binary.charCodeAt(i)
+  }
+  return new Blob([array], { type: mime })
+}
+
+export async function loadAudioBlob(songId: string): Promise<Blob | null> {
+  const dataUrl = await loadAudioDataUrl(songId)
+  if (!dataUrl) return null
+  return dataUrlToBlob(dataUrl)
 }
 
 export async function deleteAudioFile(songId: string): Promise<void> {
