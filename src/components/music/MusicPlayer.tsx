@@ -17,7 +17,9 @@ export function MusicPlayer() {
   const cumulativeSeconds = useRef(0)
 
   useEffect(() => {
-    if (isPlaying && currentSong && !hasRegisteredPlay.current) {
+    hasRegisteredPlay.current = false
+    cumulativeSeconds.current = 0
+    if (isPlaying && currentSong) {
       playTimer.current = setInterval(() => {
         cumulativeSeconds.current += 1
         if (cumulativeSeconds.current >= 10 && !hasRegisteredPlay.current) {
@@ -27,17 +29,8 @@ export function MusicPlayer() {
         }
       }, 1000)
     }
-    if (!isPlaying && playTimer.current) {
-      clearInterval(playTimer.current)
-      playTimer.current = null
-    }
     return () => { if (playTimer.current) { clearInterval(playTimer.current); playTimer.current = null } }
   }, [isPlaying, currentSong?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    hasRegisteredPlay.current = false
-    cumulativeSeconds.current = 0
-  }, [currentSong?.id])
 
   const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
