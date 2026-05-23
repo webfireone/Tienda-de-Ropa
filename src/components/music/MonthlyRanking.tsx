@@ -10,10 +10,10 @@ interface MonthlyRankingProps {
 }
 
 const MEDAL_STYLES = [
-  { emoji: "🥇", bg: "from-yellow-400/20 to-amber-600/10", border: "border-yellow-400/30", text: "text-yellow-400", glow: "rgba(251,191,36,0.2)" },
-  { emoji: "🥈", bg: "from-gray-300/20 to-gray-400/10", border: "border-gray-300/30", text: "text-gray-300", glow: "rgba(156,163,175,0.2)" },
-  { emoji: "🥉", bg: "from-amber-600/20 to-orange-600/10", border: "border-amber-600/30", text: "text-amber-600", glow: "rgba(217,119,6,0.2)" },
-  { emoji: "", bg: "from-primary/10 to-primary/5", border: "border-primary/15", text: "text-muted-foreground", glow: "rgba(124,92,252,0.1)" },
+  { emoji: "🥇", bg: "from-[#ff2a6d]/20 to-[#7b2cbf]/10", border: "border-[#ff2a6d]/30", text: "text-[#ff2a6d]", glow: "rgba(255,42,109,0.2)" },
+  { emoji: "🥈", bg: "from-[#7b2cbf]/20 to-[#00f5d4]/10", border: "border-[#7b2cbf]/30", text: "text-[#7b2cbf]", glow: "rgba(123,44,191,0.2)" },
+  { emoji: "🥉", bg: "from-[#00f5d4]/20 to-[#7b2cbf]/10", border: "border-[#00f5d4]/30", text: "text-[#00f5d4]", glow: "rgba(0,245,212,0.2)" },
+  { emoji: "", bg: "from-[#ff2a6d]/10 to-[#7b2cbf]/5", border: "border-[#ff2a6d]/15", text: "text-muted-foreground", glow: "rgba(255,42,109,0.1)" },
 ]
 
 export function MonthlyRanking({ canciones, compact }: MonthlyRankingProps) {
@@ -85,7 +85,7 @@ export function MonthlyRanking({ canciones, compact }: MonthlyRankingProps) {
             <Crown className="w-3.5 h-3.5 text-yellow-400" />
           </div>
           <h3 className="font-display text-sm font-semibold">
-            <span className="bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">Top 5 del Mes</span>
+            <span className="bg-gradient-to-r from-[#ff2a6d] via-[#7b2cbf] to-[#00f5d4] bg-clip-text text-transparent">Top 5 del Mes</span>
           </h3>
         </div>
         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">

@@ -31,7 +31,7 @@ export function MusicPlayer() {
         "absolute -inset-4 rounded-3xl opacity-0 transition-opacity duration-1000 blur-2xl pointer-events-none",
         isPlaying && "opacity-100"
       )}
-        style={{ background: "radial-gradient(ellipse at center, rgba(124,92,252,0.12) 0%, rgba(236,72,153,0.06) 40%, transparent 70%)" }}
+        style={{ background: "radial-gradient(ellipse at center, rgba(255,42,109,0.12) 0%, rgba(123,44,191,0.06) 40%, transparent 70%)" }}
       />
 
       <div className={cn(
@@ -45,7 +45,7 @@ export function MusicPlayer() {
             "absolute inset-0 transition-opacity duration-1000",
             isPlaying ? "opacity-60" : "opacity-20"
           )}
-            style={{ background: "radial-gradient(circle at 50% 50%, rgba(124,92,252,0.08) 0%, transparent 60%)" }}
+            style={{ background: "radial-gradient(circle at 50% 50%, rgba(255,42,109,0.08) 0%, transparent 60%)" }}
           />
 
           {/* The vinyl disc */}
@@ -54,7 +54,7 @@ export function MusicPlayer() {
             <div className={cn(
               "absolute -inset-3 rounded-full transition-all duration-1000 pointer-events-none",
               isPlaying
-                ? "shadow-[0_0_60px_rgba(124,92,252,0.15),0_0_120px_rgba(124,92,252,0.05)]"
+                ? "shadow-[0_0_60px_rgba(255,42,109,0.15),0_0_120px_rgba(255,42,109,0.05)]"
                 : "shadow-none"
             )} />
 
@@ -62,7 +62,7 @@ export function MusicPlayer() {
             <div className={cn(
               "relative w-44 h-44 rounded-full overflow-hidden transition-all duration-500",
               "shadow-[0_12px_50px_rgba(0,0,0,0.6),0_4px_16px_rgba(0,0,0,0.4)]",
-              isPlaying && "shadow-[0_12px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(124,92,252,0.1)]"
+              isPlaying && "shadow-[0_12px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(255,42,109,0.1)]"
             )}>
               <img
                 src="/images/pasta.jpg"
@@ -144,7 +144,7 @@ export function MusicPlayer() {
                 className="h-full rounded-full transition-all duration-150"
                 style={{
                   width: `${pct}%`,
-                  background: "linear-gradient(90deg, var(--color-primary), var(--color-highlight))"
+                  background: "linear-gradient(90deg, #ff2a6d, #7b2cbf)"
                 }}
               />
               <div
@@ -227,7 +227,7 @@ export function MusicPlayer() {
           "h-[1px] transition-opacity duration-1000",
           isPlaying ? "opacity-100" : "opacity-0"
         )}
-          style={{ background: "linear-gradient(90deg, transparent, var(--color-primary), var(--color-highlight), transparent)" }}
+          style={{ background: "linear-gradient(90deg, transparent, #ff2a6d, #7b2cbf, transparent)" }}
         />
       </div>
     </div>

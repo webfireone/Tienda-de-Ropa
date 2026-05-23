@@ -13,27 +13,27 @@ interface SongCardProps {
 }
 
 const DISK_COLORS = [
-  { ring: "from-violet-500 to-fuchsia-500", shadow: "rgba(139,92,246,0.4)", bg: "from-violet-900/30 to-fuchsia-900/20" },
-  { ring: "from-rose-500 to-pink-500", shadow: "rgba(244,63,94,0.4)", bg: "from-rose-900/30 to-pink-900/20" },
-  { ring: "from-sky-500 to-cyan-500", shadow: "rgba(14,165,233,0.4)", bg: "from-sky-900/30 to-cyan-900/20" },
-  { ring: "from-emerald-500 to-teal-500", shadow: "rgba(16,185,129,0.4)", bg: "from-emerald-900/30 to-teal-900/20" },
-  { ring: "from-amber-500 to-orange-500", shadow: "rgba(245,158,11,0.4)", bg: "from-amber-900/30 to-orange-900/20" },
+  { ring: "from-[#ff2a6d] to-[#7b2cbf]", shadow: "rgba(255,42,109,0.4)", bg: "from-[#ff2a6d]/20 to-[#7b2cbf]/20" },
+  { ring: "from-[#7b2cbf] to-[#00f5d4]", shadow: "rgba(123,44,191,0.4)", bg: "from-[#7b2cbf]/20 to-[#00f5d4]/20" },
+  { ring: "from-[#00f5d4] to-[#ff2a6d]", shadow: "rgba(0,245,212,0.4)", bg: "from-[#00f5d4]/20 to-[#ff2a6d]/20" },
+  { ring: "from-[#ff2a6d] to-[#00f5d4]", shadow: "rgba(255,42,109,0.4)", bg: "from-[#ff2a6d]/20 to-[#00f5d4]/20" },
+  { ring: "from-[#7b2cbf] to-[#ff2a6d]", shadow: "rgba(123,44,191,0.4)", bg: "from-[#7b2cbf]/20 to-[#ff2a6d]/20" },
 ]
 
 const CARD_ACCENTS = [
-  { bar: "from-primary via-highlight to-primary", glow: "rgba(124,92,252,0.15)", border: "rgba(124,92,252,0.08)" },
-  { bar: "from-highlight via-pink-400 to-highlight", glow: "rgba(236,72,153,0.15)", border: "rgba(236,72,153,0.08)" },
-  { bar: "from-purple-400 via-primary to-purple-400", glow: "rgba(168,85,247,0.15)", border: "rgba(168,85,247,0.08)" },
-  { bar: "from-blue-400 via-primary to-blue-400", glow: "rgba(59,130,246,0.15)", border: "rgba(59,130,246,0.08)" },
-  { bar: "from-amber-400 via-highlight to-amber-400", glow: "rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.08)" },
+  { bar: "from-[#ff2a6d] via-[#7b2cbf] to-[#ff2a6d]", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
+  { bar: "from-[#7b2cbf] via-[#00f5d4] to-[#7b2cbf]", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
+  { bar: "from-[#00f5d4] via-[#7b2cbf] to-[#00f5d4]", glow: "rgba(0,245,212,0.15)", border: "rgba(0,245,212,0.08)" },
+  { bar: "from-[#ff2a6d] via-[#00f5d4] to-[#ff2a6d]", glow: "rgba(255,42,109,0.15)", border: "rgba(255,42,109,0.08)" },
+  { bar: "from-[#7b2cbf] via-[#ff2a6d] to-[#7b2cbf]", glow: "rgba(123,44,191,0.15)", border: "rgba(123,44,191,0.08)" },
 ]
 
 const CARD_GRADIENT_BG = [
-  "from-primary/[0.03] via-transparent to-highlight/[0.02]",
-  "from-highlight/[0.03] via-transparent to-primary/[0.02]",
-  "from-purple-400/[0.03] via-transparent to-primary/[0.02]",
-  "from-blue-400/[0.03] via-transparent to-highlight/[0.02]",
-  "from-amber-400/[0.03] via-transparent to-highlight/[0.02]",
+  "from-[#ff2a6d]/[0.04] via-transparent to-[#7b2cbf]/[0.03]",
+  "from-[#7b2cbf]/[0.04] via-transparent to-[#00f5d4]/[0.03]",
+  "from-[#00f5d4]/[0.04] via-transparent to-[#ff2a6d]/[0.03]",
+  "from-[#ff2a6d]/[0.04] via-transparent to-[#00f5d4]/[0.03]",
+  "from-[#7b2cbf]/[0.04] via-transparent to-[#ff2a6d]/[0.03]",
 ]
 
 export function SongCard({ cancion, index }: SongCardProps) {

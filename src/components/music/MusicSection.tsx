@@ -67,7 +67,7 @@ export function MusicSection() {
             </div>
             <div>
               <h2 className="text-lg font-display font-semibold">
-                <span className="bg-gradient-to-r from-primary via-purple-400 to-highlight bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#ff2a6d] via-[#7b2cbf] to-[#00f5d4] bg-clip-text text-transparent">
                   Canciones
                 </span>
               </h2>
