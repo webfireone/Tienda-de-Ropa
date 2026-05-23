@@ -24,7 +24,6 @@ export function AdminMusicPanel() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [titulo, setTitulo] = useState("")
   const [artista, setArtista] = useState("")
-  const [archivoUrl, setArchivoUrl] = useState("")
   const [portadaUrl, setPortadaUrl] = useState("")
   const [activo, setActivo] = useState(true)
   const [error, setError] = useState("")
@@ -45,7 +44,6 @@ export function AdminMusicPanel() {
   const resetForm = () => {
     setTitulo("")
     setArtista("")
-    setArchivoUrl("")
     setPortadaUrl("")
     setActivo(true)
     setEditingId(null)
@@ -58,7 +56,6 @@ export function AdminMusicPanel() {
     setEditingId(cancion.id)
     setTitulo(cancion.titulo)
     setArtista(cancion.artista)
-    setArchivoUrl(cancion.archivoUrl)
     setPortadaUrl(cancion.portadaUrl)
     setActivo(cancion.activo)
     setIsFormOpen(true)
@@ -123,11 +120,6 @@ export function AdminMusicPanel() {
         return
       }
       selectedFileRef.current = file
-      const reader = new FileReader()
-      reader.onload = () => {
-        setArchivoUrl(reader.result as string)
-      }
-      reader.readAsDataURL(file)
       if (!titulo) {
         setTitulo(file.name.replace(/\.mp3$/i, "").trim())
       }
