@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { PageHero } from "@/components/dashboard/Decorative3D"
+import { LoginModal } from "@/components/ui/LoginModal"
 import { useAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
@@ -17,6 +18,7 @@ export function CartPage() {
   const navigate = useNavigate()
   const { items, removeItem, updateQuantity } = useCartStore()
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
   const { params, updateParams, saveToFirestore } = useParamsStore()
   const { user, isAdmin } = useAuth()
 
@@ -185,7 +187,7 @@ export function CartPage() {
                         if (USE_MOCK || user) {
                           setCheckoutOpen(true)
                         } else {
-                          navigate("/login?redirect=/cart")
+                          setShowLogin(true)
                         }
                       }}
                       className="w-full btn-shine h-11 text-sm"
@@ -251,6 +253,15 @@ export function CartPage() {
       </div>
 
       <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} />
+      {showLogin && (
+        <LoginModal
+          onClose={() => setShowLogin(false)}
+          onSuccess={() => {
+            setShowLogin(false)
+            setCheckoutOpen(true)
+          }}
+        />
+      )}
     </div>
   )
 }

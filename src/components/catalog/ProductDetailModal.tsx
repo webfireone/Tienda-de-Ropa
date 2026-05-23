@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { useNavigate } from "react-router-dom"
 import { useCartStore } from "@/store/cartStore"
 import { useAuth } from "@/context/AuthContext"
+import { LoginModal } from "@/components/ui/LoginModal"
 import { SIZES } from "@/types"
 import type { Product } from "@/types"
 import { X, ShoppingCart, Minus, Plus, Package, Tag, AlertTriangle, Check, LogIn } from "lucide-react"
@@ -14,12 +14,12 @@ interface ProductDetailModalProps {
 }
 
 export function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
-  const navigate = useNavigate()
   const { user } = useAuth()
   const { addItem, items } = useCartStore()
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name ?? "")
   const [selectedSize, setSelectedSize] = useState("")
   const [quantity, setQuantity] = useState(1)
+  const [showLogin, setShowLogin] = useState(false)
   useEffect(() => {
     const prev = document.body.style.overflow
     document.body.style.overflow = "hidden"
@@ -43,8 +43,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
   const handleAdd = () => {
     if (!user) {
-      onClose()
-      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`)
+      setShowLogin(true)
       return
     }
     if (!selectedColor || !selectedSize) return
@@ -254,5 +253,22 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   )
 
   if (typeof document === "undefined") return null
-  return createPortal(modal, document.body)
+  return createPortal(
+    <>
+      {modal}
+      {showLogin && (
+        <LoginModal
+          onClose={() => setShowLogin(false)}
+          onSuccess={() => {
+            setShowLogin(false)
+            if (selectedColor && selectedSize && maxQty > 0) {
+              addItem(product, selectedColor, selectedSize, quantity)
+              onClose()
+            }
+          }}
+        />
+      )}
+    </>,
+    document.body
+  )
 }
