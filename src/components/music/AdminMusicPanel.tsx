@@ -115,8 +115,8 @@ export function AdminMusicPanel() {
   const handleArchivoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setError("El archivo MP3 no puede superar los 10MB")
+      if (file.size > 50 * 1024 * 1024) {
+        setError("El archivo MP3 no puede superar los 50MB")
         return
       }
       selectedFileRef.current = file
@@ -330,7 +330,7 @@ export function AdminMusicPanel() {
                       className="hidden"
                     />
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">Máx 10MB</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Máx 50MB</p>
                 </div>
               )}
               <div>
