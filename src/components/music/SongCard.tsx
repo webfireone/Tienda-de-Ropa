@@ -13,11 +13,11 @@ interface SongCardProps {
 }
 
 const DISK_COLORS = [
-  { ringFrom: "#ff2a6d", ringTo: "#7b2cbf", shadow: "rgba(255,42,109,0.4)", bgFrom: "#ff2a6d", bgTo: "#7b2cbf" },
-  { ringFrom: "#7b2cbf", ringTo: "#00f5d4", shadow: "rgba(123,44,191,0.4)", bgFrom: "#7b2cbf", bgTo: "#00f5d4" },
-  { ringFrom: "#00f5d4", ringTo: "#ff2a6d", shadow: "rgba(0,245,212,0.4)", bgFrom: "#00f5d4", bgTo: "#ff2a6d" },
-  { ringFrom: "#ff2a6d", ringTo: "#00f5d4", shadow: "rgba(255,42,109,0.4)", bgFrom: "#ff2a6d", bgTo: "#00f5d4" },
-  { ringFrom: "#7b2cbf", ringTo: "#ff2a6d", shadow: "rgba(123,44,191,0.4)", bgFrom: "#7b2cbf", bgTo: "#ff2a6d" },
+  { ringFrom: "#ff2a6d", ringTo: "#7b2cbf", shadow: "rgba(255,42,109,0.4)" },
+  { ringFrom: "#7b2cbf", ringTo: "#00f5d4", shadow: "rgba(123,44,191,0.4)" },
+  { ringFrom: "#00f5d4", ringTo: "#ff2a6d", shadow: "rgba(0,245,212,0.4)" },
+  { ringFrom: "#ff2a6d", ringTo: "#00f5d4", shadow: "rgba(255,42,109,0.4)" },
+  { ringFrom: "#7b2cbf", ringTo: "#ff2a6d", shadow: "rgba(123,44,191,0.4)" },
 ]
 
 const CARD_ACCENTS = [
@@ -141,25 +141,23 @@ export function SongCard({ cancion, index }: SongCardProps) {
           isCurrent ? "ring-offset-2 ring-offset-background" : "ring-1 ring-white/[0.08] group-hover:ring-2"
         )}
           style={{
-            boxShadow: `0 8px 24px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1)`,
-            ...(isCurrent ? { boxShadow: `0 8px 32px ${diskColor.shadow}, 0 0 0 2px ${diskColor.shadow.replace("0.4", "0.3")}` } : {}),
+            background: `linear-gradient(135deg, ${diskColor.ringFrom}, ${diskColor.ringTo})`,
+            boxShadow: isCurrent
+              ? `0 8px 32px ${diskColor.shadow}, 0 0 0 2px ${diskColor.shadow.replace("0.4", "0.3")}`
+              : "0 8px 24px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1)",
           }}
         >
-          {/* Colored gradient ring background */}
-          <div
-            className="absolute inset-0 rounded-full opacity-30"
-            style={{ background: `linear-gradient(135deg, ${diskColor.bgFrom}33, ${diskColor.bgTo}33)` }}
-          />
-
-          {/* Album art */}
+          {/* Album art with margin to show gradient ring */}
           <img
             src={cancion.portadaUrl}
             alt={cancion.titulo}
             className={cn(
               "w-full h-full object-cover transition-all duration-700 rounded-full",
+              "m-[3px]",
               isThisPlaying ? "vinyl-spin" : "",
               !isThisPlaying && "group-hover:scale-110"
             )}
+            style={{ width: "calc(100% - 6px)", height: "calc(100% - 6px)" }}
           />
 
           {/* 3D Shine overlay - glossy reflection */}
@@ -171,16 +169,6 @@ export function SongCard({ cancion, index }: SongCardProps) {
 
           {/* Inner shadow for depth */}
           <div className="absolute inset-0 rounded-full pointer-events-none shadow-[inset_0_4px_8px_rgba(0,0,0,0.4)]" />
-
-          {/* Colored border ring */}
-          <div
-            className="absolute inset-0 rounded-full opacity-60 pointer-events-none"
-            style={{
-              background: `linear-gradient(135deg, ${diskColor.ringFrom}, ${diskColor.ringTo})`,
-              WebkitMask: "radial-gradient(circle, transparent 68%, black 70%)",
-              mask: "radial-gradient(circle, transparent 68%, black 70%)"
-            }}
-          />
         </div>
 
         {/* Center vinyl spindle */}
