@@ -7,6 +7,37 @@ let audioEl: HTMLAudioElement | null = null
 let _playThresholdCb: ((songId: string) => void) | null = null
 let _lastRegisteredSong = ""
 
+// In-memory cache of loaded audio data URLs (keyed by song ID)
+const audioCache = new Map<string, string>()
+
+export function cacheAudioUrl(songId: string, url: string) {
+  audioCache.set(songId, url)
+}
+
+export function prefetchAudioUrl(songId: string): Promise<string | null> {
+  const cached = audioCache.get(songId)
+  if (cached) return Promise.resolve(cached)
+  return loadAudioDataUrl(songId).then(dataUrl => {
+    if (dataUrl) audioCache.set(songId, dataUrl)
+    return dataUrl
+  })
+}
+
+// Prefetch all songs' audio sequentially into cache (one at a time to avoid memory spikes)
+export function prefetchAllAudio(songs: Cancion[]) {
+  let idx = 0
+  const next = () => {
+    if (idx >= songs.length) return
+    const song = songs[idx++]
+    if (!audioCache.has(song.id)) {
+      prefetchAudioUrl(song.id).catch(() => {}).finally(next)
+    } else {
+      next()
+    }
+  }
+  next()
+}
+
 export function setPlayThresholdCb(cb: (songId: string) => void) {
   _playThresholdCb = cb
 }
@@ -73,12 +104,15 @@ function createNewAudio(store: StoreCallbacks) {
 
 async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
   _lastRegisteredSong = ""
-  let url = song.archivoUrl
+
+  const cached = audioCache.get(song.id)
+  let url: string | null = cached || null
+
   if (!url || url.startsWith("blob:")) {
     try {
-      const dataUrl = await loadAudioDataUrl(song.id)
-      if (dataUrl) {
-        url = dataUrl
+      url = await loadAudioDataUrl(song.id)
+      if (url) {
+        audioCache.set(song.id, url)
       } else {
         set({ isPlaying: false, audioError: "Audio no disponible offline" })
         return
@@ -88,6 +122,7 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       return
     }
   }
+
   const el = createNewAudio(storeCallbacks)
   el.dataset.songId = song.id
   el.volume = get().volume

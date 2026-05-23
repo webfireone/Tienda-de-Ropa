@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useCanciones } from "@/hooks/useMusic"
-import { useMusicStore } from "@/store/musicStore"
+import { useMusicStore, prefetchAllAudio } from "@/store/musicStore"
 import { MusicPlayer } from "./MusicPlayer"
 import { SongCard } from "./SongCard"
 import { MonthlyRanking } from "./MonthlyRanking"
@@ -15,6 +15,8 @@ export function MusicSection() {
   useEffect(() => {
     if (activeSongs.length > 0) {
       setPlaylist(activeSongs)
+      // Prefetch audio sequentially into cache so play() works synchronously on mobile
+      prefetchAllAudio(activeSongs)
     }
   }, [activeSongs.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
