@@ -546,7 +546,7 @@ export function AdminMusicPanel() {
                   <p className="text-sm font-medium truncate">{cancion.titulo}</p>
                   <p className="text-xs text-muted-foreground truncate">{cancion.artista}</p>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                   <Button size="icon" variant="ghost" className="w-8 h-8" onClick={() => handleEdit(cancion)}>
                     <Pencil className="w-3.5 h-3.5" />
                   </Button>
