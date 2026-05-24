@@ -239,9 +239,9 @@ export function ProductCard({ product, index = 0, viewMode = "grid", size = "reg
             </div>
           </div>
 
-          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-3 mb-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mt-3 mb-3 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500" />
 
-          <div className="flex items-center justify-center gap-2 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400 delay-100">
+          <div className="flex items-center justify-center gap-2 opacity-100 translate-y-0 sm:opacity-0 sm:translate-y-2 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 transition-all duration-400 delay-100">
             <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-white/70 group-hover:text-white transition-colors">
               Ver producto
             </span>
