@@ -78,7 +78,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
           >
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 z-20 w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
+            className="absolute top-3 right-3 z-20 w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
           >
             <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -138,7 +138,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                         key={c.name}
                         onClick={() => { setSelectedColor(c.name); setSelectedSize(""); setQuantity(1) }}
                         className={cn(
-                          "text-[11px] px-3 py-1.5 border transition-all",
+                          "text-[11px] px-3 py-2 sm:py-1.5 border transition-all",
                           selectedColor === c.name
                             ? "border-primary bg-primary text-primary-foreground shadow-sm"
                             : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
@@ -177,7 +177,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                           disabled={disabled}
                           onClick={() => { setSelectedSize(size); setQuantity(1) }}
                           className={cn(
-                            "relative min-w-[38px] py-2 px-2.5 text-xs font-medium border transition-all",
+                            "relative min-w-[38px] py-2.5 sm:py-2 px-2.5 text-xs font-medium border transition-all",
                             selectedSize === size
                               ? "border-primary bg-primary text-primary-foreground shadow-sm"
                               : disabled
@@ -211,15 +211,15 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                     <button
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
                       disabled={quantity <= 1}
-                      className="w-9 h-9 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
+                      className="w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
                     >
                       <Minus className="h-3 w-3" />
                     </button>
-                    <span className="w-9 text-center text-xs font-semibold border-x border-border h-9 flex items-center justify-center text-foreground">{quantity}</span>
+                    <span className="w-11 text-center text-xs font-semibold border-x border-border h-11 sm:w-9 sm:h-9 flex items-center justify-center text-foreground">{quantity}</span>
                     <button
                       onClick={() => setQuantity(q => Math.min(maxQty, q + 1))}
                       disabled={quantity >= maxQty}
-                      className="w-9 h-9 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
+                      className="w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center hover:bg-secondary transition-colors disabled:opacity-30 disabled:cursor-not-allowed text-foreground"
                     >
                       <Plus className="h-3 w-3" />
                     </button>
