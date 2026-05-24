@@ -136,7 +136,7 @@ export function CatalogPage() {
                 <button
                   key={brand}
                   onClick={() => toggleBrand(brand)}
-                  className={`shrink-0 px-4 py-1.5 text-[11px] font-semibold tracking-wider uppercase transition-all duration-200 whitespace-nowrap rounded-full ${
+                  className={`shrink-0 px-4 py-2 text-[11px] font-semibold tracking-wider uppercase transition-all duration-200 whitespace-nowrap rounded-full ${
                     isActive
                       ? "bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white shadow-[0_2px_12px_rgba(124,92,252,0.35)]"
                       : "bg-white/[0.04] text-muted-foreground hover:text-foreground hover:bg-white/[0.08] border border-white/[0.06]"
@@ -161,7 +161,7 @@ export function CatalogPage() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`shrink-0 px-3 py-1 text-[11px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap rounded-full ${
+                  className={`shrink-0 px-3 py-1.5 sm:py-1 text-[11px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap rounded-full ${
                     selectedCategory === cat
                       ? "text-foreground bg-muted"
                       : "text-muted-foreground hover:text-foreground"
@@ -180,7 +180,7 @@ export function CatalogPage() {
                 <button
                   key={g}
                   onClick={() => setSelectedGender(g)}
-                  className={`shrink-0 px-3 py-1 text-[11px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap rounded-full ${
+                  className={`shrink-0 px-3 py-1.5 sm:py-1 text-[11px] font-medium tracking-wide transition-all duration-200 whitespace-nowrap rounded-full ${
                     selectedGender === g
                       ? "text-foreground bg-muted"
                       : "text-muted-foreground hover:text-foreground"
@@ -199,22 +199,22 @@ export function CatalogPage() {
                   placeholder="Buscar..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9 h-8 text-xs border-border/40 bg-muted/40 focus:bg-muted transition-colors rounded-full"
+                  className="pl-9 h-10 sm:h-8 text-xs border-border/40 bg-muted/40 focus:bg-muted transition-colors rounded-full"
                 />
               </div>
 
               <div className="flex items-center gap-1 bg-muted/30 rounded-full p-0.5">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`p-1.5 rounded-full transition-all ${viewMode === "grid" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`p-2 sm:p-1.5 rounded-full transition-all ${viewMode === "grid" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <Grid3X3 className="h-3.5 w-3.5" />
+                  <Grid3X3 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </button>
                 <button
                   onClick={() => setViewMode("list")}
-                  className={`p-1.5 rounded-full transition-all ${viewMode === "list" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`p-2 sm:p-1.5 rounded-full transition-all ${viewMode === "list" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  <List className="h-3.5 w-3.5" />
+                  <List className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
                 </button>
               </div>
             </div>
