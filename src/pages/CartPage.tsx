@@ -126,19 +126,19 @@ export function CartPage() {
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-end gap-3 shrink-0">
-                            <div className="flex items-center gap-1 bg-card border border-primary/10 rounded-xl p-0.5">
+                            <div className="flex flex-col items-end gap-3 shrink-0">
+                            <div className="flex items-center gap-0.5 bg-card border border-primary/10 rounded-lg p-0.5">
                               <button
                                 onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
-                                className="w-11 h-11 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
                                 disabled={item.quantity <= 1}
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
-                              <span className="w-11 sm:w-8 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
+                              <span className="w-9 sm:w-8 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.productId, item.color, item.size, 1)}
-                                className="w-11 h-11 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
