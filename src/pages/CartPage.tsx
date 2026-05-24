@@ -122,7 +122,7 @@ export function CartPage() {
                               <p className="text-sm font-bold text-primary tabular-nums">{formatMoney(item.price * item.quantity)}</p>
                               <button
                                 onClick={() => removeItem(item.productId, item.color, item.size)}
-                                className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all opacity-0 group-hover:opacity-100"
+                                className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
