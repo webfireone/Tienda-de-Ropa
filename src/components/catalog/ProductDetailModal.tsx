@@ -20,6 +20,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   const [selectedSize, setSelectedSize] = useState("")
   const [quantity, setQuantity] = useState(1)
   const [showLogin, setShowLogin] = useState(false)
+  const [showImage, setShowImage] = useState(false)
   useEffect(() => {
     const scrollY = window.scrollY
     document.body.style.overflow = "hidden"
@@ -92,7 +93,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
             </button>
             <div className="grid grid-cols-1 sm:grid-cols-5">
               {/* Image — top on mobile, left on desktop */}
-              <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:aspect-[5/3] sm:aspect-auto sm:min-h-[420px]">
+              <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:aspect-[5/3] sm:aspect-auto sm:min-h-[420px] cursor-pointer" onClick={() => setShowImage(true)}>
                 <img
                   src={product.imageUrl}
                   alt={product.name}
@@ -266,6 +267,15 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
   return createPortal(
     <>
       {modal}
+      {showImage && (
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setShowImage(false)}>
+          <img
+            src={product.imageUrl}
+            alt={product.name}
+            className="max-w-[95vw] max-h-[90dvh] object-contain rounded-lg shadow-2xl"
+          />
+        </div>
+      )}
       {showLogin && (
         <LoginModal
           onClose={() => setShowLogin(false)}
