@@ -92,7 +92,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
             </button>
             <div className="grid grid-cols-1 sm:grid-cols-5">
               {/* Image — top on mobile, left on desktop */}
-              <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:aspect-square sm:aspect-auto sm:min-h-[420px]">
+              <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:h-48 sm:aspect-auto sm:min-h-[420px]">
                 <img
                   src={product.imageUrl}
                   alt={product.name}
@@ -101,7 +101,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
               </div>
 
               {/* Details — right (60% mobile, 3/5 desktop) */}
-              <div className="sm:col-span-3 p-5 sm:p-7 flex flex-col gap-3 sm:gap-4">
+              <div className="sm:col-span-3 p-4 sm:p-7 flex flex-col gap-2 sm:gap-4">
               {/* Brand & Title */}
               <div>
                 <p className="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary mb-1">{product.brand}</p>
