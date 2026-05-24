@@ -14,6 +14,31 @@ import { useNavigate } from "react-router-dom"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
+const COLOR_MAP: Record<string, string> = {
+  negro: "#171717", black: "#171717",
+  blanco: "#ffffff", white: "#ffffff",
+  rojo: "#ef4444", red: "#ef4444",
+  azul: "#3b82f6", blue: "#3b82f6",
+  verde: "#22c55e", green: "#22c55e",
+  amarillo: "#eab308", yellow: "#eab308",
+  naranja: "#f97316", orange: "#f97316",
+  rosa: "#ec4899", pink: "#ec4899",
+  violeta: "#a855f7", purple: "#a855f7",
+  gris: "#6b7280", gray: "#6b7280", grey: "#6b7280",
+  marron: "#92400e", brown: "#92400e",
+  beige: "#f5f5dc", crema: "#fef3c7",
+  celeste: "#93c5fd", coral: "#fb7185",
+  lila: "#c084fc", lavanda: "#c084fc",
+  dorado: "#fbbf24", plateado: "#d1d5db",
+  bordo: "#7f1d1d", turquesa: "#14b8a6",
+  mostaza: "#b45309", menta: "#a7f3d0",
+  fucsia: "#d946ef", salmon: "#fb923c",
+  chocolate: "#78350f", oliva: "#65a30d",
+  te: "#0d9488", indigo: "#4338ca",
+  arena: "#e7e5e4",
+}
+const toColor = (name: string) => COLOR_MAP[name.toLowerCase().trim()] ?? "#94a3b8"
+
 export function CartPage() {
   const navigate = useNavigate()
   const { items, removeItem, updateQuantity } = useCartStore()
@@ -93,7 +118,7 @@ export function CartPage() {
                             <p className="text-xs text-muted-foreground mb-1">{item.brand}</p>
                             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                               <span className="inline-flex items-center gap-1">
-                                <span className="w-2.5 h-2.5 rounded-full border border-primary/20" style={{ backgroundColor: item.color.toLowerCase() }} />
+                                <span className="w-2.5 h-2.5 rounded-full border border-primary/20" style={{ backgroundColor: toColor(item.color) }} />
                                 {item.color}
                               </span>
                               <span>Talle {item.size}</span>
