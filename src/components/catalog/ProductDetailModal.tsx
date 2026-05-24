@@ -96,7 +96,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover object-top"
+                  className="w-full h-full object-contain"
                 />
               </div>
 
