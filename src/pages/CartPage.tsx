@@ -108,52 +108,82 @@ export function CartPage() {
                   >
                     <Card className="overflow-hidden border-primary/10 bg-gradient-to-br from-card to-muted/30 hover:border-primary/20 transition-all duration-300 group">
                       <CardContent className="p-4 md:p-5">
-                        <div className="flex items-center gap-4 md:gap-5">
-                          <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-muted overflow-hidden shrink-0 shadow-sm">
-                            <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
-                          </div>
+                          <div>
+                            <div className="flex items-center gap-4 md:gap-5">
+                              <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-muted overflow-hidden shrink-0 shadow-sm">
+                                <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                              </div>
 
-                          <div className="flex-1 min-w-0">
-                            <p className="font-display font-semibold text-sm md:text-base leading-tight mb-0.5">{item.productName}</p>
-                            <p className="text-xs text-muted-foreground mb-1">{item.brand}</p>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                              <span className="inline-flex items-center gap-1">
-                                <span className="w-2.5 h-2.5 rounded-full border border-primary/20" style={{ backgroundColor: toColor(item.color) }} />
-                                {item.color}
-                              </span>
-                              <span>Talle {item.size}</span>
-                              <span className="text-primary font-medium">${item.price.toLocaleString("es-AR")} c/u</span>
-                            </div>
-                          </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-display font-semibold text-sm md:text-base leading-tight mb-0.5">{item.productName}</p>
+                                <p className="text-xs text-muted-foreground mb-1">{item.brand}</p>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                                  <span className="inline-flex items-center gap-1">
+                                    <span className="w-2.5 h-2.5 rounded-full border border-primary/20" style={{ backgroundColor: toColor(item.color) }} />
+                                    {item.color}
+                                  </span>
+                                  <span>Talle {item.size}</span>
+                                  <span className="text-primary font-medium">${item.price.toLocaleString("es-AR")} c/u</span>
+                                </div>
+                              </div>
 
-                            <div className="flex flex-col items-end gap-3 shrink-0">
-                            <div className="flex items-center gap-0.5 bg-card border border-primary/10 rounded-lg p-0.5">
-                              <button
-                                onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
-                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
-                                disabled={item.quantity <= 1}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </button>
-                              <span className="w-9 sm:w-8 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.productId, item.color, item.size, 1)}
-                                className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
-                              >
-                                <Plus className="h-3 w-3" />
-                              </button>
+                              <div className="hidden sm:flex flex-col items-end gap-3 shrink-0">
+                                <div className="flex items-center gap-0.5 bg-card border border-primary/10 rounded-lg p-0.5">
+                                  <button
+                                    onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
+                                    className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                    disabled={item.quantity <= 1}
+                                  >
+                                    <Minus className="h-3 w-3" />
+                                  </button>
+                                  <span className="w-9 sm:w-8 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
+                                  <button
+                                    onClick={() => updateQuantity(item.productId, item.color, item.size, 1)}
+                                    className="w-9 h-9 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <p className="text-sm font-bold text-primary tabular-nums">{formatMoney(item.price * item.quantity)}</p>
+                                  <button
+                                    onClick={() => removeItem(item.productId, item.color, item.size)}
+                                    className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <p className="text-sm font-bold text-primary tabular-nums">{formatMoney(item.price * item.quantity)}</p>
-                              <button
-                                onClick={() => removeItem(item.productId, item.color, item.size)}
-                                className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
+
+                            <div className="flex sm:hidden items-center justify-between mt-3 pt-3 border-t border-border/50">
+                              <div className="flex items-center gap-0.5 bg-card border border-primary/10 rounded-lg p-0.5">
+                                <button
+                                  onClick={() => updateQuantity(item.productId, item.color, item.size, -1)}
+                                  className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                  disabled={item.quantity <= 1}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <span className="w-9 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.productId, item.color, item.size, 1)}
+                                  className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-primary/10 hover:text-primary transition-colors text-muted-foreground"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <p className="text-sm font-bold text-primary tabular-nums">{formatMoney(item.price * item.quantity)}</p>
+                                <button
+                                  onClick={() => removeItem(item.productId, item.color, item.size)}
+                                  className="p-1.5 rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 transition-all"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
                       </CardContent>
                     </Card>
                   </motion.div>
