@@ -214,7 +214,7 @@ export function SongCard({ cancion, index }: SongCardProps) {
         <button
           onClick={(e) => { e.stopPropagation(); handleLike() }}
           className={cn(
-            "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300",
+            "w-10 h-10 sm:w-7 sm:h-7 rounded-full flex items-center justify-center transition-all duration-300",
             "hover:scale-110 active:scale-90",
             isLiked
               ? "text-red-500 bg-red-500/10"

@@ -148,7 +148,7 @@ export function MusicPlayer() {
                 }}
               />
               <div
-                className="absolute top-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md opacity-0 group-hover:opacity-100 transition-all duration-200"
+                className="absolute top-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-md opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200"
                 style={{ left: `${pct}%`, transform: "translate(-50%, -50%)" }}
               />
             </div>
@@ -164,7 +164,7 @@ export function MusicPlayer() {
             <button
               onClick={toggleShuffle}
               className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                "w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
                 shuffle
                   ? "text-primary bg-primary/8"
                   : "text-muted-foreground/30 hover:text-muted-foreground/60"
@@ -175,7 +175,7 @@ export function MusicPlayer() {
             </button>
             <button
               onClick={playPrevious}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-white/[0.04] transition-all active:scale-90"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-white/[0.04] transition-all active:scale-90"
             >
               <SkipBack className="w-4 h-4" />
             </button>
@@ -193,7 +193,7 @@ export function MusicPlayer() {
             </button>
             <button
               onClick={playNext}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-white/[0.04] transition-all active:scale-90"
+              className="w-11 h-11 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/80 hover:bg-white/[0.04] transition-all active:scale-90"
             >
               <SkipForward className="w-4 h-4" />
             </button>
@@ -206,7 +206,7 @@ export function MusicPlayer() {
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => setVolume(volume === 0 ? 0.7 : 0)}
-              className="text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors"
+              className="w-8 h-8 flex items-center justify-center text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors"
             >
               {volume === 0 ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
             </button>
