@@ -13,6 +13,7 @@ export function BackgroundMusic() {
   const [playing, setPlaying] = useState(false)
   const [muted, setMuted] = useState(false)
   const [started, setStarted] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [currentTrack, setCurrentTrack] = useState(() => getRandomTrack())
 
@@ -22,11 +23,6 @@ export function BackgroundMusic() {
 
   useEffect(() => {
     if (!started) return
-    const audio = audioRef.current
-    if (!audio) return
-    audio.muted = false
-    audio.play().catch(() => {})
-    setPlaying(true)
     sessionStorage.setItem("musicPromptShown", "1")
   }, [started])
 
@@ -41,6 +37,12 @@ export function BackgroundMusic() {
 
   const startMusic = () => {
     setStarted(true)
+    const audio = audioRef.current
+    if (audio) {
+      audio.muted = false
+      audio.play().catch(() => {})
+    }
+    setPlaying(true)
   }
 
   const togglePlay = () => {
@@ -61,7 +63,12 @@ export function BackgroundMusic() {
     setMuted(newMuted)
   }
 
-  if (!mounted) return null
+  const dismiss = () => {
+    setDismissed(true)
+    sessionStorage.setItem("musicPromptShown", "1")
+  }
+
+  if (!mounted || dismissed) return null
 
   return (
     <>
@@ -75,12 +82,12 @@ export function BackgroundMusic() {
       {/* Modal de música */}
       {!started && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => {}} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={dismiss} />
 
           <div className="relative bg-[#161627] border border-white/10 rounded-3xl p-10 max-w-sm w-full text-center shadow-2xl shadow-violet-500/10">
             <button
-              onClick={() => {}}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 cursor-default"
+              onClick={dismiss}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/10 transition-all"
             >
               <X className="h-4 w-4" />
             </button>
