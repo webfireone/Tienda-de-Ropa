@@ -68,20 +68,21 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
 
   const modal = (
     <div className="fixed inset-0 z-[99999]">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
 
-      <div className="absolute inset-0 z-10 overflow-y-auto" onClick={onClose}>
-        <div className="flex max-sm:items-start sm:items-center justify-center min-h-full p-2 sm:p-4 pb-8 sm:pb-4">
-          <div
-            className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up"
-            onClick={e => e.stopPropagation()}
-          >
-          <button
-            onClick={onClose}
-            className="absolute top-3 right-3 z-20 w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
-          >
-            <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
-          </button>
+      <div className="fixed inset-0 z-10 flex max-sm:items-start sm:items-center justify-center pointer-events-none">
+        <div
+          className="relative w-full max-w-3xl sm:rounded-2xl glass-deep border border-border shadow-2xl animate-fade-up max-sm:h-dvh sm:max-h-[85vh] overflow-y-auto pointer-events-auto"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="sticky top-0 z-20 flex justify-end p-3">
+            <button
+              onClick={onClose}
+              className="w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-black/60 hover:bg-black/80 backdrop-blur-sm transition-colors flex items-center justify-center text-white/90 hover:text-white shadow-lg"
+            >
+              <X className="h-5 w-5 sm:h-3.5 sm:w-3.5" />
+            </button>
+          </div>
             <div className="grid grid-cols-1 sm:grid-cols-5">
               {/* Image — top on mobile, left on desktop */}
               <div className="sm:col-span-2 relative bg-muted sm:rounded-tl-2xl sm:rounded-bl-2xl overflow-hidden max-sm:aspect-square sm:aspect-auto sm:min-h-[420px]">
@@ -245,11 +246,10 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
                 <span className="flex items-center gap-1"><Package className="h-3 w-3" /> <span className="font-medium text-foreground">{totalStock}</span> stock</span>
                 <span className="flex items-center gap-1"><Tag className="h-3 w-3" /> <span className="font-medium text-foreground">{product.colors.length}</span> colores</span>
               </div>
+              </div>
             </div>
-          </div>
         </div>
       </div>
-    </div>
     </div>
   )
 
