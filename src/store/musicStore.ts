@@ -95,8 +95,12 @@ function initAudio(store: StoreCallbacks) {
 
 function createNewAudio(store: StoreCallbacks) {
   if (audioEl) {
+    const oldSrc = audioEl.src
     audioEl.pause()
     audioEl.src = ""
+    if (oldSrc?.startsWith("blob:")) {
+      URL.revokeObjectURL(oldSrc)
+    }
   }
   audioEl = new Audio()
   setupAudioEvents(audioEl, store)
