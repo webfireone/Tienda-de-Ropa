@@ -117,7 +117,7 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id)
+        const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
         if (mock?.archivoUrl) {
           url = mock.archivoUrl
         } else {
@@ -129,7 +129,7 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id)
+        const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
         if (mock?.archivoUrl) {
           url = mock.archivoUrl
         } else {

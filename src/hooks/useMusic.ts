@@ -181,7 +181,7 @@ export function useCanciones() {
         }
         // backfill archivoUrl from MOCK_SONGS when empty (e.g. admin-uploaded songs)
         if (!song.archivoUrl) {
-          const mock = MOCK_SONGS.find(m => m.id === song.id)
+          const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
           if (mock?.archivoUrl) {
             song.archivoUrl = mock.archivoUrl
           }
