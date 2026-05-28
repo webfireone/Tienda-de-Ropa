@@ -85,5 +85,6 @@
 2. **Variables CSS pisadas**: usar selector `.music-section` para scoping
 3. **Disc rings no visibles**: cambiar de mask a `box-shadow` + `margin`
 4. **Audio no reproduce en mobile iOS/Safari**: `new Audio()` directo + prefetch secuencial con caché
-5. **Botón login gris en product modal**: habilitar cuando el único blocker es auth (comparar arrays de razones)
-6. **auth/email-already-in-use falsamente atribuido a login**: el error es de `createUser`, no de `signInWithEmailAndPassword`. Ocurre cuando el usuario está en el formulario de registro.
+5. **Backfill por título falla si el título de Firestore tiene saltos de línea**: Cuando el usuario crea canciones en AdminMusicPanel, el textarea puede incluir `\n` al inicio/fin. El backfill compara `normalize(m.titulo) === normalize(song.titulo)` — si hay saltos de línea no matchea. **Solución manual**: editar en Firestore los campos `titulo` y eliminar `\n`. El normalize ahora recorta whitespace.
+6. **Botón login gris en product modal**: habilitar cuando el único blocker es auth (comparar arrays de razones)
+7. **auth/email-already-in-use falsamente atribuido a login**: el error es de `createUser`, no de `signInWithEmailAndPassword`. Ocurre cuando el usuario está en el formulario de registro.

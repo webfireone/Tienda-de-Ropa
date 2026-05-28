@@ -1175,8 +1175,10 @@ Stock para una talla específica
 
 ### Fecha: 28/05/2026
 - **Fix**: Audio no reproduce en mobile iOS/Safari
-  - **Causa raíz**: `playNewSong()` llamaba a `createNewAudio()` (que ejecuta `new Audio()`) **después** de `await` (IndexedDB, fetch), quedando fuera del contexto de user gesture. Safari bloquea `el.play()` cuando el elemento Audio se crea fuera de un evento táctil/de clic.
-  - **Fix**: Eliminado `createNewAudio()`. `playNewSong()` ahora reusa el `audioEl` existente — creado sincrónicamente en `playSong()` vía `initAudio()`, que está dentro del user gesture del clic en SongCard.
+  - **Causa raíz 1**: `playNewSong()` llamaba a `createNewAudio()` (que ejecuta `new Audio()`) **después** de `await` (IndexedDB, fetch), quedando fuera del contexto de user gesture. Safari bloquea `el.play()` cuando el elemento Audio se crea fuera de un evento táctil/de clic.
+  - **Fix 1**: Eliminado `createNewAudio()`. `playNewSong()` ahora reusa el `audioEl` existente — creado sincrónicamente en `playSong()` vía `initAudio()`, que está dentro del user gesture del clic en SongCard.
+  - **Causa raíz 2**: Los títulos de las canciones en Firestore contenían saltos de línea (`\n`) al inicio/final. El backfill por título (que compara `normalize(m.titulo) === normalize(song.titulo)`) fallaba porque `"sigue asi\n" !== "sigue asi"`.
+  - **Fix 2 (manual en Firestore)**: Editar cada título de canción en Firestore Database → colección `canciones` → campo `titulo`, y eliminar los saltos de línea al inicio/final. Alternativamente, el normalize ahora también recorta whitespace y reemplaza `\n`/`\r` por espacios.
   - El elemento Audio se crea una sola vez (en el primer clic) y se reusa para todas las canciones, manteniendo la compatibilidad con iOS Safari.
   - Build 0 errores, tests pasan
 
