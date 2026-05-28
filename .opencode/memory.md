@@ -12,7 +12,15 @@
 | Render | https://dashboard.render.com | **Free** | **Suspendido hasta 01/06/2026** — cuota mensual agotada. 9 servicios (2 web + 7 static) |
 | Firebase | https://console.firebase.google.com | **Spark** (gratuito) | Conexión OK. Métricas detalladas requieren plan Blaze |
 
-## Últimos cambios (commit 437c4e1 + 11f9a0c)
+## Último commit (HEAD): b3fb5c3
+- `main` está sincronizado en 2 PCs via GitHub
+
+## Workflow actual
+- Solo Vercel activo (Render suspendido hasta 01/06)
+- commit → `git push origin main` → Vercel auto-deploy
+- Importante: no tocar Render hasta 01/06
+
+## Últimos cambios (commit 437c4e1 + 11f9a0c + b3fb5c3)
 - **BellezaPage**: rewrite completo — preview completa del sitio en vivo, controles inline de fuentes + weights (`bodyWeight`), eliminados tabs y fondos presets
 - **StatusServiciosPage**: nueva página `/admin/status` con health checks de Vercel, Render, Firebase, GitHub
 - **Header**: admin links ahora en dropdown hamburguesa (desktop + mobile)
