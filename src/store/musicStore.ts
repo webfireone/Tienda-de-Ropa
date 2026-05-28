@@ -113,13 +113,19 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       url = await loadAudioDataUrl(song.id)
       if (url) {
         audioCache.set(song.id, url)
+      } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
+        url = song.archivoUrl
       } else {
         set({ isPlaying: false, audioError: "Audio no disponible offline" })
         return
       }
     } catch {
-      set({ isPlaying: false, audioError: "Error al cargar el audio" })
-      return
+      if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
+        url = song.archivoUrl
+      } else {
+        set({ isPlaying: false, audioError: "Error al cargar el audio" })
+        return
+      }
     }
   }
 
