@@ -1173,6 +1173,13 @@ Stock para una talla específica
     - **Solución**: Eliminar todas las canciones y volver a subirlas desde el AdminMusicPanel en el nuevo dominio. Esto las guarda en IndexedDB del nuevo dominio y funcionan.
   - Build 0 errores, tests pasan
 
+### Fecha: 28/05/2026
+- **Fix**: Audio no reproduce en mobile iOS/Safari
+  - **Causa raíz**: `playNewSong()` llamaba a `createNewAudio()` (que ejecuta `new Audio()`) **después** de `await` (IndexedDB, fetch), quedando fuera del contexto de user gesture. Safari bloquea `el.play()` cuando el elemento Audio se crea fuera de un evento táctil/de clic.
+  - **Fix**: Eliminado `createNewAudio()`. `playNewSong()` ahora reusa el `audioEl` existente — creado sincrónicamente en `playSong()` vía `initAudio()`, que está dentro del user gesture del clic en SongCard.
+  - El elemento Audio se crea una sola vez (en el primer clic) y se reusa para todas las canciones, manteniendo la compatibilidad con iOS Safari.
+  - Build 0 errores, tests pasan
+
 ---
 
 **AGENDA — Pendiente para 01/06/2026**:

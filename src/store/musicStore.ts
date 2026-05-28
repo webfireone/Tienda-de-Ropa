@@ -93,18 +93,14 @@ function initAudio(store: StoreCallbacks) {
   return audioEl
 }
 
-function createNewAudio(store: StoreCallbacks) {
-  if (audioEl) {
-    const oldSrc = audioEl.src
-    audioEl.pause()
-    audioEl.src = ""
-    if (oldSrc?.startsWith("blob:")) {
-      URL.revokeObjectURL(oldSrc)
-    }
+function resetAudio() {
+  if (!audioEl) return
+  const oldSrc = audioEl.src
+  audioEl.pause()
+  audioEl.src = ""
+  if (oldSrc?.startsWith("blob:")) {
+    URL.revokeObjectURL(oldSrc)
   }
-  audioEl = new Audio()
-  setupAudioEvents(audioEl, store)
-  return audioEl
 }
 
 async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
@@ -121,7 +117,6 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        // fallback: lookup archivoUrl from MOCK_SONGS by id
         const mock = MOCK_SONGS.find(m => m.id === song.id)
         if (mock?.archivoUrl) {
           url = mock.archivoUrl
@@ -159,7 +154,13 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
     }
   }
 
-  const el = createNewAudio(storeCallbacks)
+  // Reuse existing audioEl (created synchronously in playSong for iOS Safari compat)
+  resetAudio()
+  if (!audioEl) {
+    audioEl = new Audio()
+    setupAudioEvents(audioEl, storeCallbacks)
+  }
+  const el = audioEl
   el.dataset.songId = song.id
   el.volume = get().volume
   el.src = url
