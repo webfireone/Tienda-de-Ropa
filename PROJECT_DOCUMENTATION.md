@@ -1221,6 +1221,31 @@ Stock para una talla específica
   - Aplica a: importación CSV/XLSX, formulario de producto (`ProductForm.tsx`), y cualquier otro lugar que use `uploadProductImage` o `uploadImageFile`
   - Build 0 errores, commit `1ac614e`, push a GitHub + deploy automático a Render
 
+### Fecha: 28/05/2026
+- **Refactor**: BellezaPage reescrita — de ~1100 a ~300 líneas con preview completa del sitio
+  - Antes: tabs separadas (paletas, fondos, tipografía, guardados) con selects anidados
+  - Ahora: grilla de looks + selects inline de fuentes y weights en sidebar + preview completa del sitio abajo
+  - Se eliminó: fondos presets, gradient customizer, text shadow, seenLooks tracking
+  - Se agregó: control de `bodyWeight` para texto de cuerpo, weight select por tipo de fuente
+  - `bellezaStore.ts`: `applyThemeConfig()` ahora aplica `--font-weight-body` y `font-weight` al body
+  - `App.tsx`: `useBellezaStore.subscribe()` para re-aplicar theme config ante cambios async
+  - Build 0 errores, commit `437c4e1`
+
+- **Feat**: Panel Estado de Servicios (`/admin/status`)
+  - Nueva página `StatusServiciosPage.tsx` con health checks de Vercel, Render, Firebase, GitHub
+  - Nuevo endpoint serverless `api/status-servicios.js`
+  - Ruta `/admin/status` agregada en `App.tsx`
+  - Link en `Header.tsx` con icono `Activity`
+
+- **Feat**: Header admin con dropdown menú (desktop + mobile)
+  - Admin links ahora en menú hamburguesa en desktop y mobile (antes: horizontal scroll)
+  - Botón "Menú" con icono `Menu`/`X` que abre dropdown glass con todos los admin links
+  - No-admin mantiene el scroll horizontal original
+
+- **Feat**: Instructivo carga de productos (`public/instructivo-carga-producto.html`)
+- **Feat**: Devil Wears Prada effect page (`public/devil-wears-prada-effect.html`)
+- **Chore**: `.vercel` agregado a `.gitignore`
+
 ---
 
 # Notas para Futuras AI
