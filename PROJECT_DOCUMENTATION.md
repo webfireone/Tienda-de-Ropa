@@ -1185,12 +1185,15 @@ Stock para una talla específica
 ---
 
 **AGENDA — Pendiente para 01/06/2026**:
-- Render se reactiva automáticamente (nuevo mes, cuota renovada)
-- Verificar que Render haga auto-deploy del último commit en `main`
-- Si no hace auto-deploy: Manual Deploy → Deploy Latest Commit en dashboard.render.com
-- Confirmar sitio funcionando en https://glamours-lujan.onrender.com
-- Verificar endpoints API (/api/pago-exitoso, etc.)
-- Confirmar env vars de Firebase en Render Dashboard
+- **Render se reactiva automáticamente** (nuevo mes, cuota renovada)
+- **Paso 1**: Ir a https://dashboard.render.com e iniciar sesión → reactivar servicios (2 web + 7 static)
+- **Paso 2**: Verificar que Render haga auto-deploy del último commit en `main`. Si no: Manual Deploy → Deploy Latest Commit
+- **Paso 3**: Replicar los cambios que están en Vercel (serverless functions en `api/`, vercel.json, etc.) — Render usa `server.js` + `render.yaml`. Asegurarse de que `main` tenga todo.
+- **Paso 4**: Configurar env vars en Render Dashboard si faltan: `MP_ACCESS_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_B64`, `GH_TOKEN`, `RENDER_API_KEY`, `VERCEL_API_TOKEN`
+- **Paso 5**: Confirmar sitio funcionando en https://glamours-lujan.onrender.com
+- **Paso 6**: Verificar endpoints API (`/api/pago-exitoso`, etc.)
+- **Paso 7**: Testear `/api/status-servicios` → Render debe mostrar datos sin suspensión
+- **Paso 8**: Verificar webhooks y auto-deploy desde GitHub main en ambas plataformas
 
 ### Fecha: 22/05/2026
 - **Fix**: Error "imageUrl longer than 1048487 bytes" al importar productos con imágenes
@@ -1269,9 +1272,11 @@ Stock para una talla específica
      - `canciones`: documentos `Cancion` con `archivoUrl` (Storage URL), `portadaUrl`, `activo`, `deleted` (soft-delete)
      - `reproducciones`: documentos `Reproduccion` con `cancionId`, `usuarioId`, `fechaReproduccion`
      - `likes`: documentos `LikeCancion` con `cancionId`, `usuarioId`, `fechaLike` (unique constraint por canción+usuario)
-     - En modo mock, los datos se almacenan en arrays mutables a nivel de módulo en `useMusic.ts`
+      - En modo mock, los datos se almacenan en arrays mutables a nivel de módulo en `useMusic.ts`
 
----
+16. **Panel Status-Servicios** (`/admin/status`): Endpoint `/api/status-servicios.js` consulta GitHub billing, Vercel usage, Render services y Firebase Firestore metrics vía GCP Monitoring API. Cada servicio tiene su token como env var en Vercel: `GH_TOKEN`, `VERCEL_API_TOKEN`, `RENDER_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_B64`. Firebase Spark no expone métricas sin plan Blaze. GitHub billing necesita PAT con scope `user`. Vercel Hobby no expone usage vía API. Render expone servicios pero no horas de instancia.
+
+17. **Render suspendido hasta 01/06/2026**: Por cuota mensual. Ese día reactivar (ver sección AGENDA en Changelog arriba).
 
 # GUÍA DETALLADA DE FUNCIONAMIENTO
 

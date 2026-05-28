@@ -28,3 +28,4 @@ Carga/
 *.sw?
 
 _test_xlsx.mjs
+.vercel

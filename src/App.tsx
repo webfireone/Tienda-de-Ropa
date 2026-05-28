@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AuthProvider } from "@/context/AuthContext"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { CursorGlow } from "@/components/ui/CursorGlow"
-import { applyThemeConfig, type FullThemeConfig } from "@/store/bellezaStore"
+import { applyThemeConfig, useBellezaStore, type FullThemeConfig } from "@/store/bellezaStore"
 import { useSiteTheme } from "@/hooks/useSiteTheme"
 import { useParamsStore } from "@/store/paramsStore"
 
@@ -31,6 +31,7 @@ const NotFoundPage = lazyPage(() => import("@/pages/NotFoundPage"), "NotFoundPag
 const BellezaPage = lazyPage(() => import("@/pages/BellezaPage"), "BellezaPage")
 const MusicPage = lazyPage(() => import("@/pages/MusicPage"), "MusicPage")
 const AdminMusicPage = lazyPage(() => import("@/pages/AdminMusicPage"), "AdminMusicPage")
+const StatusServiciosPage = lazyPage(() => import("@/pages/StatusServiciosPage"), "StatusServiciosPage")
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +81,17 @@ function AppRoutes() {
     return () => { unsub?.() }
   }, [initFirestoreSync])
 
+  useEffect(() => {
+    const unsub = useBellezaStore.subscribe(
+      (state, prev) => {
+        if (state.config !== prev.config) {
+          applyThemeConfig(state.config)
+        }
+      }
+    )
+    return () => { unsub() }
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -106,6 +118,7 @@ function AppRoutes() {
                 <Route path="/belleza" element={<BellezaPage />} />
                 <Route path="/music" element={<MusicPage />} />
                 <Route path="/admin/music" element={<AdminMusicPage />} />
+                <Route path="/admin/status" element={<StatusServiciosPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>

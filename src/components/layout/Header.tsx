@@ -4,7 +4,7 @@ import { useParamsStore } from "@/store/paramsStore"
 import { useLocation } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
-import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard, Music } from "lucide-react"
+import { ShoppingCart, LayoutDashboard, Store, AlertTriangle, FileUp, Sparkles, User, LogOut, Package, Tag, Layers, Settings, BarChart3, FileText, ClipboardList, Truck, CreditCard, Music, Activity, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "./Logo"
 import { type ComponentType } from "react"
@@ -32,6 +32,7 @@ const adminLinks: NavLink[] = [
   { to: "/config", label: "Config", icon: Settings },
   { to: "/marketing", label: "Marketing", icon: BarChart3 },
   { to: "/admin/music", label: "Glamour's MUSIC", icon: Music },
+  { to: "/admin/status", label: "Estado Servicios", icon: Activity },
 ]
 
 export function Header() {
@@ -41,12 +42,15 @@ export function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handler, { passive: true })
     return () => window.removeEventListener("scroll", handler)
   }, [])
+
+  const closeMenu = () => setMenuOpen(false)
 
   const allLinks = isAdmin ? adminLinks : navLinks
 
@@ -124,29 +128,68 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav className={cn(
-            "hidden md:flex items-center gap-0 overflow-x-auto",
-            isAdmin ? "flex-1 justify-center" : "flex-1 justify-center"
+            "hidden md:flex items-center gap-0",
+            isAdmin ? "flex-1 justify-start overflow-visible" : "flex-1 justify-center overflow-x-auto"
           )} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {allLinks.map(link => {
-              const isActive = !link.external && (link.to === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(link.to))
-              return (
+            {isAdmin ? (
+              <div className="relative">
                 <button
-                  key={link.to}
-                  onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
-                  className={cn(
-                    "flex items-center gap-1 px-1.5 py-1.5 text-[11px] font-menu rounded-lg transition-all duration-300 whitespace-nowrap shrink-0",
-                    isActive
-                      ? "bg-secondary text-primary shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  )}
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="flex items-center gap-2 px-2 py-1.5 text-[11px] font-menu rounded-lg transition-all duration-300 text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 >
-                  <link.icon className="h-3.5 w-3.5" />
-                  {link.label}
+                  {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                  <span className="text-xs font-semibold">Menú</span>
                 </button>
-              )
-            })}
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={closeMenu} />
+                    <div className="absolute top-full left-0 mt-1 z-50 w-56 glass rounded-xl border border-primary/10 shadow-2xl p-1.5 space-y-0.5 backdrop-blur-2xl max-h-[70vh] overflow-y-auto">
+                      {adminLinks.map(link => {
+                        const isActive = link.to === "/"
+                          ? location.pathname === "/"
+                          : location.pathname.startsWith(link.to)
+                        return (
+                          <button
+                            key={link.to}
+                            onClick={() => { navigate(link.to); closeMenu() }}
+                            className={cn(
+                              "flex items-center gap-2.5 w-full px-3 py-2 text-xs font-menu rounded-lg transition-all duration-200 text-left",
+                              isActive
+                                ? "bg-secondary text-primary shadow-sm"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            )}
+                          >
+                            <link.icon className="h-3.5 w-3.5 shrink-0" />
+                            {link.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              allLinks.map(link => {
+                const isActive = !link.external && (link.to === "/"
+                  ? location.pathname === "/"
+                  : location.pathname.startsWith(link.to))
+                return (
+                  <button
+                    key={link.to}
+                    onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
+                    className={cn(
+                      "flex items-center gap-1 px-1.5 py-1.5 text-[11px] font-menu rounded-lg transition-all duration-300 whitespace-nowrap shrink-0",
+                      isActive
+                        ? "bg-secondary text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <link.icon className="h-3.5 w-3.5" />
+                    {link.label}
+                  </button>
+                )
+              })
+            )}
           </nav>
 
           {/* Cart + Auth (desktop) */}
@@ -214,88 +257,189 @@ export function Header() {
 
         {/* Mobile nav + cart + auth */}
         <div className="md:hidden flex flex-col">
-          <div className="flex overflow-x-auto px-2 pb-1 gap-0.5 no-scrollbar">
-            {allLinks.map(link => {
-              const isActive = !link.external && location.pathname === link.to
-              return (
+          {isAdmin ? (
+            <div className="flex items-center justify-between px-3 py-1.5 border-t border-primary/5">
+              <div className="relative">
                 <button
-                  key={link.to}
-                  onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
-                  className={cn(
-                    "flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-menu rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
-                    isActive
-                      ? "bg-secondary text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
                 >
-                  <link.icon className="h-2 w-2" />
-                  {link.label}
+                  {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                  <span className="text-[10px] font-semibold font-menu">Menú</span>
                 </button>
-              )
-            })}
-          </div>
-          <div className="flex items-center justify-between px-2 pb-1.5 border-t border-primary/5 pt-1">
-            <div className="flex items-center gap-1.5">
-              {isAdmin && (
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={closeMenu} />
+                    <div className="absolute top-full left-0 mt-1 z-50 w-56 glass rounded-xl border border-primary/10 shadow-2xl p-1.5 space-y-0.5 backdrop-blur-2xl">
+                      {adminLinks.map(link => {
+                        const isActive = location.pathname === link.to
+                        return (
+                          <button
+                            key={link.to}
+                            onClick={() => { navigate(link.to); closeMenu() }}
+                            className={cn(
+                              "flex items-center gap-2.5 w-full px-3 py-2 text-xs font-menu rounded-lg transition-all duration-200 text-left",
+                              isActive
+                                ? "bg-secondary text-primary shadow-sm"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            )}
+                          >
+                            <link.icon className="h-3.5 w-3.5 shrink-0" />
+                            {link.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5">
+                {isAdmin && (
+                  <button
+                    onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                    className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <FileText className="h-2.5 w-2.5" />
+                    <span>Manual</span>
+                  </button>
+                )}
                 <button
-                  onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                  onClick={() => navigate("/cart")}
                   className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <FileText className="h-2.5 w-2.5" />
-                  <span>Manual</span>
+                  <ShoppingCart className="h-2.5 w-2.5" />
+                  <span>Carrito</span>
+                  <span className="w-3 h-3 rounded-full gradient-primary text-white text-[6px] flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
                 </button>
-              )}
-              <button
-                onClick={() => navigate("/cart")}
-                className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ShoppingCart className="h-2.5 w-2.5" />
-                <span>Carrito</span>
-                <span className="w-3 h-3 rounded-full gradient-primary text-white text-[6px] flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              </button>
-            </div>
-            <div className="flex items-center gap-2">
-              {USE_MOCK ? (
-                <button
-                  onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
-                  className={cn(
-                    "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium transition-all",
-                    isAdmin
-                      ? "gradient-primary text-white shadow-sm"
-                      : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
+                <div className="flex items-center gap-2">
+                  {USE_MOCK ? (
+                    <button
+                      onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
+                      className={cn(
+                        "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium transition-all",
+                        isAdmin
+                          ? "gradient-primary text-white shadow-sm"
+                          : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
+                      )}
+                    >
+                      <User className="h-2 w-2" />
+                      {isAdmin ? "Admin" : "Cliente"}
+                    </button>
+                  ) : user ? (
+                    <div className="flex items-center gap-1">
+                      {isAdmin && (
+                        <span className="text-[7px] font-semibold uppercase tracking-wider gradient-primary text-white px-1 py-0.5 rounded-full">
+                          Admin
+                        </span>
+                      )}
+                      <button
+                        onClick={() => signOut()}
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                      >
+                        <LogOut className="h-2 w-2" />
+                        <span>Salir</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
+                    >
+                      <User className="h-2 w-2" />
+                      Ingresar
+                    </button>
                   )}
-                >
-                  <User className="h-2 w-2" />
-                  {isAdmin ? "Admin" : "Cliente"}
-                </button>
-              ) : user ? (
-                <div className="flex items-center gap-1">
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex overflow-x-auto px-2 pb-1 gap-0.5 no-scrollbar">
+                {allLinks.map(link => {
+                  const isActive = !link.external && location.pathname === link.to
+                  return (
+                    <button
+                      key={link.to}
+                      onClick={() => link.external ? window.open(link.to, "_blank") : navigate(link.to)}
+                      className={cn(
+                        "flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-menu rounded-lg whitespace-nowrap transition-all duration-200 shrink-0",
+                        isActive
+                          ? "bg-secondary text-primary"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <link.icon className="h-2 w-2" />
+                      {link.label}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex items-center justify-between px-2 pb-1.5 border-t border-primary/5 pt-1">
+                <div className="flex items-center gap-1.5">
                   {isAdmin && (
-                    <span className="text-[7px] font-semibold uppercase tracking-wider gradient-primary text-white px-1 py-0.5 rounded-full">
-                      Admin
-                    </span>
+                    <button
+                      onClick={() => window.open("/manual-usuario.pdf", "_blank")}
+                      className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <FileText className="h-2.5 w-2.5" />
+                      <span>Manual</span>
+                    </button>
                   )}
                   <button
-                    onClick={() => signOut()}
-                    className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                    onClick={() => navigate("/cart")}
+                    className="flex items-center gap-1 text-[9px] text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <LogOut className="h-2 w-2" />
-                    <span>Salir</span>
+                    <ShoppingCart className="h-2.5 w-2.5" />
+                    <span>Carrito</span>
+                    <span className="w-3 h-3 rounded-full gradient-primary text-white text-[6px] flex items-center justify-center font-bold">
+                      {totalItems}
+                    </span>
                   </button>
                 </div>
-              ) : (
-                <button
-                  onClick={() => navigate("/login")}
-                  className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
-                >
-                  <User className="h-2 w-2" />
-                  Ingresar
-                </button>
-              )}
-            </div>
-          </div>
+                <div className="flex items-center gap-2">
+                  {USE_MOCK ? (
+                    <button
+                      onClick={() => setMockRole(isAdmin ? "viewer" : "admin")}
+                      className={cn(
+                        "flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium transition-all",
+                        isAdmin
+                          ? "gradient-primary text-white shadow-sm"
+                          : "border border-primary/20 text-primary hover:bg-primary hover:text-white"
+                      )}
+                    >
+                      <User className="h-2 w-2" />
+                      {isAdmin ? "Admin" : "Cliente"}
+                    </button>
+                  ) : user ? (
+                    <div className="flex items-center gap-1">
+                      {isAdmin && (
+                        <span className="text-[7px] font-semibold uppercase tracking-wider gradient-primary text-white px-1 py-0.5 rounded-full">
+                          Admin
+                        </span>
+                      )}
+                      <button
+                        onClick={() => signOut()}
+                        className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium border border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                      >
+                        <LogOut className="h-2 w-2" />
+                        <span>Salir</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/login")}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded-lg text-[8px] font-medium gradient-primary text-white shadow-sm hover:opacity-90 transition-all"
+                    >
+                      <User className="h-2 w-2" />
+                      Ingresar
+                    </button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </header>

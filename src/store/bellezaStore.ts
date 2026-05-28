@@ -1162,6 +1162,7 @@ export function applyThemeConfig(config: FullThemeConfig) {
   const fontMono = `'${config.typography.fontMono}', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace`
   const fontMenu = `'${config.typography.fontMenu}', sans-serif`
   const headingWeight = config.typography.headingWeight
+  const bodyWeight = config.typography.bodyWeight
   const textShadow = config.typography.textShadow
 
   root.style.setProperty("--font-sans", fontSans)
@@ -1169,6 +1170,7 @@ export function applyThemeConfig(config: FullThemeConfig) {
   root.style.setProperty("--font-mono", fontMono)
   root.style.setProperty("--font-menu", fontMenu)
   root.style.setProperty("--text-shadow-heading", config.typography.textShadow)
+  root.style.setProperty("--font-weight-body", bodyWeight)
   root.style.setProperty("--radius", config.layout.borderRadius)
 
   document.body.style.fontFamily = fontSans
@@ -1179,9 +1181,11 @@ export function applyThemeConfig(config: FullThemeConfig) {
       --font-display: ${fontDisplay};
       --font-mono: ${fontMono};
       --font-menu: ${fontMenu};
+      --font-weight-body: ${bodyWeight};
     }
     html, body, #root {
       font-family: ${fontSans} !important;
+      font-weight: ${bodyWeight} !important;
     }
     * * *, *::before, *::after {
       font-family: inherit;
@@ -1235,7 +1239,8 @@ export function applyThemeConfig(config: FullThemeConfig) {
   }
 
     const forceFontUpdate = () => {
-    document.body.style.fontFamily = fontSans
+  document.body.style.fontFamily = fontSans
+  document.body.style.fontWeight = bodyWeight
     root.style.setProperty("--font-sans", fontSans)
     root.style.setProperty("--font-display", fontDisplay)
     root.style.setProperty("--font-mono", fontMono)

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Cargar Producto — Instructivo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    color: #1a1a2e;
+    background: #f4f4f8;
+    line-height: 1.6;
+    padding: 20px;
+  }
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .step {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #e8e8f0;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .step-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .step p, .step li {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+  }
+  .step ul { padding-left: 20px; margin: 8px 0; }
+  .step li { margin-bottom: 4px; }
+  .req { color: #dc2626; font-weight: 600; }
+  .tip {
+    background: #fff8e6;
+    border-left: 3px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .tip strong { color: #b45309; }
+  .img-guide {
+    background: #f0eeff;
+    border-left: 3px solid #7c5cfc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .img-guide strong { color: #5a3d99; }
+  .footer {
+    text-align: center;
+    padding: 24px 0;
+    font-size: 13px;
+    color: #888;
+  }
+  .btn-look {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c5cfc, #a78bfa);
+    color: white;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .arrow { color: #7c5cfc; font-weight: 700; }
+  hr { border: none; border-top: 1px solid #e8e8f0; margin: 20px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>✦ Cargar un producto nuevo</h1>
+  <p class="subtitle">Paso a paso — desde ir a Productos hasta guardar con imagen.</p>
+
+  <!-- PASO 0 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">0</span>
+      <h2>Requisitos</h2>
+    </div>
+    <p>Antes de empezar necesitás:</p>
+    <ul>
+      <li>Una <strong>imagen</strong> del producto en tu computadora (JPEG, PNG, etc.)</li>
+      <li>Los <strong>precios</strong> y datos básicos (nombre, marca, categoría)</li>
+      <li>Los <strong>colores y talles</strong> disponibles con el stock de cada uno</li>
+    </ul>
+  </div>
+
+  <!-- PASO 1 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">1</span>
+      <h2>Ir a Productos</h2>
+    </div>
+    <p>Iniciá sesión como <strong>administrador</strong>.</p>
+    <p>En la barra de navegación, hacé click en <span class="btn-look">Productos</span>.</p>
+    <img src="https://placehold.co/600x120/1a1a30/8888a8?text=Barra+de+navegacion:+Inicio+%7C+Productos+%7C+Pedidos+...&font=inter" alt="Barra de navegación" style="width:100%;border-radius:10px;margin-top:10px;border:1px solid #e8e8f0;">
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">2</span>
+      <h2>Crear nuevo producto</h2>
+    </div>
+    <p>En la pantalla de productos, hacé click en el botón <span class="btn-look">+ Nuevo Producto</span>.</p>
+    <p>Se va a abrir un formulario de <strong>3 pasos</strong>.</p>
+  </div>
+
+  <!-- PASO 3 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">3</span>
+      <h2>Paso 1 — Información básica</h2>
+    </div>
+
+    <p>Completá estos campos obligatorios (<span class="req">*</span>):</p>
+
+    <ul style="margin-bottom:12px;">
+      <li><strong>Nombre</strong> <span class="req">*</span> — Ej: "Remera Urban Fit"</li>
+      <li><strong>Marca</strong> <span class="req">*</span> — Ej: "SAIL"</li>
+      <li><strong>Precio</strong> <span class="req">*</span> — Ej: 25000</li>
+      <li><strong>Imagen</strong> <span class="req">*</span> — Ver recuadro abajo</li>
+    </ul>
+
+    <p>Los demás campos son opcionales pero recomendados:</p>
+    <ul>
+      <li>Categoría (Remeras, Pantalones, etc.)</li>
+      <li>Género (Hombre, Mujer, Unisex)</li>
+      <li>Material (Ej: "Algodón 100%")</li>
+      <li>Precio anterior (para mostrar tachado si está en oferta)</li>
+      <li>Sección (General / Ofertas / Nueva Colección)</li>
+      <li>Estado (Activo / Borrador / Archivado)</li>
+      <li>Descripción</li>
+    </ul>
+
+    <div class="img-guide">
+      <strong>📷 Cómo subir la imagen</strong><br><br>
+      1. En el campo "Imagen", hay dos opciones:<br>
+      &nbsp;&nbsp;<strong>A)</strong> Escribí una URL directa en el campo de texto.<br>
+      &nbsp;&nbsp;<strong>B)</strong> Hacé click en el botón <strong>"Subir"</strong> (celeste) y seleccioná el archivo desde tu computadora.<br>
+      2. El sistema <strong>redimensiona automáticamente</strong> la imagen a 600×600 px y la comprime.<br>
+      3. Una vez subida, se muestra una <strong>vista previa</strong> en miniatura.<br>
+      4. Si falla la subida a Firebase, la imagen se guarda igual como <strong>Data URL</strong>.
+    </div>
+
+    <div class="tip">
+      <strong>💡 Tip:</strong> Si no ves el botón "Subir", asegurate de estar en <strong>Paso 1</strong> del formulario. La imagen es obligatoria para poder pasar al Paso 2.
+    </div>
+  </div>
+
+  <!-- PASO 4 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">4</span>
+      <h2>Paso 2 — Inventario</h2>
+    </div>
+
+    <p>Configurá los <strong>colores</strong> y el <strong>stock por talle</strong>:</p>
+
+    <ul>
+      <li>Escribí un color (Ej: "Negro", "Blanco", "Rojo") y hacé click en <strong>"+"</strong></li>
+      <li>Hacé click en el color que acabás de crear para seleccionarlo</li>
+      <li>Se van a mostrar los talles (S, M, L, XL, etc.) con un campo de número para cada uno</li>
+      <li>Ingresá el <strong>stock disponible</strong> para cada talle</li>
+      <li>Repetí para todos los colores del producto</li>
+    </ul>
+
+    <p>En este paso también podés:</p>
+    <ul>
+      <li>Agregar <strong>tags</strong> (Ej: "nuevo", "oferta", "verano")</li>
+      <li>Cambiar la <strong>sección</strong> (si no lo hiciste en el paso anterior)</li>
+    </ul>
+
+    <div class="tip">
+      <strong>💡 Tip:</strong> Si un color no tiene stock en un talle, deja el número en 0. Los clientes van a ver ese talle como tachado (no disponible).
+    </div>
+  </div>
+
+  <!-- PASO 5 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">5</span>
+      <h2>Paso 3 — Confirmación</h2>
+    </div>
+
+    <p>Revisá el <strong>resumen</strong> del producto:</p>
+    <ul>
+      <li>Imagen, nombre y marca</li>
+      <li>Precio y precio anterior (si tiene)</li>
+      <li>Stock total (suma de todos los colores y talles)</li>
+      <li>Colores con su stock por color</li>
+      <li>Tags</li>
+    </ul>
+
+    <p>Si todo está bien, hacé click en <span class="btn-look">Crear Producto</span>.</p>
+  </div>
+
+  <!-- PASO 6 -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">✓</span>
+      <h2>¡Listo!</h2>
+    </div>
+
+    <p>El producto ya está cargado en la tienda.</p>
+    <ul>
+      <li>Andá a <strong>Inicio</strong> o <strong>Catálogo</strong> para verlo publicado.</li>
+      <li>Si elegiste "Borrador", solo se ve desde el panel de Productos.</li>
+      <li>Podés editarlo cuando quieras desde <span class="btn-look">Productos</span> → click en <strong>"Editar"</strong>.</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <div style="background:white;border-radius:16px;padding:24px;margin-bottom:16px;border:1px solid #e8e8f0;">
+    <h2 style="font-size:16px;font-weight:600;margin-bottom:12px;">⏱ Resumen rápido</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;">1.</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">Productos → Nuevo Producto</td></tr>
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;">2.</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">Completá nombre, marca, precio</td></tr>
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;">3.</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">Subí la imagen (botón "Subir")</td></tr>
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;">4.</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">Siguiente → agregá colores y stock</td></tr>
+      <tr><td style="padding:6px 8px;border-bottom:1px solid #eee;color:#666;">5.</td><td style="padding:6px 8px;border-bottom:1px solid #eee;">Siguiente → revisá el resumen</td></tr>
+      <tr><td style="padding:6px 8px;color:#666;">6.</td><td style="padding:6px 8px;">Crear Producto → ¡listo!</td></tr>
+    </table>
+  </div>
+
+  <div class="footer">
+    Tienda de Ropa · Instructivo de carga de productos · Mayo 2026
+  </div>
+
+</div>
+</body>
+</html>

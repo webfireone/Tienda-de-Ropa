@@ -224,7 +224,7 @@
   <div class="logo">✦</div>
   <h1>Tienda de Ropa</h1>
   <p class="subtitle">Manual de Usuario — Guía Funcional Completa</p>
-  <div class="badge">Versión 1.0 · Mayo 2026</div>
+  <div class="badge">Versión 1.1 · Mayo 2026</div>
 
   <div class="cred-box">
     <p><span class="label">Usuario administrador:</span> <span class="value">tiendaderopa@admin.com</span></p>
@@ -254,7 +254,7 @@
   <ul>
     <li><strong>Logo + "Tienda de Ropa"</strong> — Click para volver al inicio.</li>
     <li><strong>Navegación central</strong> — Enlaces a las secciones principales: Inicio, Catálogo, Outlet, Nueva Colección.</li>
-    <li><strong>Links de admin</strong> (solo visible para administradores) — Dashboard, Productos, Alertas, Import/Export, Config, Marketing.</li>
+    <li><strong>Links de admin</strong> (solo visible para administradores) — Dashboard, Productos, Pedidos, Alertas, Import/Export, Config, Marketing, Belleza, Música.</li>
   </ul>
 
   <h3>Sub-bar (inferior)</h3>
@@ -408,9 +408,9 @@
     <li>Click en "Editar" para modificar un producto existente.</li>
   </ul>
 
-  <h3>Formulario de producto (3 pasos)</h3>
+   <h3>Formulario de producto (3 pasos)</h3>
   <ul>
-    <li><strong>Paso 1 — Información básica:</strong> Nombre, marca, categoría, descripción, material, sección (General/Outlet/Nueva Colección), precio, costo, tags, imagen URL, estado.</li>
+    <li><strong>Paso 1 — Información básica:</strong> Nombre, marca, categoría, descripción, material, sección (General/Outlet/Nueva Colección), precio, costo, tags, estado. Incluye <strong>subida de imagen</strong>: seleccioná un archivo desde tu PC, el sistema lo redimensiona automáticamente a 600×600 px con compresión JPEG (60% calidad) y lo sube a Firebase Storage. También podés ingresar una URL externa.</li>
     <li><strong>Paso 2 — Inventario:</strong> Configurar colores y, para cada color, los talles disponibles con su stock (unidades por talle). Los colores se agregan dinámicamente.</li>
     <li><strong>Paso 3 — Resumen:</strong> Vista previa de todos los datos antes de guardar.</li>
   </ul>
@@ -513,6 +513,127 @@
   <p class="intro">(Integrado en la gestión de productos) Permite visualizar y editar el stock de cada producto directamente desde la tabla de productos. Al hacer click en un producto, se puede modificar el stock por color y talle.</p>
 </div>
 
+<!-- ==================== 15. PEDIDOS ==================== -->
+<div class="section">
+  <h2><span class="icon">📦</span> 15. Pedidos</h2>
+  <p class="intro">Panel para visualizar y buscar todos los pedidos recibidos en la tienda.</p>
+
+  <ul>
+    <li><strong>Lista de pedidos</strong> — Cada pedido muestra: ID, fecha, nombre del cliente, cantidad de ítems, método de entrega (retiro o envío), método de pago, total.</li>
+    <li><strong>Búsqueda</strong> — Campo de texto para filtrar por ID, nombre del cliente o teléfono.</li>
+    <li><strong>Detalle expandible</strong> — Al hacer click en un pedido se expande mostrando:
+      <ul>
+        <li>Datos del cliente (nombre, teléfono, email).</li>
+        <li>Dirección de entrega o indicación de retiro por local (Italia 1037, Luján).</li>
+        <li>Método de pago y recargo aplicado.</li>
+        <li>Lista de productos comprados con imagen, color, talle, cantidad y subtotal.</li>
+        <li>Desglose de subtotal, descuento, envío y total final.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Pedidos desde la barra de admin. Buscá un pedido por nombre de cliente y expandí su detalle para ver la información completa.
+  </div>
+</div>
+
+<!-- ==================== 16. BELLEZA ==================== -->
+<div class="section">
+  <h2><span class="icon">✦</span> 16. Belleza — Editor visual</h2>
+  <p class="intro">Panel de personalización visual completa de la tienda. Todos los cambios se ven en vivo y se guardan automáticamente en Firestore para todos los usuarios.</p>
+
+  <p>El editor tiene 4 pestañas principales:</p>
+
+  <h3>Paletas</h3>
+  <ul>
+    <li><strong>Categorías curadas</strong> — Agrupaciones temáticas (Minimalista, Oscuro, Pastel, etc.). Cada una contiene entre 6 y 8 looks prediseñados. Navegá con las flechas ◀ ▶ y aplicá al instante haciendo click.</li>
+    <li><strong>Paletas guardadas</strong> — Colección de paletas de colores prefijadas (12 combinaciones) con vista de preview de colores primario, secundario, acento, highlight, etc.</li>
+    <li><strong>Seguimiento de vistos</strong> — Cada look visitado queda marcado con un ícono de ojo. Cuando ves todos los de una categoría, aparece un mensaje de felicitaciones.</li>
+  </ul>
+
+  <h3>Fondos</h3>
+  <ul>
+    <li><strong>Oscuros</strong> — 15 fondos oscuros predefinidos con gradients y texturas.</li>
+    <li><strong>Claros</strong> — 8 fondos claros (snow, light, peach, lavender, cream, sky-light).</li>
+    <li><strong>Pastel</strong> — 12 fondos pastel (lavanda, durazno, menta, rosa, azul, amarillo, etc.).</li>
+    <li><strong>Gradients de color</strong> — 12 gradients bicolor (violeta, cielo, oro, rosa, verde, naranja, rojo, azul, celeste, magenta, etc.).</li>
+    <li><strong>Gradient personalizado</strong> — Selector de color con input type="color" y campo hex para crear tu propio gradient de dos colores.</li>
+  </ul>
+
+  <h3>Tipografía</h3>
+  <ul>
+    <li><strong>Fuente de títulos (Display)</strong> — 18 fuentes decorativas (Playfair Display, Cormorant Garamond, Dancing Script, Montserrat, Space Grotesk, Bebas Neue, etc.). Cada una muestra su estilo (Serif elegante, Script decorativo, Sans moderna, etc.).</li>
+    <li><strong>Fuente de cuerpo (Body)</strong> — 12 fuentes legibles (Inter, Poppins, Lato, Nunito, Outfit, etc.).</li>
+    <li><strong>Fuente de menú</strong> — 17 fuentes para navegación (Armata, Inter, Montserrat, Poppins, etc.).</li>
+    <li><strong>Peso del heading</strong> — 7 niveles (Fino 100 a Black 900).</li>
+    <li><strong>Sombra del texto</strong> — 6 opciones (Ninguna, Sutil, Media, Fuerte, Neón, Glow).</li>
+    <li>Preview en vivo de las tres fuentes combinadas con el peso y sombra seleccionados.</li>
+  </ul>
+
+  <h3>Looks guardados</h3>
+  <ul>
+    <li><strong>Guardar look actual</strong> — Ingresá un nombre y guardá la configuración completa (colores + fondo + tipografía).</li>
+    <li><strong>Cargar look</strong> — Aplicá cualquier look guardado anteriormente.</li>
+    <li><strong>Eliminar look</strong> — Borrá looks que ya no necesites.</li>
+    <li>Los looks se persisten en localStorage del navegador.</li>
+  </ul>
+
+  <h3>Preview lateral</h3>
+  <ul>
+    <li>Panel en vivo que muestra cómo se ve la página con la configuración actual: navbar, cards, botones, paleta de colores completa.</li>
+    <li>También muestra las fuentes activas (display, body, menú) y el fondo actual con su código CSS.</li>
+  </ul>
+
+  <h3>Persistencia</h3>
+  <ul>
+    <li><strong>Firestore</strong> — Cuando un admin guarda, la configuración se sincroniza al documento <code>siteConfig/theme</code> en Firestore. Todos los visitantes ven el tema activo.</li>
+    <li><strong>Aleatorio</strong> — Botón "Aleatorio" que genera una combinación aleatoria de colores, fondo y tipografía.</li>
+    <li><strong>Reset</strong> — Restaura la configuración por defecto.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Belleza desde la barra de admin. Navegá por las categorías de paletas, probá diferentes fondos y cambiá la tipografía. Guardá un look con tu nombre y después cargalo de nuevo.
+  </div>
+</div>
+
+<!-- ==================== 17. MÚSICA ==================== -->
+<div class="section">
+  <h2><span class="icon">♪</span> 17. Música ambiental</h2>
+  <p class="intro">La tienda reproduce música de fondo automáticamente. Existe un panel de administración para gestionar las canciones y un reproductor visible para el cliente.</p>
+
+  <h3>Reproductor (cliente)</h3>
+  <ul>
+    <li>Al entrar a la tienda, la música comienza a sonar automáticamente (volumen bajo).</li>
+    <li>Se muestra un reproductor flotante con: portada de la canción, título, artista, barra de progreso, controles de play/pause, siguiente, volumen.</li>
+    <li>La música cambia automáticamente cuando termina una canción, rotando por toda la playlist.</li>
+    <li>Las canciones se cargan desde archivos MP3 estáticos o desde la biblioteca local (IndexedDB).</li>
+  </ul>
+
+  <h3>Panel de administración de música <span class="badge-admin">Admin</span></h3>
+  <p>Accesible desde <code>/admin/music</code> o desde los links de admin en la barra de navegación.</p>
+
+  <ul>
+    <li><strong>Lista de canciones</strong> — Tabla con todas las canciones: título, artista, portada, fecha de subida, estado activo/inactivo. Botones para editar y eliminar.</li>
+    <li><strong>Agregar canción</strong> — Formulario con:
+      <ul>
+        <li>Título y artista (obligatorios).</li>
+        <li>Archivo MP3 (máximo 50 MB).</li>
+        <li>Imagen de portada (opcional, se puede subir desde el PC).</li>
+        <li>Si no se provee portada, se genera una automática con placehold.co usando el título.</li>
+        <li>La canción se guarda en IndexedDB y en Firestore.</li>
+      </ul>
+    </li>
+    <li><strong>Importación masiva</strong> — Botón "Importar carpeta" que permite seleccionar una carpeta completa del PC. El sistema detecta todos los archivos MP3, los lista con nombre y artista por defecto ("Glamour's"), permite deseleccionar algunos, y los importa en lote con barra de progreso.</li>
+    <li><strong>Eliminación múltiple</strong> — Seleccioná varias canciones con checkbox y eliminalas en lote.</li>
+    <li><strong>Reset ranking mensual</strong> — Botón para reiniciar los contadores de reproducciones y likes del mes.</li>
+    <li><strong>Editar</strong> — Modificá título, artista, portada y estado activo de una canción existente.</li>
+  </ul>
+
+  <div class="step">
+    <strong>Prueba:</strong> Andá a Música desde la barra de admin. Agregá una canción nueva con un MP3, después abrí la tienda en otra pestaña para escucharla. Probá la importación masiva con una carpeta que contenga varios MP3.
+  </div>
+</div>
+
 <!-- ==================== APÉNDICE ==================== -->
 <div class="section">
   <h2><span class="icon">?</span> Preguntas frecuentes</h2>
@@ -537,6 +658,24 @@
 
   <h3>¿El carrito guarda los productos si cierro el navegador?</h3>
   <p>Sí, el carrito se guarda automáticamente en el navegador (localStorage). Al volver a abrir la página, los productos siguen ahí.</p>
+
+  <h3>¿Dónde veo los pedidos recibidos?</h3>
+  <p>Andá a Pedidos desde la barra de admin. Ahí podés ver todos los pedidos, expandir cada uno para ver detalle, y buscar por cliente o ID.</p>
+
+  <h3>¿Cómo cambio el diseño visual de la tienda (colores, fondos, fuentes)?</h3>
+  <p>Andá a Belleza desde la barra de admin. Ahí podés elegir paletas de colores, fondos con gradient, tipografía para títulos/cuerpo/menú, y guardar looks personalizados. Los cambios se ven en vivo y se aplican automáticamente para todos los visitantes.</p>
+
+  <h3>¿Cómo agrego música a la tienda?</h3>
+  <p>Andá a Música desde la barra de admin. Hacé click en "Agregar canción", completá título y artista, seleccioná un archivo MP3 (máx. 50 MB) y guardá. También podés importar una carpeta entera con varios MP3 de una sola vez.</p>
+
+  <h3>¿Cómo subo una imagen para un producto?</h3>
+  <p>En el formulario de producto (Paso 1), hacé click en el botón de subir imagen y seleccioná un archivo desde tu PC. El sistema lo redimensiona automáticamente a 600×600 px con buena compresión y lo sube a Firebase Storage. También podés pegar una URL externa.</p>
+
+  <h3>¿Cómo desactivo una canción sin eliminarla?</h3>
+  <p>En la lista de Música, editá la canción y desactivá el toggle "Activo". La canción dejará de sonar en la tienda pero se conserva en la base de datos.</p>
+
+  <h3>¿Los cambios de Belleza se guardan para siempre?</h3>
+  <p>Sí, cuando un administrador aplica cambios en Belleza, estos se sincronizan a Firestore. Todos los usuarios que visiten la tienda verán el tema actualizado. También podés guardar looks localmente en tu navegador para alternar entre configuraciones.</p>
 </div>
 
 <div class="footer">
