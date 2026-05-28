@@ -1148,6 +1148,18 @@ Stock para una talla específica
   - Código fuente (`src/`) sin modificar — 0 cambios
   - `server.js` y `render.yaml` sin modificar — pendiente para 01/06/2026
   - Build 0 errores, tests pasan
+- **Post-deploy**: Vercel conectado exitosamente a GitHub con auto-deploy
+  - Env vars de Firebase configuradas en Vercel Dashboard
+  - Dominio `glamours-lujan.vercel.app` agregado a Authorized Domains en Firebase Auth
+  - Login con Google funcionando correctamente
+  - Vercel 100% operativo como plataforma backup
+
+### Fecha: 27/05/2026
+- **Fix**: Reproductor musical no reproducía temas en Vercel
+  - **Causa raíz**: `playNewSong()` en `musicStore.ts` solo buscaba el audio en IndexedDB (`loadAudioDataUrl`), ignorando `song.archivoUrl` que apunta a los archivos MP3 estáticos en `/music/*.mp3`
+  - En Render funcionaba porque IndexedDB ya tenía datos cargados; en Vercel (dominio nuevo) IndexedDB estaba vacío
+  - **Fix**: Agregado fallback a `song.archivoUrl` cuando IndexedDB no tiene el audio, tanto en el flujo normal como en el catch de errores
+  - Build 0 errores, tests pasan
 
 ---
 
