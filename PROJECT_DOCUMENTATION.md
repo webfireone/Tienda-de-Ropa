@@ -1158,11 +1158,13 @@ Stock para una talla específica
 - **Fix**: Reproductor musical no reproducía temas en Vercel (segundo intento)
   - **Causa raíz 1**: `playNewSong()` solo buscaba el audio en IndexedDB (`loadAudioDataUrl`), ignorando `song.archivoUrl`
   - **Causa raíz 2**: Las canciones subidas por AdminMusicPanel.tsx guardan `archivoUrl: ""` (líneas 99, 176), porque el admin no puede proporcionar una URL estática — el audio se almacena en IndexedDB local
+  - **Causa raíz 3**: Chrome devuelve `net::ERR_CACHE_OPERATION_NOT_SUPPORTED` al cargar MP3 desde Vercel porque Vercel sirve `Cache-Control: max-age=0, must-revalidate` y el disco cache del browser falla al revalidar
   - En Render funcionaba porque IndexedDB tenía datos cargados; en Vercel (dominio nuevo) IndexedDB está vacío
-  - **Fix**: Doble capa de fallback:
+  - **Fix**: Triple capa:
     1. `useCanciones()` en `useMusic.ts` backfillea `archivoUrl` desde `MOCK_SONGS` cuando está vacío (búsqueda por id)
-    2. `playNewSong()` en `musicStore.ts` hace lo mismo como safety net
-  - Así las canciones seed (que tienen `archivoUrl` en `/music/*.mp3`) siempre se pueden reproducir desde los archivos estáticos servidos por Vercel, incluso si el admin las editó y borró el archivoUrl
+    2. `playNewSong()` en `musicStore.ts` precarga el MP3 con fetch (`cache: "no-store"`) y crea un blob URL, evitando el disk cache de Chrome
+    3. `vercel.json` agrega `Cache-Control: public, max-age=31536000, immutable` para `/music/*` y `/bg-music*`
+  - Así las canciones seed (que tienen `archivoUrl` en `/music/*.mp3`) se reproducen desde blob URLs en memoria, evitando el error de cache
   - Build 0 errores, tests pasan
 
 ---

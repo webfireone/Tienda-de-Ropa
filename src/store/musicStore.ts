@@ -141,6 +141,20 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
     }
   }
 
+  // For static file URLs, preload via fetch with cache bypass
+  // to avoid ERR_CACHE_OPERATION_NOT_SUPPORTED from disk cache
+  if (url && !url.startsWith("data:") && !url.startsWith("blob:") && !url.startsWith("http")) {
+    try {
+      const res = await fetch(url, { cache: "no-store" })
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      audioCache.set(song.id, blobUrl)
+      url = blobUrl
+    } catch {
+      // fall through to direct src if fetch fails
+    }
+  }
+
   const el = createNewAudio(storeCallbacks)
   el.dataset.songId = song.id
   el.volume = get().volume
