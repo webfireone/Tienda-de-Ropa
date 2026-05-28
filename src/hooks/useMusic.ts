@@ -179,6 +179,13 @@ export function useCanciones() {
         if (song.archivoUrl?.startsWith("blob:")) {
           song.archivoUrl = ""
         }
+        // backfill archivoUrl from MOCK_SONGS when empty (e.g. admin-uploaded songs)
+        if (!song.archivoUrl) {
+          const mock = MOCK_SONGS.find(m => m.id === song.id)
+          if (mock?.archivoUrl) {
+            song.archivoUrl = mock.archivoUrl
+          }
+        }
       }
       return songs
     },

@@ -75,12 +75,12 @@ vercel.json:
   - Rewrite: /(.*) → /index.html (excluye /api/*)
   - Headers: Content-Security-Policy para Firebase
 
-PENDIENTE (Fase 3):
-  - Conectar Vercel al repositorio GitHub
-  - Configurar env vars en Vercel Dashboard (mismas que Render)
-  - Elegir Framework Preset: Vite
-  - Build: npm run build
-  - Output: dist
+REALIZADO:
+  ✅ Vercel conectado a GitHub con auto-deploy desde main
+  ✅ Env vars de Firebase configuradas en Vercel Dashboard
+  ✅ Dominio glamours-lujan.vercel.app autorizado en Firebase Auth
+  ✅ Login con Google funcionando en Vercel
+  ✅ Sitio principal y APIs funcionando correctamente
 
 PENDIENTE (Fase 4):
   - DNS / Contingencia
@@ -119,7 +119,7 @@ Build                 npm run build             npm run build
 Mercado Pago          server.js (Express)       api/*.js (Serverless)
 Costo                 Gratuito                  Gratuito
 Uso                   Principal (APIs)          Backup (rápido)
-Estado                SUSPENDIDO hasta 01/06    PENDIENTE de conexión
+Estado                SUSPENDIDO hasta 01/06    ✅ Activo y funcionando
 
 =========================================================
   AGENDA / RECORDATORIOS

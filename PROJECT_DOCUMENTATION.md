@@ -1155,10 +1155,14 @@ Stock para una talla específica
   - Vercel 100% operativo como plataforma backup
 
 ### Fecha: 27/05/2026
-- **Fix**: Reproductor musical no reproducía temas en Vercel
-  - **Causa raíz**: `playNewSong()` en `musicStore.ts` solo buscaba el audio en IndexedDB (`loadAudioDataUrl`), ignorando `song.archivoUrl` que apunta a los archivos MP3 estáticos en `/music/*.mp3`
-  - En Render funcionaba porque IndexedDB ya tenía datos cargados; en Vercel (dominio nuevo) IndexedDB estaba vacío
-  - **Fix**: Agregado fallback a `song.archivoUrl` cuando IndexedDB no tiene el audio, tanto en el flujo normal como en el catch de errores
+- **Fix**: Reproductor musical no reproducía temas en Vercel (segundo intento)
+  - **Causa raíz 1**: `playNewSong()` solo buscaba el audio en IndexedDB (`loadAudioDataUrl`), ignorando `song.archivoUrl`
+  - **Causa raíz 2**: Las canciones subidas por AdminMusicPanel.tsx guardan `archivoUrl: ""` (líneas 99, 176), porque el admin no puede proporcionar una URL estática — el audio se almacena en IndexedDB local
+  - En Render funcionaba porque IndexedDB tenía datos cargados; en Vercel (dominio nuevo) IndexedDB está vacío
+  - **Fix**: Doble capa de fallback:
+    1. `useCanciones()` en `useMusic.ts` backfillea `archivoUrl` desde `MOCK_SONGS` cuando está vacío (búsqueda por id)
+    2. `playNewSong()` en `musicStore.ts` hace lo mismo como safety net
+  - Así las canciones seed (que tienen `archivoUrl` en `/music/*.mp3`) siempre se pueden reproducir desde los archivos estáticos servidos por Vercel, incluso si el admin las editó y borró el archivoUrl
   - Build 0 errores, tests pasan
 
 ---

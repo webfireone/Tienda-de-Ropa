@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import type { Cancion } from "@/types/music"
+import { MOCK_SONGS } from "@/types/music"
 import { loadAudioDataUrl } from "@/lib/mockStorage"
 
 let audioEl: HTMLAudioElement | null = null
@@ -116,15 +117,26 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        set({ isPlaying: false, audioError: "Audio no disponible offline" })
-        return
+        // fallback: lookup archivoUrl from MOCK_SONGS by id
+        const mock = MOCK_SONGS.find(m => m.id === song.id)
+        if (mock?.archivoUrl) {
+          url = mock.archivoUrl
+        } else {
+          set({ isPlaying: false, audioError: "Audio no disponible offline" })
+          return
+        }
       }
     } catch {
       if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        set({ isPlaying: false, audioError: "Error al cargar el audio" })
-        return
+        const mock = MOCK_SONGS.find(m => m.id === song.id)
+        if (mock?.archivoUrl) {
+          url = mock.archivoUrl
+        } else {
+          set({ isPlaying: false, audioError: "Error al cargar el audio" })
+          return
+        }
       }
     }
   }
