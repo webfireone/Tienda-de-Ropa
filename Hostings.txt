@@ -1,0 +1,122 @@
+=========================================================
+  HOSTINGS - GLAMOURS Tienda de Ropa
+  Configuración de despliegue
+=========================================================
+
+Fecha: 27/05/2026
+Repositorio: https://github.com/webfireone/Tienda-de-Ropa
+
+=========================================================
+  RENDER (Activo - Principal - SUSPENDIDO)
+=========================================================
+
+URL:          https://glamours-lujan.onrender.com
+Alias:        https://tienda-de-ropa.onrender.com
+Tipo:         Web Service (Express Node)
+Plan:         Gratuito
+Estado:       WORKSPACE SUSPENDIDO (cuota mensual agotada)
+Reactivación: 01/06/2026
+
+Archivo de configuración: render.yaml
+
+Build Command:  npm run build
+Start Command:  node server.js
+Health Check:  /api/pago-exitoso
+Auto Deploy:   SÍ (push a main)
+
+Server (server.js):
+  - Puerto: 3000 (process.env.PORT)
+  - Express con:
+    * POST /api/create-preference    → Mercado Pago
+    * POST /api/mercadopago-webhook  → Webhook MP
+    * GET  /api/pago-exitoso         → Página de éxito
+    * GET  /api/pago-fallido         → Página de fallo
+    * GET  /api/pago-pendiente       → Página de pendiente
+    * GET  /*                         → SPA (dist/index.html)
+
+ENV Variables requeridas en Render Dashboard:
+  NODE_VERSION               20
+  SITE_URL                   https://tienda-de-ropa.onrender.com
+  MP_ACCESS_TOKEN            [PENDIENTE - configurar manualmente]
+  VITE_FIREBASE_API_KEY      AIzaSyDpaNWYpfAI45bMQKoOHzIGKWvESKVIx50
+  VITE_FIREBASE_AUTH_DOMAIN  tienda-de-ropa-35bea.firebaseapp.com
+  VITE_FIREBASE_PROJECT_ID   tienda-de-ropa-35bea
+  VITE_FIREBASE_STORAGE_BUCKET tienda-de-ropa-35bea.firebasestorage.app
+  VITE_FIREBASE_SENDER_ID    961273079910
+  VITE_FIREBASE_APP_ID       1:961273079910:web:0c82c93ab5895b8ad725a7
+  VITE_FIREBASE_MEASUREMENT_ID G-7KMX0D6WVW
+
+NOTA: Todos los cambios en Render deben hacerse a partir del 01/06/2026
+      cuando se reactive el workspace.
+
+=========================================================
+  VERCEL (A implementar - Backup)
+=========================================================
+
+URL:          https://glamours-lujan.vercel.app
+Tipo:         SPA + Serverless Functions
+Plan:         Gratuito (siempre activo, no se duerme)
+
+Archivo de configuración: vercel.json
+
+Framework preset: Vite
+Build Command:   npm run build
+Output Directory: dist
+Auto Deploy:     SÍ (push a main)
+
+Serverless Functions (api/):
+  api/create-preference.js   → POST /api/create-preference
+  api/mercadopago-webhook.js → POST /api/mercadopago-webhook
+  api/pago-exitoso.js        → GET  /api/pago-exitoso
+  api/pago-fallido.js        → GET  /api/pago-fallido
+  api/pago-pendiente.js      → GET  /api/pago-pendiente
+
+vercel.json:
+  - Rewrite: /(.*) → /index.html (excluye /api/*)
+  - Headers: Content-Security-Policy para Firebase
+
+PENDIENTE (Fase 3):
+  - Conectar Vercel al repositorio GitHub
+  - Configurar env vars en Vercel Dashboard (mismas que Render)
+  - Elegir Framework Preset: Vite
+  - Build: npm run build
+  - Output: dist
+
+PENDIENTE (Fase 4):
+  - DNS / Contingencia
+  - Definir dominio principal y estrategia de failover
+
+=========================================================
+  ENV VARIABLES COMUNES (ambas plataformas)
+=========================================================
+
+Variable                    Valor
+────────────────────────────────────────────────────────────
+MP_ACCESS_TOKEN             [PENDIENTE - obtener de MP]
+VITE_FIREBASE_API_KEY       AIzaSyDpaNWYpfAI45bMQKoOHzIGKWvESKVIx50
+VITE_FIREBASE_AUTH_DOMAIN   tienda-de-ropa-35bea.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID    tienda-de-ropa-35bea
+VITE_FIREBASE_STORAGE_BUCKET tienda-de-ropa-35bea.firebasestorage.app
+VITE_FIREBASE_SENDER_ID     961273079910
+VITE_FIREBASE_APP_ID        1:961273079910:web:0c82c93ab5895b8ad725a7
+VITE_FIREBASE_MEASUREMENT_ID G-7KMX0D6WVW
+
+Difieren por plataforma:
+  Render: SITE_URL = https://tienda-de-ropa.onrender.com
+  Vercel: SITE_URL = https://glamours-lujan.vercel.app
+
+=========================================================
+  COMPARATIVA RENDER vs VERCEL
+=========================================================
+
+Concepto              Render                     Vercel
+────────────────────────────────────────────────────────────
+Plan gratis           Sí (se duerme 15 min)     Sí (siempre activo)
+Backend Express       Sí (nativo - server.js)   No (Serverless Functions)
+CDN                   No                         Sí (global)
+Auto-deploy           Sí (push a main)          Sí (push a main)
+Build                 npm run build             npm run build
+Mercado Pago          server.js (Express)       api/*.js (Serverless)
+Costo                 Gratuito                  Gratuito
+Uso                   Principal (APIs)          Backup (rápido)
+Estado                SUSPENDIDO hasta 01/06    PENDIENTE de conexión

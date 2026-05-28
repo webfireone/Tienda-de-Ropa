@@ -441,10 +441,19 @@ Tienda de Ropa/
 │   └── logos/
 ├── firestore.rules                # Reglas de seguridad Firestore
 ├── dist/                         # Build output
+├── api/                          # Vercel Serverless Functions
+│   ├── create-preference.js      # POST /api/create-preference (Mercado Pago)
+│   ├── mercadopago-webhook.js    # POST /api/mercadopago-webhook
+│   ├── pago-exitoso.js           # GET /api/pago-exitoso
+│   ├── pago-fallido.js           # GET /api/pago-fallido
+│   └── pago-pendiente.js         # GET /api/pago-pendiente
 ├── index.html
 ├── package.json
 ├── vite.config.ts
 ├── tsconfig.json
+├── vercel.json                   # Config Vercel (SPA rewrites + CSP)
+├── render.yaml                   # Config Render (Express + MP)
+├── server.js                     # Express server (Render)
 ├── .env
 └── README.md
 ```
@@ -851,13 +860,50 @@ npm run preview
 # Servir dist/ en localhost
 ```
 
-### Render (Deployment recomendado)
+### Plataformas de Deploy
+
+El proyecto está configurado para desplegarse en dos plataformas simultáneamente:
+
+| Plataforma | URL | Estado | Propósito |
+|------------|-----|--------|-----------|
+| Render | https://glamours-lujan.onrender.com | Principal (suspendido hasta 01/06) | Express + APIs MP |
+| Vercel | https://glamours-lujan.vercel.app | Backup (pendiente conectar) | SPA + Serverless Functions |
+
+### Render
 1. Crear cuenta en render.com
 2. Conectar repositorio Git
-3. Configurar:
+3. Configurar (ver render.yaml):
    - Build Command: `npm run build`
+   - Start Command: `node server.js`
    - Publish Directory: `dist`
    - Node Version: 20.x
+   - Health Check Path: `/api/pago-exitoso`
+   - Auto Deploy: true
+
+**Server**: Express (server.js) que sirve dist/ + endpoints de Mercado Pago.
+**Estado actual**: Workspace suspendido por cuota mensual. Reactivación automática el 01/06/2026.
+
+### Vercel
+1. Crear cuenta en vercel.com
+2. Importar repositorio GitHub `webfireone/Tienda-de-Ropa`
+3. Configurar:
+   - Framework Preset: **Vite**
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Auto Deploy: true
+4. Agregar mismas env vars que en Render (Firebase + MP_ACCESS_TOKEN)
+5. Verificar que las Serverless Functions en `api/` se desplieguen correctamente
+
+**Serverless Functions** (reemplazan a server.js en Vercel):
+| Archivo | Ruta | Método |
+|---------|------|--------|
+| `api/create-preference.js` | `/api/create-preference` | POST |
+| `api/mercadopago-webhook.js` | `/api/mercadopago-webhook` | POST |
+| `api/pago-exitoso.js` | `/api/pago-exitoso` | GET |
+| `api/pago-fallido.js` | `/api/pago-fallido` | GET |
+| `api/pago-pendiente.js` | `/api/pago-pendiente` | GET |
+
+**Nota**: Las rutas `/api/*` están excluidas del rewrite SPA en vercel.json para que las funciones serverless funcionen correctamente.
 
 ---
 
@@ -1086,6 +1132,22 @@ Stock para una talla específica
   - Build 0 errores, tests 28 pass
 
 ---
+
+### Fecha: 27/05/2026
+- **Cambio**: Preparación de Vercel como plataforma de backup para Render
+  - Render suspendido por cuota mensual (se reactiva 01/06/2026)
+  - Creados 5 archivos Serverless Functions en `api/` para Vercel:
+    - `api/create-preference.js` — POST /api/create-preference (Mercado Pago)
+    - `api/mercadopago-webhook.js` — POST /api/mercadopago-webhook
+    - `api/pago-exitoso.js` — GET /api/pago-exitoso (HTML éxito)
+    - `api/pago-fallido.js` — GET /api/pago-fallido (HTML fallo)
+    - `api/pago-pendiente.js` — GET /api/pago-pendiente (HTML pendiente)
+  - `vercel.json` actualizado: rewrite excluye `/api/*` para que las Serverless Functions funcionen
+  - Creado `Hostings.txt` con info de configuración de ambas plataformas
+  - `PROJECT_DOCUMENTATION.md` actualizado (esta entrada + sección 14 Deployment)
+  - Código fuente (`src/`) sin modificar — 0 cambios
+  - `server.js` y `render.yaml` sin modificar — pendiente para 01/06/2026
+  - Build 0 errores, tests pasan
 
 ### Fecha: 22/05/2026
 - **Fix**: Error "imageUrl longer than 1048487 bytes" al importar productos con imágenes
