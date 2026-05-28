@@ -3,6 +3,10 @@ import type { Cancion } from "@/types/music"
 import { MOCK_SONGS } from "@/types/music"
 import { loadAudioDataUrl } from "@/lib/mockStorage"
 
+function normalize(s: string) {
+  return s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
 let audioEl: HTMLAudioElement | null = null
 
 let _playThresholdCb: ((songId: string) => void) | null = null
@@ -117,7 +121,7 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
+        const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
         if (mock?.archivoUrl) {
           url = mock.archivoUrl
         } else {
@@ -129,7 +133,7 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
       if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
         url = song.archivoUrl
       } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
+        const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
         if (mock?.archivoUrl) {
           url = mock.archivoUrl
         } else {

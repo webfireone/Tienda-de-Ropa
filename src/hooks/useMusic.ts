@@ -9,6 +9,10 @@ import { deleteAudio } from "@/lib/audioStorage"
 
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
+function normalize(s: string) {
+  return s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -181,7 +185,7 @@ export function useCanciones() {
         }
         // backfill archivoUrl from MOCK_SONGS when empty (e.g. admin-uploaded songs)
         if (!song.archivoUrl) {
-          const mock = MOCK_SONGS.find(m => m.id === song.id || m.titulo.toLowerCase().trim() === song.titulo.toLowerCase().trim())
+          const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
           if (mock?.archivoUrl) {
             song.archivoUrl = mock.archivoUrl
           }
