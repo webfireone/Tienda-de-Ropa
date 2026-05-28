@@ -4,7 +4,11 @@ import { MOCK_SONGS } from "@/types/music"
 import { loadAudioDataUrl } from "@/lib/mockStorage"
 
 function normalize(s: string) {
-  return s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  return s.toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[-_()]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 let audioEl: HTMLAudioElement | null = null
@@ -110,54 +114,6 @@ function resetAudio() {
 async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: () => MusicStore, set: (s: Partial<MusicStore>) => void) {
   _lastRegisteredSong = ""
 
-  const cached = audioCache.get(song.id)
-  let url: string | null = cached || null
-
-  if (!url || url.startsWith("blob:")) {
-    try {
-      url = await loadAudioDataUrl(song.id)
-      if (url) {
-        audioCache.set(song.id, url)
-      } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
-        url = song.archivoUrl
-      } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
-        if (mock?.archivoUrl) {
-          url = mock.archivoUrl
-        } else {
-          set({ isPlaying: false, audioError: "Audio no disponible offline" })
-          return
-        }
-      }
-    } catch {
-      if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
-        url = song.archivoUrl
-      } else {
-        const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
-        if (mock?.archivoUrl) {
-          url = mock.archivoUrl
-        } else {
-          set({ isPlaying: false, audioError: "Error al cargar el audio" })
-          return
-        }
-      }
-    }
-  }
-
-  // For static file URLs, preload via fetch with cache bypass
-  // to avoid ERR_CACHE_OPERATION_NOT_SUPPORTED from disk cache
-  if (url && !url.startsWith("data:") && !url.startsWith("blob:") && !url.startsWith("http")) {
-    try {
-      const res = await fetch(url, { cache: "no-store" })
-      const blob = await res.blob()
-      const blobUrl = URL.createObjectURL(blob)
-      audioCache.set(song.id, blobUrl)
-      url = blobUrl
-    } catch {
-      // fall through to direct src if fetch fails
-    }
-  }
-
   // Reuse existing audioEl (created synchronously in playSong for iOS Safari compat)
   resetAudio()
   if (!audioEl) {
@@ -167,7 +123,23 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
   const el = audioEl
   el.dataset.songId = song.id
   el.volume = get().volume
-  el.src = url
+
+  // Determine URL synchronously first (no awaits → keeps iOS gesture chain intact)
+  const cached = audioCache.get(song.id)
+  let url: string | null = cached || null
+
+  if (url && !url.startsWith("blob:")) {
+    // cache hit, use directly
+  } else if (song.archivoUrl && !song.archivoUrl.startsWith("blob:")) {
+    url = song.archivoUrl
+  } else {
+    const mock = MOCK_SONGS.find(m => m.id === song.id || normalize(m.titulo) === normalize(song.titulo))
+    if (mock?.archivoUrl) {
+      url = mock.archivoUrl
+    }
+  }
+
+  // Set state and play immediately (still in gesture chain)
   set({
     currentSong: song,
     isPlaying: true,
@@ -178,9 +150,53 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
     hasJustChanged: true,
     playRegistered: false,
   })
-  el.play().catch(() => {
-    set({ isPlaying: false, audioError: "Error al reproducir" })
-  })
+
+  // Helper: try fetch + blob fallback (for ERR_CACHE_OPERATION_NOT_SUPPORTED on desktop)
+  const tryBlobFallback = () => {
+    if (!url || url.startsWith("data:") || url.startsWith("blob:")) return false
+    fetch(url, { cache: "no-store" })
+      .then(r => r.blob())
+      .then(blob => {
+        if (el.dataset.songId !== song.id) return
+        const blobUrl = URL.createObjectURL(blob)
+        audioCache.set(song.id, blobUrl)
+        el.src = blobUrl
+        el.play().catch(() => set({ isPlaying: false, audioError: "Error al reproducir" }))
+      })
+      .catch(() => set({ isPlaying: false, audioError: "Error al reproducir" }))
+    return true
+  }
+
+  if (url) {
+    el.src = url
+    let blobTried = false
+    el.play().catch(() => {
+      if (!blobTried) {
+        blobTried = true
+        tryBlobFallback()
+      } else {
+        set({ isPlaying: false, audioError: "Error al reproducir" })
+      }
+    })
+  } else {
+    set({ isPlaying: false, audioError: "Audio no disponible offline" })
+    return
+  }
+
+  // Async background: try loadAudioDataUrl and upgrade src if a better URL becomes available
+  if (!cached) {
+    loadAudioDataUrl(song.id).then(dataUrl => {
+      if (dataUrl && dataUrl !== el.src) {
+        audioCache.set(song.id, dataUrl)
+        // Only upgrade if still playing the same song
+        if (el.dataset.songId === song.id) {
+          el.src = dataUrl
+        }
+      }
+    }).catch(() => {
+      // IndexedDB load failed, that's ok — we already set el.src from static
+    })
+  }
 }
 
 interface MusicStore {

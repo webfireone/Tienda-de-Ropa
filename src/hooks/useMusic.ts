@@ -10,7 +10,11 @@ import { deleteAudio } from "@/lib/audioStorage"
 const USE_MOCK = !import.meta.env.VITE_FIREBASE_API_KEY || import.meta.env.VITE_FIREBASE_API_KEY === "demo-api-key"
 
 function normalize(s: string) {
-  return s.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  return s.toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[-_()]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {
