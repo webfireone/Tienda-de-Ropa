@@ -1149,6 +1149,16 @@ Stock para una talla específica
   - `server.js` y `render.yaml` sin modificar — pendiente para 01/06/2026
   - Build 0 errores, tests pasan
 
+---
+
+**AGENDA — Pendiente para 01/06/2026**:
+- Render se reactiva automáticamente (nuevo mes, cuota renovada)
+- Verificar que Render haga auto-deploy del último commit en `main`
+- Si no hace auto-deploy: Manual Deploy → Deploy Latest Commit en dashboard.render.com
+- Confirmar sitio funcionando en https://glamours-lujan.onrender.com
+- Verificar endpoints API (/api/pago-exitoso, etc.)
+- Confirmar env vars de Firebase en Render Dashboard
+
 ### Fecha: 22/05/2026
 - **Fix**: Error "imageUrl longer than 1048487 bytes" al importar productos con imágenes
   - **Causa raíz**: El XLSX contenía imágenes como data URLs base64 en la columna "Imagen URL", superando el límite de 1MB de Firestore por documento
