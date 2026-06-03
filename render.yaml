@@ -4,7 +4,7 @@ services:
     env: node
     buildCommand: npm run build
     startCommand: node server.js
-    healthCheckPath: /api/pago-exitoso
+    healthCheckPath: /healthz
     autoDeploy: true
     envVars:
       - key: NODE_VERSION

@@ -17,7 +17,9 @@ mercadopago.configure({ access_token: ACCESS_TOKEN })
 
 const app = express()
 app.use(cors())
-app.use(express.json())
+app.use(express.json());
+// Health check endpoint for Render
+app.get("/healthz", (_, res) => res.sendStatus(200));
 
 app.post("/api/create-preference", async (req, res) => {
   try {
