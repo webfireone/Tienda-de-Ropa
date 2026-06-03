@@ -27,8 +27,6 @@ if (!ACCESS_TOKEN) {
   console.warn("⚠️  MP_ACCESS_TOKEN no configurado. El checkout con Mercado Pago no funcionará.")
 }
 
-mercadopago.configure({ access_token: ACCESS_TOKEN })
-
 const app = express()
 app.use(cors())
 app.use(express.json());
