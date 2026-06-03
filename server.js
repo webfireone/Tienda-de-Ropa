@@ -2,20 +2,15 @@ import express from "express"
 import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
+import mercadopago from "mercadopago"
 
-let mercadopago = null
 try {
-  const mp = await import("mercadopago")
-  mercadopago = mp.default || mp
   if (typeof mercadopago?.configure === "function") {
     mercadopago.configure({ access_token: process.env.MP_ACCESS_TOKEN || "" })
-  } else if (mercadopago?.MercadoPagoConfig) {
-    const { MercadoPagoConfig } = mercadopago
-    new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || "" })
-    console.log("✅ Mercado Pago SDK v3 configurado")
+    console.log("✅ Mercado Pago SDK v2 configurado")
   }
 } catch (e) {
-  console.warn("⚠️  Mercado Pago SDK no disponible:", e.message)
+  console.warn("⚠️  Mercado Pago no disponible:", e.message)
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
