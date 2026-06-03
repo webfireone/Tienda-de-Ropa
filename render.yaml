@@ -1,12 +1,12 @@
 services:
-  - type: web
+  - type: static
     name: tienda-de-ropa
-    env: node
     buildCommand: npm run build
-    startCommand: node server.js
-    healthCheckPath: /healthz
+    publishPath: client
     autoDeploy: true
     envVars:
+      - key: VITE_API_BASE_URL
+        value: https://glamours-lujan.vercel.app
       - key: NODE_VERSION
         value: 20
       - key: SITE_URL

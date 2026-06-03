@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { apiUrl } from "@/lib/api"
 import { useAuth } from "@/context/AuthContext"
 import { Navigate } from "react-router-dom"
 import { Server, GitBranch, Triangle, Cloud, BarChart3, ExternalLink, RefreshCw, CheckCircle, XCircle, HelpCircle, Database, Activity, HardDrive, Zap, Globe, Clock } from "lucide-react"
@@ -174,7 +175,7 @@ export function StatusServiciosPage() {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch("/api/status-servicios")
+      const res = await fetch(apiUrl("/api/status-servicios"))
       if (!res.ok) throw new Error(`Error ${res.status}`)
       const json = await res.json()
       setData(json)

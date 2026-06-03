@@ -4,6 +4,7 @@ import { useCartStore } from "@/store/cartStore"
 import { useCreateOrder } from "@/hooks/useFirestore"
 import { useAuth } from "@/context/AuthContext"
 import { addOrderAlert } from "@/lib/orderAlerts"
+import { apiUrl } from "@/lib/api"
 import { PROVINCES } from "@/lib/argentina-data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -162,7 +163,7 @@ export function CheckoutModal({ open, onClose }: CheckoutModalProps) {
 
       if (isMp) {
         setProcessingMp(true)
-        const res = await fetch("/api/create-preference", {
+        const res = await fetch(apiUrl("/api/create-preference"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
