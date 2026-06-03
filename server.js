@@ -3,7 +3,6 @@ import mercadopago from "mercadopago"
 import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
-import statusHandler from "./api/status-servicios.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = process.env.PORT || 3000
@@ -21,8 +20,71 @@ app.use(cors())
 app.use(express.json());
 // Health check endpoint for Render
 app.get("/healthz", (_, res) => res.sendStatus(200));
-// Service status endpoint (same as Vercel serverless)
-app.get("/api/status-servicios", (req, res) => statusHandler(req, res));
+
+// Service status endpoint
+async function fetchStatusData() {
+  const results = { github: {}, vercel: {}, render: {}, firebase: {} }
+
+  // GitHub
+  const ghToken = process.env.GH_TOKEN
+  if (!ghToken) {
+    results.github = { configured: false, error: "Token no configurado (GH_TOKEN)" }
+  } else {
+    try {
+      const user = await (await fetch("https://api.github.com/user", { headers: { Authorization: `Bearer ${ghToken}` } })).json()
+      results.github = { configured: true, username: user.login, actions: null, storage: null }
+      try {
+        const a = await (await fetch(`https://api.github.com/users/${user.login}/settings/billing/actions`, { headers: { Authorization: `Bearer ${ghToken}` } })).json()
+        results.github.actions = { includedMinutes: a.included_minutes, usedMinutes: a.total_minutes_used }
+      } catch {}
+    } catch (e) {
+      results.github = { configured: true, error: e.message }
+    }
+  }
+
+  // Vercel
+  const vToken = process.env.VERCEL_API_TOKEN
+  if (!vToken) {
+    results.vercel = { configured: false, error: "Token no configurado (VERCEL_API_TOKEN)" }
+  } else {
+    results.vercel = { configured: true, username: null, bandwidth: null, invocations: null }
+  }
+
+  // Render
+  const rToken = process.env.RENDER_API_KEY
+  if (!rToken) {
+    results.render = { configured: false, error: "Token no configurado (RENDER_API_KEY)" }
+  } else {
+    try {
+      const services = await (await fetch("https://api.render.com/v1/services", { headers: { Authorization: `Bearer ${rToken}` } })).json()
+      results.render = {
+        configured: true,
+        total: services.length,
+        webServices: services.filter(s => s.service?.type === "web_service").length,
+        staticSites: services.filter(s => s.service?.type === "static_site").length,
+        activeWeb: services.filter(s => !s.service?.suspended).length,
+        suspended: services.filter(s => s.service?.suspended).length,
+      }
+    } catch (e) {
+      results.render = { configured: true, error: e.message }
+    }
+  }
+
+  // Firebase
+  const projectId = process.env.VITE_FIREBASE_PROJECT_ID
+  results.firebase = { configured: true, projectId, reads: { spark: true } }
+
+  return { ...results, timestamp: new Date().toISOString() }
+}
+
+app.get("/api/status-servicios", async (req, res) => {
+  try {
+    const data = await fetchStatusData()
+    res.json(data)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+});
 
 app.post("/api/create-preference", async (req, res) => {
   try {
