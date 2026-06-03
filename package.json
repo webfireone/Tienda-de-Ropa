@@ -3,8 +3,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "postinstall": "npm rebuild",
     "dev": "vite",
     "dev:server": "node server.js",
     "build": "tsc -b && vite build",
