@@ -3,6 +3,7 @@ import mercadopago from "mercadopago"
 import cors from "cors"
 import path from "path"
 import { fileURLToPath } from "url"
+import statusHandler from "./api/status-servicios.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PORT = process.env.PORT || 3000
@@ -20,6 +21,8 @@ app.use(cors())
 app.use(express.json());
 // Health check endpoint for Render
 app.get("/healthz", (_, res) => res.sendStatus(200));
+// Service status endpoint (same as Vercel serverless)
+app.get("/api/status-servicios", (req, res) => statusHandler(req, res));
 
 app.post("/api/create-preference", async (req, res) => {
   try {
