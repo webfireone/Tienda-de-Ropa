@@ -1,2 +1,4 @@
-const BASE = import.meta.env.VITE_API_BASE_URL || ""
+const BASE = location.hostname.endsWith("onrender.com")
+  ? "https://glamours-lujan.vercel.app"
+  : ""
 export const apiUrl = (path: string) => `${BASE}${path}`
