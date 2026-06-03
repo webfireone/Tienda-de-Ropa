@@ -27,6 +27,7 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: "client",
     chunkSizeWarningLimit: 300,
     rolldownOptions: {
       output: {

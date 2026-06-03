@@ -16,10 +16,10 @@ app.get("/api/status-servicios", (req, res) => {
   })
 })
 
-app.use(express.static("dist"))
+app.use(express.static("client"))
 
 app.get("*", (req, res) => {
-  res.sendFile("dist/index.html", { root: "." })
+  res.sendFile("client/index.html", { root: "." })
 })
 
 app.listen(PORT, () => {

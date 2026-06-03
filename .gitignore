@@ -11,6 +11,7 @@ vite.err
 
 node_modules
 dist
+client
 dist-ssr
 *.local
 .env
