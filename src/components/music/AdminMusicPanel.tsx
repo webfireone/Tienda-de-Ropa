@@ -253,16 +253,15 @@ export function AdminMusicPanel() {
   const CDN_BASE = "https://cdn.jsdelivr.net/gh/webfireone/Tienda-de-Ropa/public/music"
 
   const handleMigrateAudio = async () => {
-    const pending = canciones.filter(c => !c.archivoUrl)
+    const pending = canciones.filter(c => !c.archivoUrl || c.archivoUrl.startsWith("/music/"))
     if (pending.length === 0) {
       setMigrateResult("No hay canciones pendientes de migrar.")
       return
     }
     if (!window.confirm(
-      `Migrar ${pending.length} canción(es)?\n\n` +
-      `1. Descarga desde IndexedDB (si existe el audio local)\n` +
-      `2. Si no está en IndexedDB, usa CDN (jsDelivr desde GitHub)\n` +
-      `3. Actualiza archivoUrl en Firestore`
+      `Migrar ${pending.length} canción(es) a CDN?\n\n` +
+      `Se actualizará archivoUrl a la CDN de jsDelivr.\n` +
+      `Las canciones con audio en IndexedDB se descargarán también.`
     )) return
     setIsMigrating(true)
     setMigrateProgress(0)
