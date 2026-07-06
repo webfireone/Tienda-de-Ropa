@@ -178,25 +178,26 @@ async function playNewSong(song: Cancion, storeCallbacks: StoreCallbacks, get: (
         set({ isPlaying: false, audioError: "Error al reproducir" })
       }
     })
-  } else {
-    set({ isPlaying: false, audioError: "Audio no disponible offline" })
-    return
   }
 
-  // Async background: try loadAudioDataUrl and upgrade src if a better URL becomes available
-  if (!cached) {
-    loadAudioDataUrl(song.id).then(dataUrl => {
-      if (dataUrl && dataUrl !== el.src) {
-        audioCache.set(song.id, dataUrl)
-        // Only upgrade if still playing the same song
-        if (el.dataset.songId === song.id) {
-          el.src = dataUrl
-        }
-      }
-    }).catch(() => {
-      // IndexedDB load failed, that's ok — we already set el.src from static
-    })
-  }
+  // Async: load desde IndexedDB (maneja upgrade y recovery)
+  // Si url era null (solo en IndexedDB), este path recupera y reproduce
+  loadAudioDataUrl(song.id).then(dataUrl => {
+    if (!dataUrl) {
+      if (!url) set({ isPlaying: false, audioError: "Audio no disponible" })
+      return
+    }
+    if (el.dataset.songId !== song.id) return
+    audioCache.set(song.id, dataUrl)
+    if (dataUrl !== el.src) {
+      el.src = dataUrl
+    }
+    if (!url) {
+      el.play().catch(() => set({ isPlaying: false, audioError: "Error al reproducir" }))
+    }
+  }).catch(() => {
+    if (!url) set({ isPlaying: false, audioError: "Error al cargar el audio" })
+  })
 }
 
 interface MusicStore {

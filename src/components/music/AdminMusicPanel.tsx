@@ -3,10 +3,11 @@ import { useCanciones, useSaveCancion, useDeleteCancion, useResetRanking } from 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2, RotateCcw } from "lucide-react"
+import { Pencil, Trash2, Plus, X, Check, Music, Image as ImageIcon, FolderOpen, Loader2, RotateCcw, Upload } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Cancion } from "@/types/music"
-import { saveAudioFile } from "@/lib/mockStorage"
+import { saveAudioFile, loadAudioBlob } from "@/lib/mockStorage"
+import { uploadAudio } from "@/lib/audioStorage"
 
 const COVER_COLORS = [
   "7c5cfc", "ec4899", "f59e0b", "10b981", "3b82f6",
@@ -30,6 +31,11 @@ export function AdminMusicPanel() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [migrateProgress, setMigrateProgress] = useState(0)
+  const [migrateTotal, setMigrateTotal] = useState(0)
+  const [migrateResult, setMigrateResult] = useState("")
 
   const [isBulkOpen, setIsBulkOpen] = useState(false)
   const [bulkFiles, setBulkFiles] = useState<{ file: File; titulo: string; artista: string; id: string }[]>([])
@@ -88,15 +94,21 @@ export function AdminMusicPanel() {
 
     const id = editingId || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 
+    let archivoUrl = ""
     if (selectedFileRef.current) {
       await saveAudioFile(id, selectedFileRef.current)
+      try {
+        archivoUrl = await uploadAudio(id, selectedFileRef.current)
+      } catch (err) {
+        console.warn("[AdminMusic] Firebase Storage upload failed, usando IndexedDB:", err)
+      }
     }
 
     const cancion: Cancion = {
       id,
       titulo: titulo.trim(),
       artista: artista.trim(),
-      archivoUrl: "",
+      archivoUrl,
       portadaUrl: portadaUrl || `https://placehold.co/400x400/7c5cfc/ffffff?text=${encodeURIComponent(titulo.trim())}`,
       fechaSubida: editingId
         ? (canciones.find(c => c.id === editingId)?.fechaSubida ?? new Date().toISOString().slice(0, 10))
@@ -169,11 +181,17 @@ export function AdminMusicPanel() {
       const color = COVER_COLORS[i % COVER_COLORS.length]
       try {
         await saveAudioFile(entry.id, entry.file)
+        let archivoUrl = ""
+        try {
+          archivoUrl = await uploadAudio(entry.id, entry.file)
+        } catch (err) {
+          console.warn("[AdminMusic] Firebase Storage upload failed:", err)
+        }
         const cancion: Cancion = {
           id: entry.id,
           titulo: entry.titulo.trim(),
           artista: entry.artista.trim() || "Glamour's",
-          archivoUrl: "",
+          archivoUrl,
           portadaUrl: `https://placehold.co/400x400/${color}/ffffff?text=${encodeURIComponent(entry.titulo.trim())}`,
           fechaSubida: new Date().toISOString().slice(0, 10),
           activo: true,
@@ -221,6 +239,45 @@ export function AdminMusicPanel() {
       setError(`${deleted} eliminadas, ${failed.length} fallaron: ${failed.join(", ")}`)
     } else if (deleted > 0) {
       setError(`${deleted} canción${deleted !== 1 ? "es" : ""} eliminada${deleted !== 1 ? "s" : ""} exitosamente`)
+    }
+  }
+
+  const handleMigrateAudio = async () => {
+    const pending = canciones.filter(c => !c.archivoUrl)
+    if (pending.length === 0) {
+      setMigrateResult("No hay canciones pendientes de migrar.")
+      return
+    }
+    if (!window.confirm(`Migrar ${pending.length} canción(es) a Firebase Storage?\n\nSe cargará el audio desde IndexedDB, se subirá a Storage y se actualizará el archivoUrl en Firestore.`)) return
+    setIsMigrating(true)
+    setMigrateProgress(0)
+    setMigrateTotal(pending.length)
+    setMigrateResult("")
+    let ok = 0
+    let fail: string[] = []
+    for (const c of pending) {
+      try {
+        const blob = await loadAudioBlob(c.id)
+        if (!blob) {
+          fail.push(`${c.titulo} (no encontrado en IndexedDB)`)
+          setMigrateProgress(prev => prev + 1)
+          continue
+        }
+        const file = new File([blob], `${c.id}.mp3`, { type: "audio/mpeg" })
+        const downloadUrl = await uploadAudio(c.id, file)
+        await saveCancion.mutateAsync({ ...c, archivoUrl: downloadUrl })
+        ok++
+      } catch (err) {
+        fail.push(c.titulo)
+        console.warn("[MigrateAudio] Error:", c.titulo, err)
+      }
+      setMigrateProgress(prev => prev + 1)
+    }
+    setIsMigrating(false)
+    if (fail.length === 0) {
+      setMigrateResult(`✓ ${ok} canción(es) migrada(s) exitosamente`)
+    } else {
+      setMigrateResult(`✓ ${ok} migradas, ${fail.length} fallaron: ${fail.join(", ")}`)
     }
   }
 
@@ -556,6 +613,43 @@ export function AdminMusicPanel() {
                 </div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Herramientas: Migrar audio a Firebase Storage */}
+      <Card className="border-primary/10">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-medium">Herramientas</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm">Migrar audio a Firebase Storage</p>
+                <p className="text-xs text-muted-foreground">
+                  {canciones.filter(c => !c.archivoUrl).length} canción(es) sin archivoUrl
+                </p>
+              </div>
+              <Button size="sm" onClick={handleMigrateAudio} disabled={isMigrating}>
+                {isMigrating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isMigrating ? `Migrando ${migrateProgress}/${migrateTotal}...` : "Migrar Audio"}
+              </Button>
+            </div>
+            {isMigrating && (
+              <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-primary to-highlight rounded-full transition-all duration-300"
+                  style={{ width: `${(migrateProgress / migrateTotal) * 100}%` }}
+                />
+              </div>
+            )}
+            {migrateResult && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/50 text-sm text-foreground">
+                <span>{migrateResult}</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
