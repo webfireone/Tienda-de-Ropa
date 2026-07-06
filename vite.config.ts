@@ -26,14 +26,10 @@ export default defineConfig({
       },
     },
   },
+  publicDir: "public",
   build: {
     outDir: "dist",
     chunkSizeWarningLimit: 300,
-    rolldownOptions: {
-      output: {
-        codeSplitting: true,
-      },
-    },
   },
   optimizeDeps: {
     exclude: ['firebase', 'firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
