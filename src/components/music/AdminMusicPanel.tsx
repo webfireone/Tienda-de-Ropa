@@ -264,11 +264,23 @@ export function AdminMusicPanel() {
           continue
         }
         const file = new File([blob], `${c.id}.mp3`, { type: "audio/mpeg" })
-        const downloadUrl = await uploadAudio(c.id, file)
+
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 120000)
+        let downloadUrl: string
+        try {
+          downloadUrl = await uploadAudio(c.id, file, controller.signal)
+        } finally {
+          clearTimeout(timeout)
+        }
+
         await saveCancion.mutateAsync({ ...c, archivoUrl: downloadUrl })
         ok++
       } catch (err) {
-        fail.push(c.titulo)
+        const msg = err instanceof DOMException && err.name === "AbortError"
+          ? `${c.titulo} (timeout 120s)`
+          : c.titulo
+        fail.push(msg)
         console.warn("[MigrateAudio] Error:", c.titulo, err)
       }
       setMigrateProgress(prev => prev + 1)

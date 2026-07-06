@@ -1,10 +1,33 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from "firebase/storage"
 import { storage } from "./firebase"
 
-export async function uploadAudio(songId: string, file: File): Promise<string> {
+export async function uploadAudio(songId: string, file: File, signal?: AbortSignal): Promise<string> {
   const storageRef = ref(storage, `music/${songId}.mp3`)
-  await uploadBytes(storageRef, file)
-  return getDownloadURL(storageRef)
+
+  return new Promise((resolve, reject) => {
+    const task = uploadBytesResumable(storageRef, file)
+
+    if (signal) {
+      signal.addEventListener("abort", () => {
+        task.cancel()
+        reject(new DOMException("Aborted", "AbortError"))
+      }, { once: true })
+    }
+
+    task.on(
+      "state_changed",
+      () => {},
+      (error) => reject(error),
+      async () => {
+        try {
+          const url = await getDownloadURL(task.snapshot.ref)
+          resolve(url)
+        } catch (err) {
+          reject(err)
+        }
+      }
+    )
+  })
 }
 
 export async function deleteAudio(songId: string): Promise<void> {
