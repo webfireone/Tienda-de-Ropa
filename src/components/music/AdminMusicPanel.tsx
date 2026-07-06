@@ -248,7 +248,11 @@ export function AdminMusicPanel() {
       setMigrateResult("No hay canciones pendientes de migrar.")
       return
     }
-    if (!window.confirm(`Migrar ${pending.length} canción(es) a Firebase Storage?\n\nSe cargará el audio desde IndexedDB, se subirá a Storage y se actualizará el archivoUrl en Firestore.`)) return
+    if (!window.confirm(
+      `Migrar ${pending.length} canción(es)?\n\n` +
+      `Se descargará cada MP3 desde IndexedDB y se actualizará archivoUrl en Firestore.\n\n` +
+      `Después copiá los MP3 descargados a public/music/ y deployá.`
+    )) return
     setIsMigrating(true)
     setMigrateProgress(0)
     setMigrateTotal(pending.length)
@@ -263,31 +267,31 @@ export function AdminMusicPanel() {
           setMigrateProgress(prev => prev + 1)
           continue
         }
-        const file = new File([blob], `${c.id}.mp3`, { type: "audio/mpeg" })
+        const safeName = c.titulo
+          .toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "") + ".mp3"
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = safeName
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
 
-        const controller = new AbortController()
-        const timeout = setTimeout(() => controller.abort(), 120000)
-        let downloadUrl: string
-        try {
-          downloadUrl = await uploadAudio(c.id, file, controller.signal)
-        } finally {
-          clearTimeout(timeout)
-        }
-
-        await saveCancion.mutateAsync({ ...c, archivoUrl: downloadUrl })
+        await saveCancion.mutateAsync({ ...c, archivoUrl: `/music/${safeName}` })
         ok++
       } catch (err) {
-        const msg = err instanceof DOMException && err.name === "AbortError"
-          ? `${c.titulo} (timeout 120s)`
-          : c.titulo
-        fail.push(msg)
+        fail.push(c.titulo)
         console.warn("[MigrateAudio] Error:", c.titulo, err)
       }
       setMigrateProgress(prev => prev + 1)
     }
     setIsMigrating(false)
     if (fail.length === 0) {
-      setMigrateResult(`✓ ${ok} canción(es) migrada(s) exitosamente`)
+      setMigrateResult(`✓ ${ok} canción(es) migrada(s). MP3 descargados. Copialos a public/music/ y deployá.`)
     } else {
       setMigrateResult(`✓ ${ok} migradas, ${fail.length} fallaron: ${fail.join(", ")}`)
     }
