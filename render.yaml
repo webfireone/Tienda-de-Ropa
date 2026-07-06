@@ -2,7 +2,7 @@ services:
   - type: static
     name: tienda-de-ropa
     buildCommand: npm run build
-    publishPath: client
+    publishPath: dist
     autoDeploy: true
     envVars:
       - key: VITE_API_BASE_URL

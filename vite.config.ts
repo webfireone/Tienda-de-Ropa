@@ -27,7 +27,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: process.env.RENDER ? "client" : "dist",
+    outDir: "dist",
     chunkSizeWarningLimit: 300,
     rolldownOptions: {
       output: {
