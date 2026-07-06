@@ -250,14 +250,7 @@ export function AdminMusicPanel() {
       .replace(/^-|-$/g, "") + ".mp3"
   }
 
-  async function archivoExiste(url: string): Promise<boolean> {
-    try {
-      const res = await fetch(url, { method: "HEAD" })
-      return res.ok
-    } catch {
-      return false
-    }
-  }
+  const CDN_BASE = "https://cdn.jsdelivr.net/gh/webfireone/Tienda-de-Ropa/public/music"
 
   const handleMigrateAudio = async () => {
     const pending = canciones.filter(c => !c.archivoUrl)
@@ -268,9 +261,8 @@ export function AdminMusicPanel() {
     if (!window.confirm(
       `Migrar ${pending.length} canción(es)?\n\n` +
       `1. Descarga desde IndexedDB (si existe el audio local)\n` +
-      `2. Si no está en IndexedDB, busca el MP3 en /music/ (si ya está en el servidor)\n` +
-      `3. Actualiza archivoUrl en Firestore\n\n` +
-      `Después copiá los MP3 descargados a public/music/ y deployá.`
+      `2. Si no está en IndexedDB, usa CDN (jsDelivr desde GitHub)\n` +
+      `3. Actualiza archivoUrl en Firestore`
     )) return
     setIsMigrating(true)
     setMigrateProgress(0)
@@ -291,15 +283,8 @@ export function AdminMusicPanel() {
           a.click()
           document.body.removeChild(a)
           URL.revokeObjectURL(url)
-        } else {
-          const exists = await archivoExiste(`/music/${safeName}`)
-          if (!exists) {
-            fail.push(`${c.titulo} (no encontrado ni en IndexedDB ni en /music/)`)
-            setMigrateProgress(prev => prev + 1)
-            continue
-          }
         }
-        await saveCancion.mutateAsync({ ...c, archivoUrl: `/music/${safeName}` })
+        await saveCancion.mutateAsync({ ...c, archivoUrl: `${CDN_BASE}/${safeName}` })
         ok++
       } catch (err) {
         fail.push(c.titulo)
@@ -309,7 +294,7 @@ export function AdminMusicPanel() {
     }
     setIsMigrating(false)
     if (fail.length === 0) {
-      setMigrateResult(`✓ ${ok} canción(es) migrada(s). MP3 descargados. Copialos a public/music/ y deployá.`)
+      setMigrateResult(`✓ ${ok} canción(es) migrada(s) usando CDN.`)
     } else {
       setMigrateResult(`✓ ${ok} migradas, ${fail.length} fallaron: ${fail.join(", ")}`)
     }
