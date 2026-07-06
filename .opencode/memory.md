@@ -70,6 +70,7 @@ src/
 │   ├── paramsStore.ts          # Parámetros globales (sync Firestore)
 │   └── themeStore.ts
 ├── lib/
+│   ├── api.ts                  # apiUrl() helper — hostname detection para Render→Vercel
 │   ├── firebase.ts             # Config Firebase + exports (db, auth, storage)
 │   ├── imageStorage.ts         # Upload + resize (600px, JPEG 0.6) + fallback data URL
 │   ├── audioStorage.ts         # Upload audio (IndexedDB)
@@ -89,10 +90,12 @@ src/
     ├── AdminHomePage, NotFoundPage
 ```
 
-## 4. Backend
-- **Express server.js** en Render: `POST /api/create-preference` (Mercado Pago), webhook, páginas de resultado pago
-- **Vercel Serverless**: funciones `api/` replicadas para compatibilidad
-- Sirve `dist/` como estático + catch-all SPA
+## 4. API Layer
+- **Vercel Serverless** (`api/*.js`): las APIs viven acá. `POST /api/create-preference` (MP), `GET /api/status-servicios`, pagos, etc.
+- **Render** es Static Site → NO corre Express ni tiene backend. Sirve solo el SPA.
+- **Comunicación Render→Vercel**: el SPA en Render detecta hostname y llama a Vercel vía `apiUrl()` helper.
+- **server.js**: solo para dev local (`npm run dev:server`), no se deploya a ningún lado.
+- **SPA routing**: Render Static Site sirve `index.html` para todas las rutas no encontradas (SPA fallback automático).
 
 ## 5. Firebase
 - **Colecciones**: `products`, `orders`, `users`, `siteConfig/theme`, `promotions`, `subscribers`
@@ -139,29 +142,53 @@ src/
 - Sin galería de imágenes/swipe en ProductDetail
 
 ## 9. Deploy
-| Plataforma | URL | Plan | Estado |
-|---|---|---|---|
-| Render | glamours-lujan.onrender.com | Free | **Suspendido hasta 01/06/2026** (cuota agotada) |
-| Vercel | glamours-lujan.vercel.app | Hobby | Activo, auto-deploy desde main |
-| Firebase | tienda-de-ropa-35bea | Spark | Activo |
+| Plataforma | URL | Plan | Tipo | Estado |
+|---|---|---|---|---|---|
+| Render | glamours-lujan.onrender.com | Free | Static Site | Activo (reactivado 03/06) |
+| Vercel | glamours-lujan.vercel.app | Hobby | Frontend + Serverless | Activo, auto-deploy desde main |
 
-### 01/06/2026 — Checklist reactivar Render
-- [ ] Reactivar servicios en dashboard.render.com (2 web + 7 static)
-- [ ] Manual Deploy → Deploy Latest Commit
-- [ ] Replicar serverless functions (`api/`) y config Vercel en Render
-- [ ] Configurar env vars: `MP_ACCESS_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_B64`, `GH_TOKEN`, `RENDER_API_KEY`, `VERCEL_API_TOKEN`
-- [ ] Confirmar https://glamours-lujan.onrender.com + endpoints API
+### Arquitectura
+```
+Browser ──→ Render (static SPA) ──apiUrl()──→ Vercel (serverless /api/*)
+                                                  │
+                                                  └──→ Firebase, GitHub, MP APIs
+```
+
+### Build único, dos plataformas
+- `vite.config.ts`: `outDir = process.env.RENDER ? "client" : "dist" `
+- Vercel publica `dist/`, Render publica `client/`
+- Ambos reciben el MISMO build (mismo código fuente, mismo bundle)
+- Render dashboard: Publish Directory = `client` (cambiado manualmente)
+
+### API calls desde el SPA
+- `src/lib/api.ts`: helper `apiUrl(path)` que en Render (`*.onrender.com`) antepone `https://glamours-lujan.vercel.app`, en cualquier otro lado usa ruta relativa.
+- Render NO tiene backend → las requests `/api/*` en Render van a Vercel (cross-origin).
+- CORS habilitado en `api/status-servicios.js` con `Access-Control-Allow-Origin: *`.
+
+### Env vars importantes (render.yaml)
+- `VITE_API_BASE_URL` → definida en `render.yaml` pero la detección por hostname es la que realmente funciona.
+- `RENDER` (automática de Render) → usada en `vite.config.ts` para `outDir` condicional.
+
+### 03/06/2026 — Sesión Render (reactivación + fixes)
+- [x] Render reactivado (estaba suspendido)
+- [x] Descubrimiento: Render era Static Site, no Web Service → ajustada arquitectura
+- [x] Cambiar `outDir:` de `dist` a `client/` para Render (condicional por `process.env.RENDER`)
+- [x] Publish Directory en dashboard Render: cambiar de `dist` a `client`
+- [x] `src/lib/api.ts` creado con detección por hostname para routing de APIs
+- [x] CORS agregado a `api/status-servicios.js` para requests cross-origin desde Render
+- [x] Ambos deploys sincronizados y verificados: mismo build, mismo JS, misma homepage
 
 ## 10. Últimos Commits (del más reciente)
 | Hash | Descripción |
 |---|---|
-| b3fb5c3 | docs: update memory.md + Render 01/06 checklist |
-| 11f9a0c | docs: changelog BellezaPage, StatusServicios, admin dropdown |
-| 437c4e1 | refactor(BellezaPage): preview completa + bodyWeight; feat: StatusServiciosPage, admin dropdown, api status-servicios, instructivo carga PDF |
-| dbf213a | docs: causa raíz saltos de línea en títulos que rompían backfill mobile |
-| 7c44c9c | fix: normalize guiones y paréntesis en backfill; play() sincrónico iOS |
-| 5096c31 | fix: audio no reproduce en mobile iOS Safari |
-| 74d9bc8 | feat: add Vercel Serverless Functions + deployment config |
+| 78599ce | fix: agregar CORS headers a status-servicios para Render |
+| d132532 | fix: detectar Render por hostname en lugar de env var |
+| 5fa5972 | fix: apiUrl helper con VITE_API_BASE_URL para Render + render.yaml static type |
+| 84d5661 | fix: cambiar outDir de dist a client para evitar auto-static de Render |
+| 1afdc2b | fix: server.js minimo sin dependencias externas para aislar problema |
+| a1b5cac | fix: static import mercadopago sin top-level await, solo try/catch en configure |
+| 7309933 | fix: eliminar mercadopago.configure() suelto que crasheaba el servidor |
+| 0f5e864 | feat: preparar deploy a Render - healthz endpoint, postinstall, vite configs |
 | d0c27b0 | fix(CartPage): stepper baja a fila separada en mobile |
 | 256085c | feat(ProductDetailModal): lightbox al tap imagen |
 | 0099250 | fix: audio reproduce en mobile + modal cerrable |

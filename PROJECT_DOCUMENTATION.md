@@ -417,6 +417,7 @@ Tienda de Ropa/
 │   │   ├── paramsStore.ts        # Parámetros globales
 │   │   └── themeStore.ts         # Configuración de tema
 │   ├── lib/
+│   │   ├── api.ts                # apiUrl() helper — hostname detection Render→Vercel
 │   │   ├── firebase.ts           # Config Firebase
 │   │   ├── constants.ts          # Constantes y datos mock
 │   │   ├── utils.ts              # Utilidades
@@ -446,14 +447,15 @@ Tienda de Ropa/
 │   ├── mercadopago-webhook.js    # POST /api/mercadopago-webhook
 │   ├── pago-exitoso.js           # GET /api/pago-exitoso
 │   ├── pago-fallido.js           # GET /api/pago-fallido
-│   └── pago-pendiente.js         # GET /api/pago-pendiente
+│   ├── pago-pendiente.js         # GET /api/pago-pendiente
+│   └── status-servicios.js       # GET /api/status-servicios (health checks)
 ├── index.html
 ├── package.json
 ├── vite.config.ts
 ├── tsconfig.json
 ├── vercel.json                   # Config Vercel (SPA rewrites + CSP)
-├── render.yaml                   # Config Render (Express + MP)
-├── server.js                     # Express server (Render)
+├── render.yaml                   # Config Render (Static Site + env vars)
+├── server.js                     # Express solo para dev local
 ├── .env
 └── README.md
 ```
@@ -847,54 +849,50 @@ Si no hay Firebase configurado:
 
 ## 14. Deployment
 
-### Build
+### Build único, dos plataformas
 ```bash
 npm run build
 # Ejecuta: tsc -b && vite build
-# Output: dist/
+# Vercel: outDir="dist" | Render: outDir="client" (condicional via process.env.RENDER)
 ```
 
-### Servir producción
-```bash
-npm run preview
-# Servir dist/ en localhost
+### Plataformas
+
+| Plataforma | URL | Plan | Tipo | Propósito |
+|------------|-----|------|------|-----------|
+| Render | https://glamours-lujan.onrender.com | Free | Static Site | SPA estático (frontend) |
+| Vercel | https://glamours-lujan.vercel.app | Hobby | Serverless | Frontend + APIs /api/* |
+
+### Arquitectura
+
+```
+Browser ──→ Render (static SPA) ──apiUrl()──→ Vercel (serverless /api/*)
+                                                  │
+                                                  └──→ Firebase, GitHub, MP APIs
 ```
 
-### Plataformas de Deploy
+### API calls desde el SPA
+- `src/lib/api.ts`: helper `apiUrl(path)` que en Render (`*.onrender.com`) antepone `https://glamours-lujan.vercel.app`, en cualquier otro lado usa ruta relativa.
+- Render NO tiene backend → las requests `/api/*` en Render van a Vercel (cross-origin).
+- CORS habilitado en `api/status-servicios.js` con `Access-Control-Allow-Origin: *`.
 
-El proyecto está configurado para desplegarse en dos plataformas simultáneamente:
+### Render (Static Site)
+1. Build Command: `npm run build`
+2. Publish Directory: `client` (configurado manualmente en dashboard)
+3. Auto Deploy: true (desde `main`)
+4. Node Version: 20.x
+5. Dashboard: cambiar Publish Directory de `dist` a `client`
+6. El SPA llama APIs de Vercel automáticamente
 
-| Plataforma | URL | Estado | Propósito |
-|------------|-----|--------|-----------|
-| Render | https://glamours-lujan.onrender.com | Principal (suspendido hasta 01/06) | Express + APIs MP |
-| Vercel | https://glamours-lujan.vercel.app | Backup (pendiente conectar) | SPA + Serverless Functions |
+### Vercel (Hobby)
+1. Importar repositorio GitHub `webfireone/Tienda-de-Ropa`
+2. Framework Preset: **Vite**
+3. Build Command: `npm run build`
+4. Output Directory: `dist`
+5. Auto Deploy: true (desde `main`)
+6. Agregar env vars: Firebase + `MP_ACCESS_TOKEN`
 
-### Render
-1. Crear cuenta en render.com
-2. Conectar repositorio Git
-3. Configurar (ver render.yaml):
-   - Build Command: `npm run build`
-   - Start Command: `node server.js`
-   - Publish Directory: `dist`
-   - Node Version: 20.x
-   - Health Check Path: `/api/pago-exitoso`
-   - Auto Deploy: true
-
-**Server**: Express (server.js) que sirve dist/ + endpoints de Mercado Pago.
-**Estado actual**: Workspace suspendido por cuota mensual. Reactivación automática el 01/06/2026.
-
-### Vercel
-1. Crear cuenta en vercel.com
-2. Importar repositorio GitHub `webfireone/Tienda-de-Ropa`
-3. Configurar:
-   - Framework Preset: **Vite**
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-   - Auto Deploy: true
-4. Agregar mismas env vars que en Render (Firebase + MP_ACCESS_TOKEN)
-5. Verificar que las Serverless Functions en `api/` se desplieguen correctamente
-
-**Serverless Functions** (reemplazan a server.js en Vercel):
+### Serverless Functions (Vercel)
 | Archivo | Ruta | Método |
 |---------|------|--------|
 | `api/create-preference.js` | `/api/create-preference` | POST |
@@ -902,8 +900,25 @@ El proyecto está configurado para desplegarse en dos plataformas simultáneamen
 | `api/pago-exitoso.js` | `/api/pago-exitoso` | GET |
 | `api/pago-fallido.js` | `/api/pago-fallido` | GET |
 | `api/pago-pendiente.js` | `/api/pago-pendiente` | GET |
+| `api/status-servicios.js` | `/api/status-servicios` | GET |
 
-**Nota**: Las rutas `/api/*` están excluidas del rewrite SPA en vercel.json para que las funciones serverless funcionen correctamente.
+**Nota**: Las rutas `/api/*` están excluidas del rewrite SPA en `vercel.json`.
+
+### Env vars importantes
+| Variable | Plataforma | Uso |
+|----------|-----------|-----|
+| `VITE_FIREBASE_*` | Ambas | Conexión Firebase |
+| `MP_ACCESS_TOKEN` | Vercel | Mercado Pago |
+| `RENDER` | Render (auto) | Condicional build `outDir` |
+| `GH_TOKEN` | Vercel | Status servicios |
+| `VERCEL_API_TOKEN` | Vercel | Status servicios |
+| `RENDER_API_KEY` | Vercel | Status servicios |
+| `FIREBASE_SERVICE_ACCOUNT_B64` | Vercel | Status servicios |
+
+### `server.js` — solo dev local
+- Express para desarrollo con `npm run dev:server`
+- No se deploya a Render (Render es Static Site)
+- Sirve `client/` como estático con catch-all SPA
 
 ---
 
@@ -1184,43 +1199,6 @@ Stock para una talla específica
 
 ---
 
-**AGENDA — Pendiente para 01/06/2026**:
-- **Render se reactiva automáticamente** (nuevo mes, cuota renovada)
-- **Paso 1**: Ir a https://dashboard.render.com e iniciar sesión → reactivar servicios (2 web + 7 static)
-- **Paso 2**: Verificar que Render haga auto-deploy del último commit en `main`. Si no: Manual Deploy → Deploy Latest Commit
-- **Paso 3**: Replicar los cambios que están en Vercel (serverless functions en `api/`, vercel.json, etc.) — Render usa `server.js` + `render.yaml`. Asegurarse de que `main` tenga todo.
-- **Paso 4**: Configurar env vars en Render Dashboard si faltan: `MP_ACCESS_TOKEN`, `FIREBASE_SERVICE_ACCOUNT_B64`, `GH_TOKEN`, `RENDER_API_KEY`, `VERCEL_API_TOKEN`
-- **Paso 5**: Confirmar sitio funcionando en https://glamours-lujan.onrender.com
-- **Paso 6**: Verificar endpoints API (`/api/pago-exitoso`, etc.)
-- **Paso 7**: Testear `/api/status-servicios` → Render debe mostrar datos sin suspensión
-- **Paso 8**: Verificar webhooks y auto-deploy desde GitHub main en ambas plataformas
-
-### Fecha: 22/05/2026
-- **Fix**: Error "imageUrl longer than 1048487 bytes" al importar productos con imágenes
-  - **Causa raíz**: El XLSX contenía imágenes como data URLs base64 en la columna "Imagen URL", superando el límite de 1MB de Firestore por documento
-  - **Fix 1**: Nueva función `uploadDataUrlImage()` en `imageStorage.ts` que convierte data URLs a File, las redimensiona y las sube a Firebase Storage (o las devuelve como data URL comprimida como fallback)
-  - **Fix 2**: Durante la importación, si `imageUrl` empieza con `data:`, se sube automáticamente a Firebase Storage antes de guardar el producto
-  - Build 0 errores, commit `4ceb309`
-
-- **Fix**: Imágenes colgadas en "Comprimiendo y subiendo imágenes..." sin progreso ni errores
-  - **Causa raíz**: `handleImageFiles()` usaba `Promise.all` que se colgaba si Firebase Storage no respondía, sin feedback al usuario
-  - **Fix 1**: Procesamiento secuencial de imágenes con progreso visible (`uploadProgress.current/uploadProgress.total`)
-  - **Fix 2**: Captura de errores individuales por imagen sin cancelar las demás
-  - **Fix 3**: Timeout de 15s en Firebase Storage con fallback a data URL comprimida
-  - Build 0 errores, commit `534d184`
-
-- **Fix**: Firebase Storage no disponible (bucket no configurado en el proyecto)
-  - **Causa raíz**: El proyecto `tienda-de-ropa-35bea` nunca habilitó Firebase Storage. El dominio `firebasestorage.app` no resuelve DNS y el bucket GCS no existe
-  - **Fix**: Refactor completo de `imageStorage.ts`:
-    - Reducción de tamaño máximo de imagen a **600x600** con calidad **JPEG 0.6** (~50-150KB en base64)
-    - Nueva función `tryUploadOrDataUrl()`: intenta Firebase Storage con timeout de 15s, si falla retorna la data URL comprimida
-    - `resizeImage()` acepta parámetros opcionales para reutilización
-    - Eliminada función `uploadBlob()` (reemplazada por lógica inline en `tryUploadOrDataUrl`)
-    - Flujo: `File → resizeImage → blobToDataUrl (fallback listo) → try Firebase Storage → si falla → retorna data URL`
-  - La data URL comprimida (600x600, JPEG 0.6) está muy por debajo del límite de 1MB de Firestore
-  - Aplica a: importación CSV/XLSX, formulario de producto (`ProductForm.tsx`), y cualquier otro lugar que use `uploadProductImage` o `uploadImageFile`
-  - Build 0 errores, commit `1ac614e`, push a GitHub + deploy automático a Render
-
 ### Fecha: 28/05/2026
 - **Refactor**: BellezaPage reescrita — de ~1100 a ~300 líneas con preview completa del sitio
   - Antes: tabs separadas (paletas, fondos, tipografía, guardados) con selects anidados
@@ -1241,6 +1219,19 @@ Stock para una talla específica
   - Admin links ahora en menú hamburguesa en desktop y mobile (antes: horizontal scroll)
   - Botón "Menú" con icono `Menu`/`X` que abre dropdown glass con todos los admin links
   - No-admin mantiene el scroll horizontal original
+
+### Fecha: 03/06/2026 — Sesión Render (reactivación + arquitectura)
+- **Descubrimiento crítico**: Render era Static Site, no Web Service. Ajustada toda la arquitectura.
+- **vite.config.ts**: `outDir` condicional → `process.env.RENDER ? "client" : "dist"`
+- **render.yaml**: cambiado de `type: web` a `type: static` con `publishPath: client`
+- **Nuevo archivo** `src/lib/api.ts`: helper `apiUrl(path)` con detección por hostname
+  - En Render (`*.onrender.com`) antepone `https://glamours-lujan.vercel.app`
+  - En cualquier otro lado usa ruta relativa (`/api/...`)
+- **StatusServiciosPage + CheckoutModal**: ahora usan `apiUrl()` para llamadas API
+- **CORS**: agregado `Access-Control-Allow-Origin: *` a `api/status-servicios.js`
+- **Dashboard Render**: Publish Directory cambiado de `dist` a `client` (manual)
+- **Ambos deploys sincronizados**: mismo build, mismo JS, misma homepage
+- Build 0 errores
 
 - **Feat**: Instructivo carga de productos (`public/instructivo-carga-producto.html`)
 - **Feat**: Devil Wears Prada effect page (`public/devil-wears-prada-effect.html`)
@@ -1292,6 +1283,8 @@ Stock para una talla específica
      - Ejemplo: `CheckoutModal.tsx` línea 245
 
 14. **Envío por provincia**: El cálculo de envío usa `params.shipping.provinceRates` que es un `Record<string, number>` (provincia → costo). Si la provincia no está en la tabla, fallback a `fixedCost`. Los precios están basados en costos de Andreani/OCA/Correo Argentino desde Luján, BA. Se pueden editar desde el panel de Configuración (provinceRates en GlobalParams).
+
+15. **Render es Static Site, no Web Service**: Render NO corre Express ni tiene backend. Solo sirve el SPA estático. Las APIs viven en Vercel como serverless functions (`api/*.js`). El SPA en Render usa `apiUrl()` (`src/lib/api.ts`) para detectar hostname y llamar a Vercel. Esto significa que cualquier fetch a `/api/*` debe usar `apiUrl("/api/...")` en lugar de la ruta relativa directa.
 
 15. **Colecciones Firestore para música**: Existen 4 colecciones en Firestore relacionadas:
      - `canciones`: documentos `Cancion` con `archivoUrl` (Storage URL), `portadaUrl`, `activo`, `deleted` (soft-delete)

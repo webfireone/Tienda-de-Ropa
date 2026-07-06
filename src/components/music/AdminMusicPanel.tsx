@@ -242,6 +242,23 @@ export function AdminMusicPanel() {
     }
   }
 
+  function safeFilename(title: string) {
+    return title
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") + ".mp3"
+  }
+
+  async function archivoExiste(url: string): Promise<boolean> {
+    try {
+      const res = await fetch(url, { method: "HEAD" })
+      return res.ok
+    } catch {
+      return false
+    }
+  }
+
   const handleMigrateAudio = async () => {
     const pending = canciones.filter(c => !c.archivoUrl)
     if (pending.length === 0) {
@@ -250,7 +267,9 @@ export function AdminMusicPanel() {
     }
     if (!window.confirm(
       `Migrar ${pending.length} canción(es)?\n\n` +
-      `Se descargará cada MP3 desde IndexedDB y se actualizará archivoUrl en Firestore.\n\n` +
+      `1. Descarga desde IndexedDB (si existe el audio local)\n` +
+      `2. Si no está en IndexedDB, busca el MP3 en /music/ (si ya está en el servidor)\n` +
+      `3. Actualiza archivoUrl en Firestore\n\n` +
       `Después copiá los MP3 descargados a public/music/ y deployá.`
     )) return
     setIsMigrating(true)
@@ -261,26 +280,25 @@ export function AdminMusicPanel() {
     let fail: string[] = []
     for (const c of pending) {
       try {
+        const safeName = safeFilename(c.titulo)
         const blob = await loadAudioBlob(c.id)
-        if (!blob) {
-          fail.push(`${c.titulo} (no encontrado en IndexedDB)`)
-          setMigrateProgress(prev => prev + 1)
-          continue
+        if (blob) {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = safeName
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+        } else {
+          const exists = await archivoExiste(`/music/${safeName}`)
+          if (!exists) {
+            fail.push(`${c.titulo} (no encontrado ni en IndexedDB ni en /music/)`)
+            setMigrateProgress(prev => prev + 1)
+            continue
+          }
         }
-        const safeName = c.titulo
-          .toLowerCase()
-          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "") + ".mp3"
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = safeName
-        document.body.appendChild(a)
-        a.click()
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-
         await saveCancion.mutateAsync({ ...c, archivoUrl: `/music/${safeName}` })
         ok++
       } catch (err) {
